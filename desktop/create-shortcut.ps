@@ -1,0 +1,8 @@
+$here = (Get-Location).Path
+$ws = New-Object -ComObject WScript.Shell
+$lnk = $ws.CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\Klothulhu.lnk")
+$lnk.TargetPath = "$here\node_modules\electron\dist\electron.exe"
+$lnk.Arguments = "`"$here`""
+$lnk.WorkingDirectory = $here
+$lnk.IconLocation = "$here\klothulhu.ico"
+$lnk.Save()
