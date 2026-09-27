@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<title>Klothulhu</title>
+<style>
+  :root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); }
+  html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; }
+  body { display: flex; flex-direction: column; align-items: center; }
+  canvas { display: block; }
+  #ask {
+    visibility: hidden; box-sizing: border-box; width: calc(100% - 16px); height: 32px; margin-top: 6px;
+    padding: 0 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
+    font: 13px ui-monospace, Consolas, monospace; outline: none;
+  }
+  #ask.on { visibility: visible; }
+  #ask::placeholder { color: rgba(243, 239, 232, 0.45); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+<script>
+'use strict';
+const W = 320, H = 240;
+const BOX = { x: 5, y: 139, w: 310, h: 96 };
+const MAX_LINES = 5;
+
+// Emotion -> pose. Keep the keys in sync with EMOTIONS in server/emotion_parser.py.
+const EMOTIONS = {
+  neutral:  { eyes: 'Ojos1', arms: 'slow',  legs: false },
+  happy:    { eyes: 'Ojos4', arms: 'fast',  legs: true  },
+  annoyed:  { eyes: 'Ojos2', arms: 'fast',  legs: false },
+  confused: { eyes: 'Ojos5', arms: 'still', legs: false },
+  smug:     { eyes: 'Ojos6', arms: 'slow',  legs: false },
+  sleepy:   { eyes: 'Ojos3', arms: 'still', legs: false, noBlink: true },
+};
+const ARM_PERIOD = { still: 0, slow: 700, fast: 260 };
+const LEG_SEQ = ['Patas2', 'Patas1', 'Patas2', 'Patas3'];
+
+// Local fallbacks when seb01 cannot answer.
+const ERRORS = {
+  unreachable:    ['confused', 'Los astros no responden. seb01 no contesta.'],
+  timeout:        ['sleepy',   'He esperado una eternidad, y ni siquiera la mía.'],
+  http_401:       ['annoyed',  'No reconozco tu sello, mortal. Revisa el token.'],
+  http_409:       ['annoyed',  'Aún estoy pensando la anterior. Paciencia.'],
+  upstream_error: ['confused', 'Algo se rompió al otro lado del velo.'],
+  stream_broken:  ['confused', 'Se cortó el hilo a mitad de profecía.'],
+};
+
+const c = document.getElementById('c');
+const g = c.getContext('2d', { willReadFrequently: true });
+const input = document.getElementById('ask');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const img = {};
+let scale = 1.5, dpr = window.devicePixelRatio || 1;
+
+const st = {
+  mode: 'idle',          // idle | thinking | speaking
+  emotion: 'neutral',
+  target: '', chars: 0, marks: [], done: false,
+  charT: 0, holdT: 0, dotsT: 0,
+  armT: 0, armFrame: 0, legT: 0, legIdx: 0,
+  blinking: 0, nextBlink: 1500, lookT: 0, lookDir: 1,
+};
+
+// --- conversation state machine ------------------------------------------
+
+function say(emotion, text) {
+  Object.assign(st, { mode: 'speaking', emotion, target: text, chars: 0, marks: [], done: true, holdT: 0 });
+}
+
+function ask(text) {
+  Object.assign(st, { mode: 'thinking', target: '', chars: 0, marks: [], done: false, holdT: 0 });
+  kl.ask(text);
+}
+
+kl.onEvent(({ type, data }) => {
+  if (type === 'emotion') {
+    const e = EMOTIONS[data.emotion] ? data.emotion : 'neutral';
+    if (st.mode === 'thinking') { st.mode = 'speaking'; st.emotion = e; }
+    else st.marks.push({ at: st.target.length, emotion: e });  // applied when typed
+  } else if (type === 'delta') {
+    if (st.mode === 'thinking') { st.mode = 'speaking'; st.emotion = 'neutral'; }
+    st.target += data.text;
+  } else if (type === 'done') {
+    st.done = true;
+  } else if (type === 'error') {
+    const [e, msg] = ERRORS[data.code] || ['confused', `Error desconocido: ${data.code}`];
+    say(e, msg);
+  }
+});
+
+// --- animation ------------------------------------------------------------
+
+function tick(dt) {
+  const pose = st.mode === 'thinking'
+    ? { eyes: 'Ojos1', arms: 'still', legs: false }
+    : EMOTIONS[st.emotion];
+
+  // blink
+  if (!pose.noBlink && st.mode !== 'thinking') {
+    if (st.blinking > 0) st.blinking -= dt;
+    else if ((st.nextBlink -= dt) <= 0) { st.blinking = 140; st.nextBlink = 2200 + Math.random() * 3500; }
+  } else st.blinking = 0;
+
+  // arms and legs
+  const period = reduce ? 0 : ARM_PERIOD[pose.arms];
+  if (period && (st.armT += dt) >= period) { st.armT = 0; st.armFrame ^= 1; }
+  if (!period) st.armFrame = 0;
+  if (pose.legs && !reduce && (st.legT += dt) >= 220) { st.legT = 0; st.legIdx = (st.legIdx + 1) % LEG_SEQ.length; }
+
+  // thinking: look left and right
+  if (st.mode === 'thinking') {
+    if ((st.lookT += dt) >= 650) { st.lookT = 0; st.lookDir *= -1; }
+    st.dotsT += dt;
+  }
+
+  // typewriter with emotion changes pinned to character positions
+  if (st.mode === 'speaking') {
+    if (st.chars < st.target.length) {
+      if ((st.charT += dt) >= 35) { st.charT = 0; st.chars++; }
+    }
+    while (st.marks.length && st.marks[0].at <= st.chars) st.emotion = st.marks.shift().emotion;
+    if (st.done && st.chars >= st.target.length) {
+      const hold = Math.min(15000, 4000 + 60 * st.target.length);
+      if ((st.holdT += dt) >= hold) Object.assign(st, { mode: 'idle', emotion: 'neutral', target: '' });
+    }
+  }
+  return pose;
+}
+
+function wrap(text, maxW) {
+  const lines = [];
+  for (const para of text.split('\n')) {
+    let cur = '';
+    for (const w of para.split(' ')) {
+      const t = cur ? cur + ' ' + w : w;
+      if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t;
+    }
+    lines.push(cur);
+  }
+  return lines;
+}
+
+function draw(pose) {
+  g.clearRect(0, 0, W, H);
+  const arms = st.armFrame ? 'Brazo2' : 'Brazo1';
+  const legs = pose.legs && !reduce ? LEG_SEQ[st.legIdx] : 'Patas2';
+  for (const k of ['Cuerpo', arms, legs]) g.drawImage(img[k], 0, 0);
+
+  if (st.blinking > 0) g.drawImage(img.Ojos3, 0, 0);
+  else if (st.mode === 'thinking') {
+    // Use dedicated sprites if they exist; otherwise slide the straight eyes.
+    const drawn = st.lookDir < 0 ? img.Ojos7 : img.Ojos8;
+    if (drawn) g.drawImage(drawn, 0, 0);
+    else g.drawImage(img.Ojos1, 5 * st.lookDir, 0);
+  } else g.drawImage(img[pose.eyes] || img.Ojos1, 0, 0);
+
+  if (st.mode === 'idle') return;
+  g.fillStyle = 'rgba(26, 20, 18, 0.9)';
+  g.strokeStyle = '#b45032'; g.lineWidth = 2;
+  g.beginPath(); g.roundRect(BOX.x, BOX.y, BOX.w, BOX.h, 6); g.fill(); g.stroke();
+  g.fillStyle = '#f3efe8'; g.font = '12px ui-monospace, Consolas, monospace'; g.textBaseline = 'top';
+  const shown = st.mode === 'thinking'
+    ? '·'.repeat(1 + Math.floor(st.dotsT / 350) % 3)
+    : st.target.slice(0, st.chars);
+  wrap(shown, BOX.w - 18).slice(-MAX_LINES).forEach((l, i) => g.fillText(l, BOX.x + 9, BOX.y + 9 + i * 16));
+}
+
+let last = 0;
+function frame(t) {
+  const dt = Math.min(100, t - last); last = t;
+  draw(tick(dt));
+  requestAnimationFrame(frame);
+}
+
+// --- pointer: click-through, drag, click ----------------------------------
+
+let interactive = false, press = null, dragging = false;
+
+function overSprite(e) {
+  const r = c.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  if (x < 0 || y < 0 || x >= r.width || y >= r.height) return false;
+  return g.getImageData(Math.floor(x * dpr), Math.floor(y * dpr), 1, 1).data[3] > 16;
+}
+
+function setInteractive(on) {
+  if (on !== interactive) { interactive = on; kl.clickThrough(!on); }
+}
+
+window.addEventListener('mousemove', (e) => {
+  if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
+    dragging = true; kl.dragStart();
+  }
+  if (!press) setInteractive(e.target === input && input.classList.contains('on') || overSprite(e));
+});
+window.addEventListener('mouseleave', () => { if (!press) setInteractive(false); });
+c.addEventListener('mousedown', (e) => {
+  if (e.button === 0 && overSprite(e)) press = { x: e.screenX, y: e.screenY };
+});
+window.addEventListener('mouseup', () => {
+  if (!press) return;
+  if (dragging) kl.dragEnd(); else toggleInput();
+  press = null; dragging = false;
+});
+window.addEventListener('blur', () => { if (dragging) kl.dragEnd(); press = null; dragging = false; });
+
+function toggleInput(force) {
+  const on = force ?? !input.classList.contains('on');
+  input.classList.toggle('on', on);
+  if (on) input.focus(); else input.blur();
+}
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') toggleInput(false);
+  if (e.key === 'Enter' && input.value.trim() && st.mode !== 'thinking') {
+    ask(input.value.trim());
+    input.value = '';
+    toggleInput(false);
+  }
+});
+kl.onSummon(() => toggleInput(true));
+
+// --- boot -------------------------------------------------------------------
+
+kl.init().then(async (cfg) => {
+  scale = cfg.scale;
+  c.width = Math.round(W * scale * dpr); c.height = Math.round(H * scale * dpr);
+  c.style.width = `${W * scale}px`; c.style.height = `${H * scale}px`;
+  g.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+  await Promise.all(Object.entries(cfg.sprites).map(([k, src]) => new Promise((ok) => {
+    const i = new Image(); i.onload = ok; i.onerror = ok; i.src = src; img[k] = i;
+  })));
+  say('happy', `Claudthulhu despierta. Pulsa ${cfg.hotkey.replace(/Control/, 'Ctrl')} o haz clic en mí para hablar.`);
+  requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
+});
+</script>
+</body>
+</html>

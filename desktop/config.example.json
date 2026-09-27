@@ -1,0 +1,6 @@
+{
+  "apiUrl": "http://100.x.y.z:8765",
+  "token": "CHANGE_ME_konnos_secret",
+  "scale": 1.5,
+  "hotkey": "Control+Alt+K"
+}

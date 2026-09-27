@@ -1,0 +1,21 @@
+[Unit]
+Description=Klothulhu companion API
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/data/klothulhu/server
+EnvironmentFile=/etc/klothulhu/klothulhu.env
+ExecStart=/data/klothulhu/.venv/bin/uvicorn app:app --host ${KLOTHULHU_HOST} --port ${KLOTHULHU_PORT}
+# If tailscaled is not up yet the bind fails; systemd simply retries.
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+
+[Install]
+WantedBy=multi-user.target

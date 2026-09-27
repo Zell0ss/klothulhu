@@ -1,0 +1,14 @@
+{
+  "name": "klothulhu-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Klothulhu desktop companion (POC). Thin client for the klothulhu-api on seb01.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.js && node --check sse-client.js"
+  },
+  "devDependencies": {
+    "electron": "latest"
+  }
+}
