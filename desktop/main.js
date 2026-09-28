@@ -1,6 +1,6 @@
 'use strict';
 const {
-  app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage, globalShortcut, dialog,
+  app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage, globalShortcut, dialog, clipboard,
 } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -143,6 +143,10 @@ ipcMain.handle('ask', async (_e, text) => {
 });
 
 ipcMain.handle('forget', () => forget(cfg).catch(() => false));
+
+ipcMain.handle('copy', (_e, text) => clipboard.writeText(String(text || '')));
+
+ipcMain.on('quit', () => app.quit());
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();

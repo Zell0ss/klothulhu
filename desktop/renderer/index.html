@@ -8,7 +8,32 @@
   :root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); }
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; }
   body { display: flex; flex-direction: column; align-items: center; }
+  #stage { position: relative; }
   canvas { display: block; }
+  #bubble {
+    position: absolute; box-sizing: border-box; display: none;
+    background: var(--box); border: 2px solid var(--rust); border-radius: 6px;
+  }
+  #bubble.on { display: block; }
+  #bubbleText {
+    position: absolute; inset: 0; margin: 0; padding: 9px 24px 9px 9px;
+    overflow-y: auto; overflow-x: hidden; white-space: pre-wrap; word-break: break-word;
+    color: var(--ink); font-family: ui-monospace, Consolas, monospace; line-height: 1.35;
+    user-select: text; cursor: text;
+  }
+  #bubbleText::-webkit-scrollbar { width: 6px; }
+  #bubbleText::-webkit-scrollbar-track { background: transparent; }
+  #bubbleText::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 3px; }
+  #copyBtn, #closeBtn {
+    position: absolute; top: 4px; width: 18px; height: 18px; padding: 0;
+    border: none; border-radius: 4px; background: rgba(180, 80, 50, 0.35); color: var(--ink);
+    font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0.7;
+  }
+  #copyBtn { right: 26px; display: none; }
+  #copyBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.6); }
+  #copyBtn.copied { background: #4a7c4e; opacity: 1; }
+  #closeBtn { right: 4px; }
+  #closeBtn:hover { opacity: 1; background: rgba(200, 60, 60, 0.7); }
   #ask {
     visibility: hidden; box-sizing: border-box; width: calc(100% - 16px); height: 32px; margin-top: 6px;
     padding: 0 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
@@ -19,13 +44,19 @@
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
+<div id="stage">
+  <canvas id="c"></canvas>
+  <div id="bubble">
+    <div id="bubbleText"></div>
+    <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
+    <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
+  </div>
+</div>
 <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
 <script>
 'use strict';
 const W = 320, H = 240;
 const BOX = { x: 5, y: 139, w: 310, h: 96 };
-const MAX_LINES = 5;
 
 // Emotion -> pose. Keep the keys in sync with EMOTIONS in server/emotion_parser.py.
 const EMOTIONS = {
@@ -52,6 +83,10 @@ const ERRORS = {
 const c = document.getElementById('c');
 const g = c.getContext('2d', { willReadFrequently: true });
 const input = document.getElementById('ask');
+const bubble = document.getElementById('bubble');
+const bubbleText = document.getElementById('bubbleText');
+const copyBtn = document.getElementById('copyBtn');
+const closeBtn = document.getElementById('closeBtn');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const img = {};
 let scale = 1.5, dpr = window.devicePixelRatio || 1;
@@ -69,10 +104,12 @@ const st = {
 
 function say(emotion, text) {
   Object.assign(st, { mode: 'speaking', emotion, target: text, chars: 0, marks: [], done: true, holdT: 0 });
+  bubbleText.scrollTop = 0;
 }
 
 function ask(text) {
   Object.assign(st, { mode: 'thinking', target: '', chars: 0, marks: [], done: false, holdT: 0 });
+  bubbleText.scrollTop = 0;
   kl.ask(text);
 }
 
@@ -131,19 +168,6 @@ function tick(dt) {
   return pose;
 }
 
-function wrap(text, maxW) {
-  const lines = [];
-  for (const para of text.split('\n')) {
-    let cur = '';
-    for (const w of para.split(' ')) {
-      const t = cur ? cur + ' ' + w : w;
-      if (g.measureText(t).width > maxW && cur) { lines.push(cur); cur = w; } else cur = t;
-    }
-    lines.push(cur);
-  }
-  return lines;
-}
-
 function draw(pose) {
   g.clearRect(0, 0, W, H);
   const arms = st.armFrame ? 'Brazo2' : 'Brazo1';
@@ -157,24 +181,46 @@ function draw(pose) {
     if (drawn) g.drawImage(drawn, 0, 0);
     else g.drawImage(img.Ojos1, 5 * st.lookDir, 0);
   } else g.drawImage(img[pose.eyes] || img.Ojos1, 0, 0);
+}
 
-  if (st.mode === 'idle') return;
-  g.fillStyle = 'rgba(26, 20, 18, 0.9)';
-  g.strokeStyle = '#b45032'; g.lineWidth = 2;
-  g.beginPath(); g.roundRect(BOX.x, BOX.y, BOX.w, BOX.h, 6); g.fill(); g.stroke();
-  g.fillStyle = '#f3efe8'; g.font = '12px ui-monospace, Consolas, monospace'; g.textBaseline = 'top';
-  const shown = st.mode === 'thinking'
+function updateBubble() {
+  const show = st.mode !== 'idle';
+  bubble.classList.toggle('on', show);
+  if (!show) return;
+  const text = st.mode === 'thinking'
     ? '·'.repeat(1 + Math.floor(st.dotsT / 350) % 3)
     : st.target.slice(0, st.chars);
-  wrap(shown, BOX.w - 18).slice(-MAX_LINES).forEach((l, i) => g.fillText(l, BOX.x + 9, BOX.y + 9 + i * 16));
+  if (text !== bubbleText.textContent) {
+    const nearBottom = bubbleText.scrollHeight - bubbleText.scrollTop - bubbleText.clientHeight < 20;
+    bubbleText.textContent = text;
+    if (nearBottom) bubbleText.scrollTop = bubbleText.scrollHeight;
+  }
+  copyBtn.style.display = (st.mode === 'speaking' && st.chars > 0) ? 'block' : 'none';
 }
 
 let last = 0;
 function frame(t) {
   const dt = Math.min(100, t - last); last = t;
   draw(tick(dt));
+  updateBubble();
   requestAnimationFrame(frame);
 }
+
+// --- copy to clipboard ------------------------------------------------------
+
+copyBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  kl.copy(bubbleText.textContent);
+  copyBtn.classList.add('copied');
+  copyBtn.textContent = '✅';
+  clearTimeout(copyBtn._resetT);
+  copyBtn._resetT = setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = '📋'; }, 1200);
+});
+
+closeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  kl.quit();
+});
 
 // --- pointer: click-through, drag, click ----------------------------------
 
@@ -195,7 +241,10 @@ window.addEventListener('mousemove', (e) => {
   if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
     dragging = true; kl.dragStart();
   }
-  if (!press) setInteractive(e.target === input && input.classList.contains('on') || overSprite(e));
+  if (!press) {
+    const overInput = e.target === input && input.classList.contains('on');
+    setInteractive(overInput || overSprite(e) || bubble.contains(e.target));
+  }
 });
 window.addEventListener('mouseleave', () => { if (!press) setInteractive(false); });
 c.addEventListener('mousedown', (e) => {
@@ -231,6 +280,11 @@ kl.init().then(async (cfg) => {
   c.width = Math.round(W * scale * dpr); c.height = Math.round(H * scale * dpr);
   c.style.width = `${W * scale}px`; c.style.height = `${H * scale}px`;
   g.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+  bubble.style.left = `${BOX.x * scale}px`;
+  bubble.style.top = `${BOX.y * scale}px`;
+  bubble.style.width = `${BOX.w * scale}px`;
+  bubble.style.height = `${BOX.h * scale}px`;
+  bubbleText.style.fontSize = `${12 * scale}px`;
   await Promise.all(Object.entries(cfg.sprites).map(([k, src]) => new Promise((ok) => {
     const i = new Image(); i.onload = ok; i.onerror = ok; i.src = src; img[k] = i;
   })));
