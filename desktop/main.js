@@ -6,10 +6,10 @@ const fs = require('fs');
 const path = require('path');
 const { streamChat, forget } = require('./sse-client');
 
-const SPRITE_W = 320;
-const SPRITE_H = 240;
+// The engine draws a 640x128 strip (D12); the input box sits below it.
+const STAGE_W = 640;
+const STAGE_H = 128;
 const INPUT_H = 44;
-const SPRITE_DIR = path.join(__dirname, 'renderer', 'sprites');
 
 let win = null;
 let tray = null;
@@ -29,24 +29,14 @@ function loadConfig() {
     token: String(c.token || ''),
     scale: Number(c.scale) > 0 ? Number(c.scale) : 1.5,
     hotkey: c.hotkey || 'Control+Alt+K',
+    // Validated by the renderer, which owns the engine; unknown values fall back to its default.
+    look: String(c.look || 'pixel'),
   };
 }
 
-function readSprites() {
-  // Sent as data URLs so the renderer canvas is never tainted and can be
-  // used for per-pixel hit testing. Drop new PNGs (e.g. Ojos7.png) here.
-  const out = {};
-  for (const f of fs.readdirSync(SPRITE_DIR)) {
-    if (!f.toLowerCase().endsWith('.png')) continue;
-    const b64 = fs.readFileSync(path.join(SPRITE_DIR, f)).toString('base64');
-    out[path.basename(f, '.png')] = `data:image/png;base64,${b64}`;
-  }
-  return out;
-}
-
 function createWindow() {
-  const width = Math.round(SPRITE_W * cfg.scale);
-  const height = Math.round(SPRITE_H * cfg.scale) + INPUT_H;
+  const width = Math.round(STAGE_W * cfg.scale);
+  const height = Math.round(STAGE_H * cfg.scale) + INPUT_H;
   const { workArea } = screen.getPrimaryDisplay();
   win = new BrowserWindow({
     width, height,
@@ -70,14 +60,13 @@ function createWindow() {
   });
   win.setAlwaysOnTop(true, 'floating');
   // Clicks pass through to the desktop until the renderer reports the
-  // pointer is over an opaque pixel or the input box.
+  // pointer is over the strip or the input box.
   win.setIgnoreMouseEvents(true, { forward: true });
   win.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
 function createTray() {
-  const body = nativeImage.createFromPath(path.join(SPRITE_DIR, 'Cuerpo.png'));
-  const icon = body.crop({ x: 82, y: 26, width: 160, height: 110 }).resize({ width: 24 });
+  const icon = nativeImage.createFromPath(path.join(__dirname, 'klothulhu.ico'));
   tray = new Tray(icon);
   tray.setToolTip('Klothulhu');
   tray.setContextMenu(Menu.buildFromTemplate([
@@ -100,7 +89,7 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, sprites: readSprites() }));
+ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look }));
 
 ipcMain.on('click-through', (_e, on) => {
   if (!drag) win.setIgnoreMouseEvents(Boolean(on), { forward: true });

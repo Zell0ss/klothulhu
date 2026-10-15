@@ -2,38 +2,25 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">
+<!-- D10: nada de red ni eval. 'self' solo para cargar vendor/ y scenes.js; el SVG entra como <img> por img-src data: -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
 <title>Klothulhu</title>
 <style>
   :root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); }
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; }
   body { display: flex; flex-direction: column; align-items: center; }
-  #stage { position: relative; }
-  canvas { display: block; }
-  #bubble {
-    position: absolute; box-sizing: border-box; display: none;
-    background: var(--box); border: 2px solid var(--rust); border-radius: 6px;
-  }
-  #bubble.on { display: block; }
-  #bubbleText {
-    position: absolute; inset: 0; margin: 0; padding: 9px 24px 9px 9px;
-    overflow-y: auto; overflow-x: hidden; white-space: pre-wrap; word-break: break-word;
-    color: var(--ink); font-family: ui-monospace, Consolas, monospace; line-height: 1.35;
-    user-select: text; cursor: text;
-  }
-  #bubbleText::-webkit-scrollbar { width: 6px; }
-  #bubbleText::-webkit-scrollbar-track { background: transparent; }
-  #bubbleText::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 3px; }
+  #stage { position: relative; flex: none; }
+  #scene { display: block; }
   #copyBtn, #closeBtn {
     position: absolute; top: 4px; width: 18px; height: 18px; padding: 0;
-    border: none; border-radius: 4px; background: rgba(180, 80, 50, 0.35); color: var(--ink);
+    border: none; border-radius: 4px; background: rgba(26, 20, 18, 0.7); color: var(--ink);
     font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0.7;
   }
   #copyBtn { right: 26px; display: none; }
-  #copyBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.6); }
+  #copyBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #copyBtn.copied { background: #4a7c4e; opacity: 1; }
   #closeBtn { right: 4px; }
-  #closeBtn:hover { opacity: 1; background: rgba(200, 60, 60, 0.7); }
+  #closeBtn:hover { opacity: 1; background: rgba(200, 60, 60, 0.85); }
   #ask {
     visibility: hidden; box-sizing: border-box; width: calc(100% - 16px); height: 32px; margin-top: 6px;
     padding: 0 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
@@ -45,172 +32,134 @@
 </head>
 <body>
 <div id="stage">
-  <canvas id="c"></canvas>
-  <div id="bubble">
-    <div id="bubbleText"></div>
-    <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
-    <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
-  </div>
+  <img id="scene" alt="" draggable="false">
+  <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
+  <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
 </div>
 <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+<script src="vendor/fables-motor.iife.js"></script>
+<script src="scenes.js"></script>
 <script>
 'use strict';
-const W = 320, H = 240;
-const BOX = { x: 5, y: 139, w: 310, h: 96 };
+const { renderScene, VOCAB } = window.FablesMotor;
+const { beats, sceneFor, readMs, LINES, CAPTION_MAX, EMOTIONS } = window.KlScenes;
 
-// Emotion -> pose. Keep the keys in sync with EMOTIONS in server/emotion_parser.py.
-const EMOTIONS = {
-  neutral:  { eyes: 'Ojos1', arms: 'slow',  legs: false },
-  happy:    { eyes: 'Ojos4', arms: 'fast',  legs: true  },
-  annoyed:  { eyes: 'Ojos2', arms: 'fast',  legs: false },
-  confused: { eyes: 'Ojos5', arms: 'still', legs: false },
-  smug:     { eyes: 'Ojos6', arms: 'slow',  legs: false },
-  sleepy:   { eyes: 'Ojos3', arms: 'still', legs: false, noBlink: true },
-};
-const ARM_PERIOD = { still: 0, slow: 700, fast: 260 };
-const LEG_SEQ = ['Patas2', 'Patas1', 'Patas2', 'Patas3'];
+const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
+const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
 
-// Local fallbacks when seb01 cannot answer.
-const ERRORS = {
-  unreachable:    ['confused', 'Los astros no responden. seb01 no contesta.'],
-  timeout:        ['sleepy',   'He esperado una eternidad, y ni siquiera la mía.'],
-  http_401:       ['annoyed',  'No reconozco tu sello, mortal. Revisa el token.'],
-  http_409:       ['annoyed',  'Aún estoy pensando la anterior. Paciencia.'],
-  upstream_error: ['confused', 'Algo se rompió al otro lado del velo.'],
-  stream_broken:  ['confused', 'Se cortó el hilo a mitad de profecía.'],
-};
-
-const c = document.getElementById('c');
-const g = c.getContext('2d', { willReadFrequently: true });
+const stage = document.getElementById('stage');
+const sceneImg = document.getElementById('scene');
 const input = document.getElementById('ask');
-const bubble = document.getElementById('bubble');
-const bubbleText = document.getElementById('bubbleText');
 const copyBtn = document.getElementById('copyBtn');
 const closeBtn = document.getElementById('closeBtn');
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const img = {};
-let scale = 1.5, dpr = window.devicePixelRatio || 1;
 
-const st = {
-  mode: 'idle',          // idle | thinking | speaking
-  emotion: 'neutral',
-  target: '', chars: 0, marks: [], done: false,
-  charT: 0, holdT: 0, dotsT: 0,
-  armT: 0, armFrame: 0, legT: 0, legIdx: 0,
-  blinking: 0, nextBlink: 1500, lookT: 0, lookDir: 1,
-};
+let look = VOCAB.defaults.look;
+let lookWarned = false;
 
-// --- conversation state machine ------------------------------------------
+// --- painting ---------------------------------------------------------------
 
-function say(emotion, text) {
-  Object.assign(st, { mode: 'speaking', emotion, target: text, chars: 0, marks: [], done: true, holdT: 0 });
-  bubbleText.scrollTop = 0;
+// Devuelve { speaksAfter } o null si no se pudo pintar (entonces se queda la escena anterior).
+function paint(scene, fadeIn) {
+  let r = renderScene(scene, { look, fadeIn });
+  if (!r.ok && look !== VOCAB.defaults.look) {
+    if (!lookWarned) { console.warn(`look "${look}" no válido (${r.error}); uso "${VOCAB.defaults.look}"`); lookWarned = true; }
+    look = VOCAB.defaults.look;
+    r = renderScene(scene, { look, fadeIn });
+  }
+  if (!r.ok) { console.warn(`renderScene falló: ${r.error}`); return null; }
+  // El SVG entra como imagen, no como DOM (D10). Asignar el mismo src reinicia la animación, así que solo se asigna si cambia.
+  const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.svg);
+  if (sceneImg.getAttribute('src') !== src) sceneImg.src = src;
+  return { speaksAfter: r.speaksAfter };
 }
 
+// --- director: cola de escenas ---------------------------------------------
+
+// phase: 'reading' (hay un temporizador de lectura) | 'thinking' | 'lingering' | 'idle'
+let phase = 'idle';
+let timer = null;
+let queue = [];
+let lastBackdrop = null;
+
+// Devuelve cuánto se queda la escena en pantalla (ms), o false si no se pudo pintar.
+function play(kind, caption, tone) {
+  const scene = sceneFor(kind, caption, tone ? { tone } : undefined);
+  const fadeIn = lastBackdrop !== null && scene.backdrop !== lastBackdrop;
+  const shown = paint(scene, fadeIn);
+  if (!shown) return false;
+  lastBackdrop = scene.backdrop;
+  return readMs(caption, shown.speaksAfter, fadeIn);
+}
+
+function pump() {
+  clearTimeout(timer); timer = null;
+  while (queue.length) {
+    const item = queue.shift();
+    const hold = play(item.kind, item.caption, item.tone);
+    if (hold === false) continue;
+    phase = 'reading';
+    timer = setTimeout(pump, hold);
+    return;
+  }
+  // Cola vacía y última escena leída: espera y duerme.
+  phase = 'lingering';
+  timer = setTimeout(() => {
+    play('idle', LINES.idle);
+    phase = 'idle'; timer = null;
+  }, LINGER_MS);
+}
+
+function enqueue(items) {
+  queue.push(...items);
+  if (phase !== 'reading') pump();  // si se está leyendo una escena, esta espera su turno
+}
+
+function think() {
+  clearTimeout(timer); timer = null;
+  queue = [];
+  play('thinking', LINES.thinking);
+  phase = 'thinking';
+}
+
+// --- conversation -----------------------------------------------------------
+
+let reply = '';          // la respuesta entera, sin etiquetas
+let marks = [];          // [{at, emotion}]
+let awaiting = false;
+
 function ask(text) {
-  Object.assign(st, { mode: 'thinking', target: '', chars: 0, marks: [], done: false, holdT: 0 });
-  bubbleText.scrollTop = 0;
+  reply = ''; marks = []; awaiting = true;
+  copyBtn.style.display = 'none';
+  think();
   kl.ask(text);
 }
 
 kl.onEvent(({ type, data }) => {
   if (type === 'emotion') {
-    const e = EMOTIONS[data.emotion] ? data.emotion : 'neutral';
-    if (st.mode === 'thinking') { st.mode = 'speaking'; st.emotion = e; }
-    else st.marks.push({ at: st.target.length, emotion: e });  // applied when typed
+    const e = EMOTIONS.includes(data.emotion) ? data.emotion : 'neutral';
+    marks.push({ at: marks.length ? reply.length : 0, emotion: e });
   } else if (type === 'delta') {
-    if (st.mode === 'thinking') { st.mode = 'speaking'; st.emotion = 'neutral'; }
-    st.target += data.text;
+    reply += data.text;
   } else if (type === 'done') {
-    st.done = true;
+    awaiting = false;
+    enqueue(beats(reply, marks).map((b) => ({ kind: b.emotion, caption: b.caption })));
+    copyBtn.style.display = reply ? 'block' : 'none';
   } else if (type === 'error') {
-    const [e, msg] = ERRORS[data.code] || ['confused', `Error desconocido: ${data.code}`];
-    say(e, msg);
+    awaiting = false;
+    const known = Object.prototype.hasOwnProperty.call(LINES.errors, data.code);
+    const [kind, text] = known
+      ? LINES.errors[data.code]
+      : ['confused', `Error desconocido: ${data.code}`.slice(0, CAPTION_MAX)];
+    queue = [];  // la del error espera a que se lea la que está en pantalla
+    enqueue([{ kind, caption: text, tone: 'trouble' }]);
   }
 });
 
-// --- animation ------------------------------------------------------------
-
-function tick(dt) {
-  const pose = st.mode === 'thinking'
-    ? { eyes: 'Ojos1', arms: 'still', legs: false }
-    : EMOTIONS[st.emotion];
-
-  // blink
-  if (!pose.noBlink && st.mode !== 'thinking') {
-    if (st.blinking > 0) st.blinking -= dt;
-    else if ((st.nextBlink -= dt) <= 0) { st.blinking = 140; st.nextBlink = 2200 + Math.random() * 3500; }
-  } else st.blinking = 0;
-
-  // arms and legs
-  const period = reduce ? 0 : ARM_PERIOD[pose.arms];
-  if (period && (st.armT += dt) >= period) { st.armT = 0; st.armFrame ^= 1; }
-  if (!period) st.armFrame = 0;
-  if (pose.legs && !reduce && (st.legT += dt) >= 220) { st.legT = 0; st.legIdx = (st.legIdx + 1) % LEG_SEQ.length; }
-
-  // thinking: look left and right
-  if (st.mode === 'thinking') {
-    if ((st.lookT += dt) >= 650) { st.lookT = 0; st.lookDir *= -1; }
-    st.dotsT += dt;
-  }
-
-  // typewriter with emotion changes pinned to character positions
-  if (st.mode === 'speaking') {
-    if (st.chars < st.target.length) {
-      if ((st.charT += dt) >= 35) { st.charT = 0; st.chars++; }
-    }
-    while (st.marks.length && st.marks[0].at <= st.chars) st.emotion = st.marks.shift().emotion;
-    if (st.done && st.chars >= st.target.length) {
-      const hold = Math.min(15000, 4000 + 60 * st.target.length);
-      if ((st.holdT += dt) >= hold) Object.assign(st, { mode: 'idle', emotion: 'neutral', target: '' });
-    }
-  }
-  return pose;
-}
-
-function draw(pose) {
-  g.clearRect(0, 0, W, H);
-  const arms = st.armFrame ? 'Brazo2' : 'Brazo1';
-  const legs = pose.legs && !reduce ? LEG_SEQ[st.legIdx] : 'Patas2';
-  for (const k of ['Cuerpo', arms, legs]) g.drawImage(img[k], 0, 0);
-
-  if (st.blinking > 0) g.drawImage(img.Ojos3, 0, 0);
-  else if (st.mode === 'thinking') {
-    // Use dedicated sprites if they exist; otherwise slide the straight eyes.
-    const drawn = st.lookDir < 0 ? img.Ojos7 : img.Ojos8;
-    if (drawn) g.drawImage(drawn, 0, 0);
-    else g.drawImage(img.Ojos1, 5 * st.lookDir, 0);
-  } else g.drawImage(img[pose.eyes] || img.Ojos1, 0, 0);
-}
-
-function updateBubble() {
-  const show = st.mode !== 'idle';
-  bubble.classList.toggle('on', show);
-  if (!show) return;
-  const text = st.mode === 'thinking'
-    ? '·'.repeat(1 + Math.floor(st.dotsT / 350) % 3)
-    : st.target.slice(0, st.chars);
-  if (text !== bubbleText.textContent) {
-    const nearBottom = bubbleText.scrollHeight - bubbleText.scrollTop - bubbleText.clientHeight < 20;
-    bubbleText.textContent = text;
-    if (nearBottom) bubbleText.scrollTop = bubbleText.scrollHeight;
-  }
-  copyBtn.style.display = (st.mode === 'speaking' && st.chars > 0) ? 'block' : 'none';
-}
-
-let last = 0;
-function frame(t) {
-  const dt = Math.min(100, t - last); last = t;
-  draw(tick(dt));
-  updateBubble();
-  requestAnimationFrame(frame);
-}
-
-// --- copy to clipboard ------------------------------------------------------
+// --- copy / close -----------------------------------------------------------
 
 copyBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  kl.copy(bubbleText.textContent);
+  kl.copy(reply);  // la respuesta entera, no el caption visible
   copyBtn.classList.add('copied');
   copyBtn.textContent = '✅';
   clearTimeout(copyBtn._resetT);
@@ -222,20 +171,16 @@ closeBtn.addEventListener('click', (e) => {
   kl.quit();
 });
 
-// --- pointer: click-through, drag, click ----------------------------------
+// --- pointer: click-through, drag, click (D12: toda la franja es interactiva) --
 
 let interactive = false, press = null, dragging = false;
-
-function overSprite(e) {
-  const r = c.getBoundingClientRect();
-  const x = e.clientX - r.left, y = e.clientY - r.top;
-  if (x < 0 || y < 0 || x >= r.width || y >= r.height) return false;
-  return g.getImageData(Math.floor(x * dpr), Math.floor(y * dpr), 1, 1).data[3] > 16;
-}
 
 function setInteractive(on) {
   if (on !== interactive) { interactive = on; kl.clickThrough(!on); }
 }
+
+const onStrip = (t) => stage.contains(t);
+const onButton = (t) => t === copyBtn || t === closeBtn;
 
 window.addEventListener('mousemove', (e) => {
   if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
@@ -243,12 +188,12 @@ window.addEventListener('mousemove', (e) => {
   }
   if (!press) {
     const overInput = e.target === input && input.classList.contains('on');
-    setInteractive(overInput || overSprite(e) || bubble.contains(e.target));
+    setInteractive(overInput || onStrip(e.target));
   }
 });
 window.addEventListener('mouseleave', () => { if (!press) setInteractive(false); });
-c.addEventListener('mousedown', (e) => {
-  if (e.button === 0 && overSprite(e)) press = { x: e.screenX, y: e.screenY };
+stage.addEventListener('mousedown', (e) => {
+  if (e.button === 0 && !onButton(e.target)) press = { x: e.screenX, y: e.screenY };
 });
 window.addEventListener('mouseup', () => {
   if (!press) return;
@@ -265,7 +210,7 @@ function toggleInput(force) {
 
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') toggleInput(false);
-  if (e.key === 'Enter' && input.value.trim() && st.mode !== 'thinking') {
+  if (e.key === 'Enter' && input.value.trim() && !awaiting) {
     ask(input.value.trim());
     input.value = '';
     toggleInput(false);
@@ -275,21 +220,12 @@ kl.onSummon(() => toggleInput(true));
 
 // --- boot -------------------------------------------------------------------
 
-kl.init().then(async (cfg) => {
-  scale = cfg.scale;
-  c.width = Math.round(W * scale * dpr); c.height = Math.round(H * scale * dpr);
-  c.style.width = `${W * scale}px`; c.style.height = `${H * scale}px`;
-  g.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
-  bubble.style.left = `${BOX.x * scale}px`;
-  bubble.style.top = `${BOX.y * scale}px`;
-  bubble.style.width = `${BOX.w * scale}px`;
-  bubble.style.height = `${BOX.h * scale}px`;
-  bubbleText.style.fontSize = `${12 * scale}px`;
-  await Promise.all(Object.entries(cfg.sprites).map(([k, src]) => new Promise((ok) => {
-    const i = new Image(); i.onload = ok; i.onerror = ok; i.src = src; img[k] = i;
-  })));
-  say('happy', `Claudthulhu despierta. Pulsa ${cfg.hotkey.replace(/Control/, 'Ctrl')} o haz clic en mí para hablar.`);
-  requestAnimationFrame((t) => { last = t; requestAnimationFrame(frame); });
+kl.init().then((cfg) => {
+  look = cfg.look || VOCAB.defaults.look;
+  const w = `${STAGE_W * cfg.scale}px`, h = `${STAGE_H * cfg.scale}px`;
+  stage.style.width = w; stage.style.height = h;
+  sceneImg.style.width = w; sceneImg.style.height = h;
+  enqueue([{ kind: 'happy', caption: LINES.boot(cfg.hotkey) }]);
 });
 </script>
 </body>
