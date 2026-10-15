@@ -1,0 +1,128 @@
+{
+ "schemaVersion": 1,
+ "backdrops": [
+  "forest",
+  "space",
+  "city",
+  "desert",
+  "volcano",
+  "lab",
+  "night"
+ ],
+ "actions": [
+  "walk",
+  "run",
+  "fly",
+  "carry",
+  "sneak",
+  "jump",
+  "tumble",
+  "dig",
+  "inspect",
+  "celebrate",
+  "think",
+  "panic",
+  "sleep",
+  "dance",
+  "spin",
+  "wave",
+  "point",
+  "peek",
+  "trip",
+  "shrug"
+ ],
+ "motions": [
+  "none",
+  "bob",
+  "drift",
+  "shake",
+  "fall",
+  "spin",
+  "blink",
+  "scroll"
+ ],
+ "particles": [
+  "stars",
+  "rain",
+  "bubbles",
+  "sparks",
+  "snow",
+  "leaves"
+ ],
+ "sprites": [
+  "bug",
+  "file",
+  "folder",
+  "ship",
+  "train",
+  "door",
+  "cloud",
+  "volcano",
+  "tree",
+  "rocket",
+  "planet",
+  "cactus",
+  "server",
+  "gear",
+  "trophy",
+  "flag",
+  "chest",
+  "key",
+  "bomb",
+  "fish",
+  "star",
+  "beaker",
+  "house",
+  "mushroom",
+  "crystal",
+  "magnifier",
+  "bird",
+  "lamp",
+  "anchor",
+  "ghost",
+  "coin",
+  "book"
+ ],
+ "looks": [
+  "pixel",
+  "original",
+  "cave",
+  "blueprint",
+  "mosaic",
+  "aero",
+  "engraving",
+  "tapestry",
+  "golden",
+  "ukiyoe",
+  "kamon"
+ ],
+ "figures": [
+  "auto",
+  "pixel",
+  "3d"
+ ],
+ "tones": [
+  "work",
+  "trouble",
+  "milestone"
+ ],
+ "heights": [
+  "ground",
+  "air",
+  "sky"
+ ],
+ "defaults": {
+  "look": "pixel",
+  "width": 640,
+  "height": 128
+ },
+ "limits": {
+  "maxProps": 8,
+  "maxCaption": 80,
+  "maxLabel": 18,
+  "maxTitle": 24,
+  "maxPixelSide": 16,
+  "minWidth": 320,
+  "maxWidth": 1600
+ }
+}

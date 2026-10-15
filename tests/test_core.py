@@ -1,4 +1,3 @@
-import pytest
 
 from emotion_parser import EmotionStreamParser
 from history import HistoryStore

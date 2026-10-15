@@ -4,8 +4,13 @@ One endpoint streams a reply as Server-Sent Events with this contract:
 
     event: emotion  data: {"emotion": "happy"}      always first, may repeat
     event: delta    data: {"text": "..."}           text chunks, tags removed
+    event: scene    data: {"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} | null}
     event: done     data: {"turns": 3}              reply finished and stored
     event: error    data: {"code": "upstream_error"}
+
+After the narrator's text, one ``scene`` per beat (D13), staged by the director (D14). ``scene`` is a
+FablesScene, or null when the director is off, fails or returns something invalid: the client then
+falls back to its own staging. Scenes never enter the history. Clients that do not know ``scene`` ignore it.
 
 Clients render; all model and parsing logic lives here.
 """
@@ -24,6 +29,8 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+import director
+from beats import beats
 from emotion_parser import EMOTIONS, EmotionStreamParser
 from history import HistoryStore
 
@@ -32,8 +39,13 @@ logging.basicConfig(level=os.getenv("KLOTHULHU_LOG_LEVEL", "INFO"))
 
 # --- settings -------------------------------------------------------------
 
-MODEL = os.getenv("KLOTHULHU_MODEL", "claude-haiku-4-5-20251001")
-MAX_TOKENS = int(os.getenv("KLOTHULHU_MAX_TOKENS", "300"))
+MODEL = os.getenv("KLOTHULHU_MODEL", "claude-haiku-5-5")
+EFFORT = os.getenv("KLOTHULHU_EFFORT", "low")
+MAX_TOKENS = int(os.getenv("KLOTHULHU_MAX_TOKENS", "1024"))  # el pensamiento cuenta para el tope
+DIRECTOR_ENABLED = os.getenv("KLOTHULHU_DIRECTOR", "1") == "1"
+DIRECTOR_MODEL = os.getenv("KLOTHULHU_DIRECTOR_MODEL", "claude-haiku-5-5")
+DIRECTOR_EFFORT = os.getenv("KLOTHULHU_DIRECTOR_EFFORT", "low")
+DIRECTOR_TIMEOUT = float(os.getenv("KLOTHULHU_DIRECTOR_TIMEOUT", "10"))
 HISTORY_TURNS = int(os.getenv("KLOTHULHU_HISTORY_TURNS", "6"))
 HISTORY_TTL_MIN = float(os.getenv("KLOTHULHU_HISTORY_TTL_MIN", "30"))
 FAKE = os.getenv("KLOTHULHU_FAKE", "0") == "1"
@@ -57,6 +69,7 @@ if not TOKENS:
     raise RuntimeError("KLOTHULHU_TOKENS is empty; refusing to start")
 
 SYSTEM_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
+VOCAB = director.load_vocab()
 history = HistoryStore(HISTORY_TURNS, HISTORY_TTL_MIN * 60)
 _locks: dict[str, asyncio.Lock] = {}
 
@@ -89,7 +102,13 @@ class ChatIn(BaseModel):
 
 @app.get("/health")
 async def health() -> dict:
-    return {"ok": True, "fake": FAKE, "model": MODEL, "emotions": EMOTIONS}
+    return {
+        "ok": True,
+        "fake": FAKE,
+        "model": MODEL,
+        "emotions": EMOTIONS,
+        "director": {"enabled": DIRECTOR_ENABLED, "model": DIRECTOR_MODEL},
+    }
 
 
 @app.delete("/history")
@@ -121,14 +140,29 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
     async with lock:
         parser = EmotionStreamParser()
         raw: list[str] = []
+        shown = ""  # texto sin etiquetas, como lo reconstruye el cliente
+        marks: list[tuple[int, str]] = []
+
+        def emit(events):
+            nonlocal shown
+            out = []
+            for kind, payload in events:
+                if kind == "emotion":
+                    marks.append((len(shown), payload))
+                    out.append(_sse(kind, {"emotion": payload}))
+                else:
+                    shown += payload
+                    out.append(_sse(kind, {"text": payload}))
+            return out
+
         try:
             source = _fake_stream() if FAKE else _model_stream(cid, text)
             async for chunk in source:
                 raw.append(chunk)
-                for kind, payload in parser.feed(chunk):
-                    yield _sse(kind, {"emotion": payload} if kind == "emotion" else {"text": payload})
-            for kind, payload in parser.flush():
-                yield _sse(kind, {"emotion": payload} if kind == "emotion" else {"text": payload})
+                for line in emit(parser.feed(chunk)):
+                    yield line
+            for line in emit(parser.flush()):
+                yield line
         except Exception:  # noqa: BLE001 - any upstream failure becomes an event
             log.exception("generation failed for %s", cid)
             yield _sse("error", {"code": "upstream_error"})
@@ -138,7 +172,40 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         # Only complete replies enter history; tags are kept so the model
         # keeps seeing the format it is expected to follow.
         history.append(cid, text, "".join(raw))
+        bs = beats(shown, marks)
+        scenes = await _staged(text, bs)
+        for i, ((caption, emotion), scene) in enumerate(zip(bs, scenes, strict=True)):
+            yield _sse(
+                "scene",
+                {"index": i, "total": len(bs), "emotion": emotion, "caption": caption, "scene": scene},
+            )
         yield _sse("done", {"turns": len(history.messages(cid)) // 2})
+
+
+async def _director(question: str, bs: list[tuple[str, str]]) -> list[dict | None]:
+    if FAKE:
+        return await director.fake_direct(question, bs)
+    return await director.direct(
+        question,
+        bs,
+        client=_anthropic,
+        vocab=VOCAB,
+        model=DIRECTOR_MODEL,
+        effort=DIRECTOR_EFFORT,
+        timeout=DIRECTOR_TIMEOUT,
+    )
+
+
+async def _staged(question: str, bs: list[tuple[str, str]]) -> list[dict | None]:
+    """Una escena (o None) por golpe. Un director caído nunca estropea la respuesta (D14)."""
+    if not bs or not DIRECTOR_ENABLED:
+        return [None] * len(bs)
+    try:
+        scenes = list(await _director(question, bs))
+    except Exception:  # noqa: BLE001
+        log.warning("director failed; sending scenes as null", exc_info=True)
+        scenes = []
+    return (scenes + [None] * len(bs))[: len(bs)]
 
 
 async def _model_stream(cid: str, text: str) -> AsyncIterator[str]:
@@ -148,9 +215,13 @@ async def _model_stream(cid: str, text: str) -> AsyncIterator[str]:
         max_tokens=MAX_TOKENS,
         system=SYSTEM_PROMPT,
         messages=messages,
+        output_config={"effort": EFFORT},
     ) as stream:
         async for chunk in stream.text_stream:
             yield chunk
+        final = await stream.get_final_message()
+        if final.stop_reason == "refusal":
+            log.warning("narrator refused (stop_reason=refusal)")
 
 
 _FAKE_REPLIES = [

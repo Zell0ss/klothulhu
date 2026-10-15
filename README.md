@@ -20,8 +20,20 @@ Server-Sent Events:
 |-----------|--------------------------|-----------------------------------------|
 | `emotion` | `{"emotion": "happy"}`   | Always first. May repeat mid-reply.     |
 | `delta`   | `{"text": "..."}`        | Text chunks, emotion tags already removed. |
+| `scene`   | `{"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} \| null}` | One per beat, after the last `delta` and before `done` (none if the reply is empty). |
 | `done`    | `{"turns": 3}`           | Reply complete and stored in history.   |
 | `error`   | `{"code": "..."}`        | `upstream_error`. HTTP errors: 401, 409 busy, 422. |
+
+**`scene`** (D13, D14): the server splits the reply into beats (`server/beats.py`, same rules as
+`scenes.js`) and a second model call, the director, stages each one. `scene` is a full `FablesScene`
+(`caption` is the beat, verbatim), or `null` when the director is off (`KLOTHULHU_DIRECTOR=0`), fails,
+times out or returns something outside the engine vocabulary: the client then uses its own fixed
+staging. Scenes never enter the history. The phase 1 client ignores `scene`.
+
+Settings (env, defaults): `KLOTHULHU_MODEL=claude-haiku-5-5`, `KLOTHULHU_EFFORT=low`,
+`KLOTHULHU_MAX_TOKENS=1024`, `KLOTHULHU_DIRECTOR=1`, `KLOTHULHU_DIRECTOR_MODEL=claude-haiku-5-5`,
+`KLOTHULHU_DIRECTOR_EFFORT=low`, `KLOTHULHU_DIRECTOR_TIMEOUT=10`. `GET /health` reports
+`director: {enabled, model}`.
 
 Emotions: `neutral happy annoyed confused smug sleepy`. The list lives in
 `server/emotion_parser.py` and in `desktop/renderer/scenes.js` (`EMOTIONS`);
@@ -40,8 +52,8 @@ restart clears it. Only complete replies are stored.
 sudo mkdir -p /etc/klothulhu
 git clone https://github.com/Zell0ss/klothulhu /data/klothulhu   # private repo
 cd /data/klothulhu
-python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/pip install pytest && .venv/bin/python -m pytest -q tests
+python3.12 -m venv .venv && .venv/bin/pip install -r requirements-dev.txt   # Python 3.12 (D17)
+.venv/bin/python -m pytest -q tests
 
 sudo cp server/klothulhu.env.example /etc/klothulhu/klothulhu.env
 sudo chmod 600 /etc/klothulhu/klothulhu.env

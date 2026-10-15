@@ -1,5 +1,10 @@
+src = ["server", "tests"]
 line-length = 110
-target-version = "py311"
+target-version = "py312"
 
 [lint]
 select = ["E", "F", "I", "UP", "B"]
+
+# Fichero normativo (se copia tal cual del plan, no se edita): solo se exime del estilo.
+[lint.per-file-ignores]
+"tests/test_fase2.py" = ["E501", "B905"]
