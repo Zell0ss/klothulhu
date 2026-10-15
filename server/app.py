@@ -47,7 +47,7 @@ MAX_TOKENS = int(os.getenv("KLOTHULHU_MAX_TOKENS", "1024"))  # el pensamiento cu
 DIRECTOR_ENABLED = os.getenv("KLOTHULHU_DIRECTOR", "1") == "1"
 DIRECTOR_MODEL = os.getenv("KLOTHULHU_DIRECTOR_MODEL", "claude-haiku-5-5")
 DIRECTOR_EFFORT = os.getenv("KLOTHULHU_DIRECTOR_EFFORT", "low")
-DIRECTOR_THINKING = os.getenv("KLOTHULHU_DIRECTOR_THINKING", "1") == "1"  # 0 = thinking disabled (D19)
+DIRECTOR_THINKING = os.getenv("KLOTHULHU_DIRECTOR_THINKING", "0") == "1"  # off by default (D20)
 DIRECTOR_TIMEOUT = float(os.getenv("KLOTHULHU_DIRECTOR_TIMEOUT", "10"))
 HISTORY_TURNS = int(os.getenv("KLOTHULHU_HISTORY_TURNS", "6"))
 HISTORY_TTL_MIN = float(os.getenv("KLOTHULHU_HISTORY_TTL_MIN", "30"))

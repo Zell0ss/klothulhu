@@ -32,8 +32,8 @@ staging. Scenes never enter the history. The phase 1 client ignores `scene`.
 
 Settings (env, defaults): `KLOTHULHU_MODEL=claude-haiku-5-5`, `KLOTHULHU_EFFORT=low`,
 `KLOTHULHU_MAX_TOKENS=1024`, `KLOTHULHU_DIRECTOR=1`, `KLOTHULHU_DIRECTOR_MODEL=claude-haiku-5-5`,
-`KLOTHULHU_DIRECTOR_EFFORT=low`, `KLOTHULHU_DIRECTOR_TIMEOUT=10`, `KLOTHULHU_DIRECTOR_THINKING=1` (`0` = director
-without thinking, D19). `GET /health` reports
+`KLOTHULHU_DIRECTOR_EFFORT=low`, `KLOTHULHU_DIRECTOR_TIMEOUT=10`, `KLOTHULHU_DIRECTOR_THINKING=0` (`1` = the director
+thinks; off by default, D20). `GET /health` reports
 `director: {enabled, model}`.
 
 Emotions: `neutral happy annoyed confused smug sleepy`. The list lives in

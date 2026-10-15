@@ -151,3 +151,19 @@ Del arquitecto o de Josem:
 4. Voz (D16) y escenas (D14): las galerías son para Josem.
 
 Parada de H3.
+
+---
+
+## Anexo 3 — retoque R2 (D20)
+
+Responde a: 26c6d87 (H3-revision §5)
+
+- `KLOTHULHU_DIRECTOR_THINKING` vale **`0` por defecto** en `app.py`, `klothulhu.env.example` y el README. El
+  docstring de `app.py` no mencionaba el ajuste, así que no cambia. La firma de `direct(...)` sigue con
+  `thinking=True` por defecto.
+- `director.direct`: `log.warning` cuando el stream acaba en `end_turn` con menos escenas que golpes («faltan N»).
+- Pruebas de regresión mías, en `tests/test_fase2_extra.py` (con `caplog`): avisa si faltan, no avisa si salen todas.
+- Verificación: `pytest` 26 pasan, `ruff` limpio, `npm test` 17 pasan. Gasto: 0.
+- Desviaciones: ninguna. Decisiones que necesito: ninguna.
+
+Parada de H3. Sigue el despliegue de Josem (PLAN §6), que no toco.

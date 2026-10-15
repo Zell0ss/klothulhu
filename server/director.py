@@ -283,6 +283,10 @@ async def direct(
         usage = getattr(final, "usage", None)
         if final.stop_reason != "end_turn":
             log.warning("director: stop_reason=%s", final.stop_reason)
+        elif emitted < total:
+            log.warning(
+                "director: end_turn con %d escenas para %d golpes; faltan %d", emitted, total, total - emitted
+            )
     except Exception as exc:  # noqa: BLE001 - el director nunca rompe la respuesta
         log.warning("director: fallo (%s: %s)", type(exc).__name__, exc or "sin detalle")
     nulls_late = total - emitted
