@@ -66,3 +66,15 @@ por escena. Orden de magnitud: irrelevante para la interfaz.
 
 1. Corregir (o aprobar mi corrección de) **P4** (Desviaciones 1).
 2. El merge de `fase1` a `main` y la prueba K1-K7 en Konnos son de Josem; no he hecho ni lo uno ni lo otro.
+
+## Anexo 1 — retoques
+
+Responde a: 77ff525 (H1-revision, aprobado con retoques)
+
+- **Hecho · R1:** P4 de `desktop/test/fase1.test.js` sustituida por el bloque de la revisión, tal cual
+  (commit de R1). Quité P4b de `scenes.extra.test.js`, que quedaba redundante. `npm test`: **14/14**.
+- **R2 espera.** Josem aún no ha hecho commit del README en `/data/klothulhu` (`main` sigue en `1d536ab`,
+  con `README.md` modificado y `desktop/renderer/vendor/` sin seguimiento). Cuando lo haga: `git merge main`
+  en `fase1`, quedarme con lo de `main` y con lo de v2, y quitar la viñeta «Long replies scroll…»
+  (la sustituiré por una línea sobre 📋 y ✕).
+- **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna; solo el commit del README por Josem.
