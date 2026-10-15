@@ -1,5 +1,5 @@
 {
- "_comment": "Casos normativos de beats() (fase 2, D13). Los comparten desktop/renderer/scenes.js y server/beats.py. No editar para que pase una prueba.",
+ "_comment": "Casos normativos de beats() (fase 2: D13, corte equilibrado D18). Los comparten desktop/renderer/scenes.js y server/beats.py. No editar para que pase una prueba.",
  "cases": [
   {
    "name": "junta frases cortas",
@@ -65,11 +65,15 @@
      "smug"
     ],
     [
-     "Pero Tokio va siete horas por delante de Madrid en verano, y eso lo",
+     "Pero Tokio va siete horas por delante de Madrid en verano,",
      "smug"
     ],
     [
-     "sabe hasta el más torpe de mis sectarios aunque lo niegue. ¿Algo más?",
+     "y eso lo sabe hasta el más torpe de mis sectarios aunque lo niegue.",
+     "smug"
+    ],
+    [
+     "¿Algo más?",
      "smug"
     ]
    ]
@@ -171,11 +175,11 @@
    ],
    "beats": [
     [
-     "una frase muy larga sin ningún signo de puntuación que supera con",
+     "una frase muy larga sin ningún signo de puntuación que",
      "sleepy"
     ],
     [
-     "creces los setenta caracteres permitidos",
+     "supera con creces los setenta caracteres permitidos",
      "sleepy"
     ]
    ]
@@ -200,6 +204,138 @@
    "beats": [
     [
      "Uno. Dos.",
+     "annoyed"
+    ]
+   ]
+  },
+  {
+   "name": "real: frase larga con coma cerca de la mitad",
+   "text": "Hola, mortal. Sigo atrapado en tu escritorio, así que supongo que estoy como siempre. Aunque lo de ser una horla cósmica reducida a un widget es humillante, no lo olvides.",
+   "marks": [
+    [
+     0,
+     "smug"
+    ]
+   ],
+   "beats": [
+    [
+     "Hola, mortal. Sigo atrapado en tu escritorio,",
+     "smug"
+    ],
+    [
+     "así que supongo que estoy como siempre.",
+     "smug"
+    ],
+    [
+     "Aunque lo de ser una horla cósmica reducida",
+     "smug"
+    ],
+    [
+     "a un widget es humillante, no lo olvides.",
+     "smug"
+    ]
+   ]
+  },
+  {
+   "name": "real: sin comas, corte por el espacio más cercano a la mitad",
+   "text": "No tengo reloj, mortal, solo eternidad. Tokio va siete horas por delante de Madrid en verano y ocho en invierno.",
+   "marks": [
+    [
+     0,
+     "confused"
+    ]
+   ],
+   "beats": [
+    [
+     "No tengo reloj, mortal, solo eternidad.",
+     "confused"
+    ],
+    [
+     "Tokio va siete horas por delante de",
+     "confused"
+    ],
+    [
+     "Madrid en verano y ocho en invierno.",
+     "confused"
+    ]
+   ]
+  },
+  {
+   "name": "real: varias frases largas",
+   "text": "Los astros se alinean, sectario, y hasta yo lo reconozco a regañadientes. Tres días de sufrimiento, y al final cayó. Ahora ve a dormir antes de que aparezca otro.",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "beats": [
+    [
+     "Los astros se alinean, sectario,",
+     "happy"
+    ],
+    [
+     "y hasta yo lo reconozco a regañadientes.",
+     "happy"
+    ],
+    [
+     "Tres días de sufrimiento, y al final cayó.",
+     "happy"
+    ],
+    [
+     "Ahora ve a dormir antes de que aparezca otro.",
+     "happy"
+    ]
+   ]
+  },
+  {
+   "name": "frase de más de 140: tres trozos equilibrados",
+   "text": "Esta frase interminable sigue y sigue sin ningún punto porque el narrador se ha emocionado contando cosas del cosmos y de los dioses antiguos que duermen bajo el mar esperando su hora",
+   "marks": [
+    [
+     0,
+     "sleepy"
+    ]
+   ],
+   "beats": [
+    [
+     "Esta frase interminable sigue y sigue sin ningún punto porque",
+     "sleepy"
+    ],
+    [
+     "el narrador se ha emocionado contando cosas del cosmos y de",
+     "sleepy"
+    ],
+    [
+     "los dioses antiguos que duermen bajo el mar esperando su hora",
+     "sleepy"
+    ]
+   ]
+  },
+  {
+   "name": "frase corta delante de una larga partida",
+   "text": "Hola, mortal. Sigo atrapado en tu escritorio, así que supongo que estoy como siempre.",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ],
+    [
+     14,
+     "annoyed"
+    ]
+   ],
+   "beats": [
+    [
+     "Hola, mortal.",
+     "neutral"
+    ],
+    [
+     "Sigo atrapado en tu escritorio,",
+     "annoyed"
+    ],
+    [
+     "así que supongo que estoy como siempre.",
      "annoyed"
     ]
    ]
