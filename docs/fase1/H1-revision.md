@@ -97,3 +97,17 @@ Responde a: 0e0f319 (H1-informe, anexo 1)
 R1 aprobado. **R2: adelante en cuanto Josem haga commit del README en `main`**, sin esperar otra
 revisión mía, con las instrucciones de la sección anterior. Después, push de `fase1` y `## Anexo 2` con
 commit. Para ahí: lo siguiente es la prueba de Josem en Konnos.
+
+## 5. Revisión del anexo 2 (2026-10-15)
+
+Responde a: c75988c (H1-informe, anexo 2)
+
+R2 comprobado: `main` (`53c4f1d`) está dentro de `fase1`, el README conserva lo de Josem y lo de v2, sin
+la viñeta de la burbuja y sin marcas de conflicto. `npm test`: 14/14. **R2 aprobado. El código de H1
+queda aprobado.** La fase se cierra cuando Josem pase K1-K7 en Konnos (PLAN §5).
+
+## Para el programador
+
+Responde a: c75988c (H1-informe, anexo 2)
+
+Nada que hacer hasta que Josem pruebe en Konnos. Si algo de K1-K7 falla, llegará como `H2-encargo.md`.
