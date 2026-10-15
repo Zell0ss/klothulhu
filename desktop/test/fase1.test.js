@@ -62,6 +62,7 @@ test('P3 beats no junta frases de emociones distintas', () => {
 });
 
 // P4 — toda la puesta en escena es válida: el motor la pinta sin corregir nada
+// (H1-revision §2.1: los arrays del motor viven en el reino de vm; se copian antes de comparar)
 test('P4 STAGING pinta sin correcciones en pixel y en un estilo 3D', () => {
   for (const kind of KINDS) assert.ok(K.STAGING[kind], `falta STAGING.${kind}`);
   for (const kind of KINDS) {
@@ -69,12 +70,12 @@ test('P4 STAGING pinta sin correcciones en pixel y en un estilo 3D', () => {
     for (const look of ['pixel', 'ukiyoe']) {
       const r = M.renderScene(scene, { look });
       assert.equal(r.ok, true, `${kind}/${look}: ${r.error}`);
-      assert.deepEqual(r.warnings, [], `${kind}/${look}`);
+      assert.deepEqual([...r.warnings], [], `${kind}/${look}`);
       assert.equal(r.scene.caption, scene.caption);
       assert.equal(r.scene.backdrop, scene.backdrop);
       assert.deepEqual({ ...r.scene.hero }, { ...scene.hero });
       assert.equal(r.scene.tone, scene.tone);
-      assert.deepEqual(r.scene.props, []);
+      assert.deepEqual([...r.scene.props], []);
       if (scene.particles) assert.deepEqual({ ...r.scene.particles }, { ...scene.particles });
     }
   }
