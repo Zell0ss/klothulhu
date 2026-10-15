@@ -6,9 +6,10 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "check": "node --check main.js && node --check preload.js && node --check sse-client.js"
+    "check": "node --check main.js && node --check preload.js && node --check sse-client.js && node --check renderer/scenes.js",
+    "test": "node --test test/"
   },
   "devDependencies": {
-    "electron": "latest"
+    "electron": "44.4.5"
   }
 }
