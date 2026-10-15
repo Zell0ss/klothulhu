@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron .",
     "check": "node --check main.js && node --check preload.js && node --check sse-client.js && node --check renderer/scenes.js",
-    "test": "node --test test/"
+    "test": "node --test"
   },
   "devDependencies": {
     "electron": "44.4.5"
