@@ -82,3 +82,18 @@ hecho cuando acabes R1, haz R1, deja dicho en el anexo que R2 espera y para.
 **Dónde parar:** `npm test` 15/15 (o 14/14 sin P4b), push de `fase1` y un anexo corto en
 `H1-informe.md` (`## Anexo 1 — retoques`) con commit. Después Josem prueba K1-K7 en Konnos. Los errores de
 ruff del servidor **no** se tocan (2.2, fase 2).
+
+## 4. Revisión del anexo 1 (2026-10-15)
+
+Responde a: 0e0f319 (H1-informe, anexo 1)
+
+R1 comprobado contra el código: la P4 de `fase1.test.js` es el bloque de la revisión, tal cual, y P4b
+se ha quitado. `npm test`: 14/14. **R1 aprobado.**
+
+## Para el programador
+
+Responde a: 0e0f319 (H1-informe, anexo 1)
+
+R1 aprobado. **R2: adelante en cuanto Josem haga commit del README en `main`**, sin esperar otra
+revisión mía, con las instrucciones de la sección anterior. Después, push de `fase1` y `## Anexo 2` con
+commit. Para ahí: lo siguiente es la prueba de Josem en Konnos.
