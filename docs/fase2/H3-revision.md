@@ -134,3 +134,44 @@ Responde a: 2a72c8a (H3-informe, anexo)
 
 Nada que hacer hasta que Josem lance las dos pasadas de R6. Después, el segundo anexo con la comparación
 (encargo §5), con commit, y para.
+
+## 5. Revisión del anexo 2: las pasadas de R6 (2026-10-15)
+
+Responde a: 93c399d (H3-informe, anexo 2)
+
+He recalculado de los dos JSON lo que decide:
+
+| | sin pensamiento | con pensamiento |
+|---|---|---|
+| Coste | $0.0058 | $0.0062 |
+| Primera escena, mediana / máxima | 1.590 / 2.696 ms | 1.654 / 4.900 ms |
+| `null` | 0 de 51 | 3 de 59 |
+| Fondos | 7 de 7 | 7 de 7 |
+
+Coincide con el anexo.
+
+Contra los indicadores del encargo:
+- **D18 y fondos: se cumplen.** Los golpes cortos que quedan son frases completas.
+- **D19 (≤1,5 s): no se cumple, por 0,09 s.** Lo registro tal cual. Decisión del arquitecto (**D20**, en la
+  ficha): se acepta y se mide la espera que se nota de verdad en el cliente de la fase 3. Replantear (dirigir
+  golpe a golpe mientras escribe el narrador) no compensa por una décima.
+- **Sin pensamiento por defecto (D20):** no sube los `null`, recorta la cola de espera y da más variedad.
+
+Hallazgo del anexo (una escena para 4 golpes, con `end_turn` y sin aviso): bien visto. Un golpe que falta
+tiene que verse en el registro. Va en el retoque.
+
+## Para el programador
+
+Responde a: 93c399d (H3-informe, anexo 2)
+
+**R2 · Últimos retoques de la fase** (sin API):
+
+1. `KLOTHULHU_DIRECTOR_THINKING` pasa a valer **`0` por defecto** (D20) en `app.py`, `klothulhu.env.example`, el
+   README y el docstring. `direct(...)` puede seguir con `thinking=True` por defecto en su firma: quien manda es
+   el ajuste.
+2. En `director.direct`: si el stream acaba con `end_turn` y han salido menos escenas que golpes, un
+   `log.warning` con cuántas faltaron. Si quieres, añade una prueba de regresión tuya (con `caplog`) en otro
+   fichero.
+
+`pytest`, `ruff` y `npm test` en verde, push y un anexo 3 corto con commit. **Para:** después viene el
+despliegue de Josem (PLAN §6) y el cierre de la fase.
