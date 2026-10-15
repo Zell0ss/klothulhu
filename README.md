@@ -37,8 +37,8 @@ restart clears it. Only complete replies are stored.
 ## Server on seb01
 
 ```bash
-sudo mkdir -p /data/klothulhu /etc/klothulhu
-# copy this repo (server/ and tests/) to /data/klothulhu
+sudo mkdir -p /etc/klothulhu
+git clone https://github.com/Zell0ss/klothulhu /data/klothulhu   # private repo
 cd /data/klothulhu
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/pip install pytest && .venv/bin/python -m pytest -q tests
@@ -67,7 +67,7 @@ The character lives in `server/prompt.md`; edit and restart the service.
 
 ## Desktop client on Konnos
 
-Requires Node.js 20+.
+Plain JavaScript (no TypeScript, no build step). Requires Node.js 20+.
 
 ```powershell
 cd desktop
@@ -86,7 +86,10 @@ accepts `look` (default `"pixel"`; an unknown value falls back to `pixel`, see
 
 - Click on klothulhu (or `Ctrl+Alt+K`) to open the input, `Enter` to send, `Esc` to close.
 - Drag him anywhere. The whole strip is interactive; clicks outside it go through to the desktop.
+- The 📋 button copies the whole reply; the ✕ button quits the app.
 - Tray icon: show/hide, talk, forget conversation, quit.
+- Desktop shortcut on Windows: run `desktop/create-shortcut.ps` from `desktop/`
+  (uses `klothulhu.ico`).
 - The token stays in the main process; the renderer never sees it.
 
 ### Scenes
