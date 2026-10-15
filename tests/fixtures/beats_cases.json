@@ -1,0 +1,208 @@
+{
+ "_comment": "Casos normativos de beats() (fase 2, D13). Los comparten desktop/renderer/scenes.js y server/beats.py. No editar para que pase una prueba.",
+ "cases": [
+  {
+   "name": "junta frases cortas",
+   "text": "Hola.   Qué tal.",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "beats": [
+    [
+     "Hola. Qué tal.",
+     "happy"
+    ]
+   ]
+  },
+  {
+   "name": "vacío",
+   "text": "",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "beats": []
+  },
+  {
+   "name": "solo espacios",
+   "text": "   \n ",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "beats": []
+  },
+  {
+   "name": "sin marcas",
+   "text": "Sin marcas.",
+   "marks": [],
+   "beats": [
+    [
+     "Sin marcas.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "largo con varias frases",
+   "text": "No tengo reloj, mortal, solo eternidad. Pero Tokio va siete horas por delante de Madrid en verano, y eso lo sabe hasta el más torpe de mis sectarios aunque lo niegue. ¿Algo más?",
+   "marks": [
+    [
+     0,
+     "smug"
+    ]
+   ],
+   "beats": [
+    [
+     "No tengo reloj, mortal, solo eternidad.",
+     "smug"
+    ],
+    [
+     "Pero Tokio va siete horas por delante de Madrid en verano, y eso lo",
+     "smug"
+    ],
+    [
+     "sabe hasta el más torpe de mis sectarios aunque lo niegue. ¿Algo más?",
+     "smug"
+    ]
+   ]
+  },
+  {
+   "name": "palabra de más de 70",
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "marks": [],
+   "beats": [
+    [
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "neutral"
+    ],
+    [
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "marcas parten tramos",
+   "text": "Los astros duermen. Pero yo no.",
+   "marks": [
+    [
+     0,
+     "confused"
+    ],
+    [
+     20,
+     "smug"
+    ]
+   ],
+   "beats": [
+    [
+     "Los astros duermen.",
+     "confused"
+    ],
+    [
+     "Pero yo no.",
+     "smug"
+    ]
+   ]
+  },
+  {
+   "name": "texto antes de la primera marca es neutral",
+   "text": "Antes. Después.",
+   "marks": [
+    [
+     7,
+     "happy"
+    ]
+   ],
+   "beats": [
+    [
+     "Antes.",
+     "neutral"
+    ],
+    [
+     "Después.",
+     "happy"
+    ]
+   ]
+  },
+  {
+   "name": "puntos suspensivos y comillas de cierre",
+   "text": "¿De verdad? Sí... claro. «Hola.» Fin",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "beats": [
+    [
+     "¿De verdad? Sí... claro. «Hola.» Fin",
+     "happy"
+    ]
+   ]
+  },
+  {
+   "name": "puntos dentro de palabra",
+   "text": "v1.2 es mejor. Mira https://x.com/a.b ahora.",
+   "marks": [],
+   "beats": [
+    [
+     "v1.2 es mejor. Mira https://x.com/a.b ahora.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "frase larga sin puntuación",
+   "text": "una frase muy larga sin ningún signo de puntuación que supera con creces los setenta caracteres permitidos",
+   "marks": [
+    [
+     0,
+     "sleepy"
+    ]
+   ],
+   "beats": [
+    [
+     "una frase muy larga sin ningún signo de puntuación que supera con",
+     "sleepy"
+    ],
+    [
+     "creces los setenta caracteres permitidos",
+     "sleepy"
+    ]
+   ]
+  },
+  {
+   "name": "marca fuera de rango y duplicada en 0",
+   "text": "Uno. Dos.",
+   "marks": [
+    [
+     0,
+     "happy"
+    ],
+    [
+     0,
+     "annoyed"
+    ],
+    [
+     99,
+     "smug"
+    ]
+   ],
+   "beats": [
+    [
+     "Uno. Dos.",
+     "annoyed"
+    ]
+   ]
+  }
+ ]
+}

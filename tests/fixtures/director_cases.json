@@ -1,0 +1,61 @@
+{
+ "_comment": "Casos normativos de build_scene() (fase 2, D14). Entrada: lo que devuelve el director para un golpe; salida: el FablesScene que manda el servidor, o null. Las escenas no nulas tienen que pintarse en el motor sin correcciones (desktop/test/fase2.test.js). No editar para que pase una prueba.",
+ "cases": [
+  {
+   "name": "completa con accesorio y partículas",
+   "caption": "Tokio va siete horas por delante.",
+   "staging": {"backdrop": "space", "hero": {"action": "fly", "from": 10, "to": 60, "then": "point"},
+               "particles": {"kind": "stars", "density": 0.5},
+               "props": [{"sprite": "planet", "x": 80, "y": "sky", "motion": "bob", "label": "Tokio"}],
+               "tone": "work"},
+   "scene": {"backdrop": "space", "palette": {}, "hero": {"action": "fly", "from": 10, "to": 60, "then": "point"},
+             "props": [{"sprite": "planet", "x": 80, "y": "sky", "motion": "bob", "label": "Tokio"}],
+             "caption": "Tokio va siete horas por delante.", "tone": "work",
+             "particles": {"kind": "stars", "density": 0.5}}
+  },
+  {
+   "name": "acota números y recorta la etiqueta",
+   "caption": "Los astros aplauden, sectario.",
+   "staging": {"backdrop": "forest", "hero": {"action": "jump", "from": -5, "to": 140, "then": "celebrate"},
+               "particles": {"kind": "leaves", "density": 1.7},
+               "props": [{"sprite": "trophy", "x": 130, "y": "ground", "motion": "spin", "label": "  un premio demasiado largo  "}],
+               "tone": "milestone"},
+   "scene": {"backdrop": "forest", "palette": {}, "hero": {"action": "jump", "from": 0, "to": 100, "then": "celebrate"},
+             "props": [{"sprite": "trophy", "x": 100, "y": "ground", "motion": "spin", "label": "un premio demasiad"}],
+             "caption": "Los astros aplauden, sectario.", "tone": "milestone",
+             "particles": {"kind": "leaves", "density": 1}}
+  },
+  {
+   "name": "nulos fuera y como mucho tres accesorios",
+   "caption": "Zzz.",
+   "staging": {"backdrop": "night", "hero": {"action": "sleep", "from": 50, "to": 50, "then": null},
+               "particles": null,
+               "props": [{"sprite": "star", "x": 10, "y": "sky", "motion": "blink", "label": null},
+                         {"sprite": "star", "x": 30, "y": "sky", "motion": "blink", "label": null},
+                         {"sprite": "lamp", "x": 70, "y": "ground", "motion": "none", "label": ""},
+                         {"sprite": "book", "x": 80, "y": "ground", "motion": "none", "label": null},
+                         {"sprite": "key", "x": 90, "y": "ground", "motion": "none", "label": null}],
+               "tone": "work"},
+   "scene": {"backdrop": "night", "palette": {}, "hero": {"action": "sleep", "from": 50, "to": 50},
+             "props": [{"sprite": "star", "x": 10, "y": "sky", "motion": "blink"},
+                       {"sprite": "star", "x": 30, "y": "sky", "motion": "blink"},
+                       {"sprite": "lamp", "x": 70, "y": "ground", "motion": "none"}],
+             "caption": "Zzz.", "tone": "work"}
+  },
+  {
+   "name": "valor fuera del vocabulario: null",
+   "caption": "Hola.",
+   "staging": {"backdrop": "moon", "hero": {"action": "walk", "from": 10, "to": 40, "then": null},
+               "particles": null, "props": [], "tone": "work"},
+   "scene": null
+  },
+  {
+   "name": "accesorio fuera del vocabulario: null",
+   "caption": "Hola.",
+   "staging": {"backdrop": "lab", "hero": {"action": "inspect", "from": 40, "to": 40, "then": null},
+               "particles": null, "props": [{"sprite": "moon", "x": 50, "y": "sky", "motion": "none", "label": null}],
+               "tone": "work"},
+   "scene": null
+  }
+ ]
+}
