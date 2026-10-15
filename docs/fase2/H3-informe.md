@@ -78,3 +78,76 @@ Responde a: 24c9af4 (H3-revision)
 Desviación: el `timeout(2)` del cierre del stream no estaba en la revisión. **Decisiones que necesito:** ninguna.
 
 Siguiente: Josem lanza las dos pasadas de R6 (órdenes de este informe, §R6). Para.
+
+---
+
+## Anexo 2 — las dos pasadas de R6 (2026-10-15)
+
+Responde a: 24c9af4 (H3-revision, R1 aprobado)
+
+Josem lanzó las dos pasadas con su clave, una vez cada una, completas (13/13, sin cortes ni errores):
+`api_smoke-think1.json` y `api_smoke-think0.json`, cada una con su galería (`galeria-think<n>.html`). Todo con
+commit. Los números salen de esos JSON.
+
+### Gasto
+
+| Pasada | Narrador | Director | Total |
+|---|---|---|---|
+| `thinking=1` | $0.0017 | $0.0045 | $0.0062 |
+| `thinking=0` | $0.0017 | $0.0041 | $0.0058 |
+
+Gasto de H3: **$0.0120**. Total de la fase: **$0.0187** de $1. Autorizado por Josem el 2026-10-15 (tope de la
+fase en la ventana del arquitecto; «sí» en esta ventana al paso [API]); las dos pasadas las lanzó él.
+
+### Comparación (encargo §5)
+
+| | `thinking=1` | `thinking=0` | H2 (referencia) |
+|---|---|---|---|
+| **Primera escena del director**, mediana | **1,65 s** | **1,59 s** | 3,26 s (todas juntas al final) |
+| Primera escena, máxima | 4,90 s | 2,70 s | 7,56 s |
+| Director entero, mediana / máxima | 3,00 / 5,77 s | 2,80 / 3,96 s | 3,26 / 7,56 s |
+| Hasta `done` (total), mediana / máxima | 4,21 / 7,68 s | 4,07 / 5,73 s | 3,6–9,0 s |
+| Golpes `null` | **3 de 59** | **0 de 51** | 0 de 61 |
+| Golpes de ≤3 palabras | 3 de 59 (**5,1 %**) | 2 de 51 (**3,9 %**) | 15 de 61 (25 %) |
+| Fondos distintos | **7 de 7** | **7 de 7** | 3 de 7 |
+| Acciones distintas / accesorios por escena | 14 / 1,38 | 16 / 1,57 | — |
+| `cache_read` del director (desde la 2ª) | 2.609 | 2.608 | 2.443 |
+| `refusal` | ninguno | ninguno | ninguno |
+
+Los golpes de ≤3 palabras que quedan son frases completas («Trasto, dices.», «Lo siento, mortal.», «¿Necesitas
+algo?»), no colas huérfanas.
+
+### Indicadores del encargo §5
+
+1. **D19, ≤ 1,5 s hasta la primera escena: no se cumple, por poco.** Con el mejor modo (`thinking=0`) la
+   mediana es 1,59 s; con pensamiento, 1,65 s. Mejora mucho respecto a esperar a todas (3,26 s), pero no llega
+   al umbral. El pensamiento apenas cambia la mediana; sí la cola (4,90 s frente a 2,70 s).
+2. **D19, sin pensamiento:** `thinking=0` **no** sube los `null` (0 frente a 3), **no** empobrece los fondos (7 de
+   7 en las dos) y tiene más variedad de acciones y accesorios. Por el criterio, no hay razón para dejar el
+   valor por defecto en `1`; eso lo decide el arquitecto.
+3. **D18: se cumple.** 5,1 % y 3,9 %. El límite era ≤ 5 %: la pasada con pensamiento queda en el filo (3 de 59,
+   las tres frases completas).
+4. **Fondos: se cumple.** 7 de 7 en las dos (antes, 3).
+
+### Un hallazgo sin atribuir
+
+En `thinking=1`, pregunta 11 («Son las tres de la madrugada…»), el director devolvió **una sola escena para 4
+golpes** y acabó en `end_turn` (112 tokens de salida): los otros 3 salieron `null`. No hubo `warning`, porque
+`direct` solo avisa si `stop_reason != end_turn` o si algo falla. No es un fallo del código (el diseño completa
+con `None`), pero el registro no lo distingue de un golpe bueno. Una línea de `log.warning` cuando salgan menos
+escenas que golpes con `end_turn` lo haría visible. No lo he tocado: es un cambio de código fuera del encargo.
+
+### Desviaciones
+
+Ninguna.
+
+### Decisiones que necesito
+
+Del arquitecto o de Josem:
+
+1. ¿Valor por defecto de `KLOTHULHU_DIRECTOR_THINKING`: `0` (según la comparación) o se queda en `1`?
+2. ¿Se acepta 1,6 s de mediana hasta la primera escena (umbral 1,5 s) o se replantea D19?
+3. ¿Añado el `log.warning` de escenas de menos con `end_turn`?
+4. Voz (D16) y escenas (D14): las galerías son para Josem.
+
+Parada de H3.
