@@ -253,19 +253,33 @@ async def direct(
         if not thinking:
             kwargs["thinking"] = {"type": "disabled"}
         splitter = _SceneSplitter()
-        async with asyncio.timeout(timeout):
-            opts = client.with_options(timeout=timeout, max_retries=1)
-            async with opts.messages.stream(**kwargs) as stream:
-                async for chunk in stream.text_stream:
-                    for raw in splitter.feed(chunk):
-                        if emitted >= total:
-                            continue
-                        scene = _scene_from_json(raw, beats[emitted][0], vocab)
-                        emitted += 1
-                        if first_ms is None:
-                            first_ms = (time.monotonic() - started) * 1000
-                        yield scene
+        # Un solo plazo para todo, pero ningún ``yield`` dentro de un ``timeout``: si venciera con el
+        # consumidor ocupado, asyncio cancelaría al consumidor y no al stream (PEP 789, H3-revision §2.1).
+        deadline = asyncio.get_running_loop().time() + timeout
+        manager = client.with_options(timeout=timeout, max_retries=1).messages.stream(**kwargs)
+        async with asyncio.timeout_at(deadline):
+            stream = await manager.__aenter__()
+        try:
+            chunks = stream.text_stream.__aiter__()
+            while True:
+                try:
+                    async with asyncio.timeout_at(deadline):
+                        chunk = await chunks.__anext__()
+                except StopAsyncIteration:
+                    break
+                for raw in splitter.feed(chunk):
+                    if emitted >= total:
+                        continue
+                    scene = _scene_from_json(raw, beats[emitted][0], vocab)
+                    emitted += 1
+                    if first_ms is None:
+                        first_ms = (time.monotonic() - started) * 1000
+                    yield scene
+            async with asyncio.timeout_at(deadline):
                 final = await stream.get_final_message()
+        finally:
+            async with asyncio.timeout(2):  # cerrar el stream no puede colgar la respuesta
+                await manager.__aexit__(None, None, None)
         usage = getattr(final, "usage", None)
         if final.stop_reason != "end_turn":
             log.warning("director: stop_reason=%s", final.stop_reason)

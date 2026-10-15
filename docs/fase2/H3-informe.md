@@ -59,3 +59,22 @@ node desktop/scripts/gallery.js docs/fase2/capturas/api_smoke-think0.json docs/f
 
 Corte a $0.50 por pasada. Si falla a mitad, no se relanza entero sin decirlo. Después escribo el anexo con las
 dos pasadas comparadas contra los criterios del §5 del encargo.
+
+---
+
+## Anexo — retoque R1 de la revisión (plazo del director)
+
+Responde a: 24c9af4 (H3-revision)
+
+- `director.direct`: una sola hora límite (`loop.time() + timeout`) y `asyncio.timeout_at(limite)` **solo** en cada
+  espera (entrada al gestor del stream, cada `anext` de `text_stream` y `get_final_message()`). Ningún `yield`
+  queda dentro de un `timeout`. El gestor del stream se cierra siempre en un `finally`, con un plazo de 2 s
+  propio para que cerrar no pueda colgar la respuesta (añadido mío).
+- `tests/test_fase2_plazo.py` copiado tal cual (N15). `ruff.toml`: `E501` exento para ese fichero, como el otro
+  normativo.
+- Verificación: `pytest` 24 pasan (N15 incluida), `ruff` limpio, `npm test` 17 pasan.
+- Gasto: 0.
+
+Desviación: el `timeout(2)` del cierre del stream no estaba en la revisión. **Decisiones que necesito:** ninguna.
+
+Siguiente: Josem lanza las dos pasadas de R6 (órdenes de este informe, §R6). Para.
