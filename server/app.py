@@ -8,9 +8,10 @@ One endpoint streams a reply as Server-Sent Events with this contract:
     event: done     data: {"turns": 3}              reply finished and stored
     event: error    data: {"code": "upstream_error"}
 
-After the narrator's text, one ``scene`` per beat (D13), staged by the director (D14). ``scene`` is a
-FablesScene, or null when the director is off, fails or returns something invalid: the client then
-falls back to its own staging. Scenes never enter the history. Clients that do not know ``scene`` ignore it.
+After the narrator's text, one ``scene`` per beat (D13), staged by the director (D14) and sent as soon
+as each one is ready (D19). ``scene`` is a FablesScene, or null when the director is off, fails or
+returns something invalid: the client then falls back to its own staging. Scenes never enter the
+history. Clients that do not know ``scene`` ignore it.
 
 Clients render; all model and parsing logic lives here.
 """
@@ -23,6 +24,7 @@ import logging
 import os
 import random
 from collections.abc import AsyncIterator
+from contextlib import aclosing
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
@@ -45,6 +47,7 @@ MAX_TOKENS = int(os.getenv("KLOTHULHU_MAX_TOKENS", "1024"))  # el pensamiento cu
 DIRECTOR_ENABLED = os.getenv("KLOTHULHU_DIRECTOR", "1") == "1"
 DIRECTOR_MODEL = os.getenv("KLOTHULHU_DIRECTOR_MODEL", "claude-haiku-5-5")
 DIRECTOR_EFFORT = os.getenv("KLOTHULHU_DIRECTOR_EFFORT", "low")
+DIRECTOR_THINKING = os.getenv("KLOTHULHU_DIRECTOR_THINKING", "1") == "1"  # 0 = thinking disabled (D19)
 DIRECTOR_TIMEOUT = float(os.getenv("KLOTHULHU_DIRECTOR_TIMEOUT", "10"))
 HISTORY_TURNS = int(os.getenv("KLOTHULHU_HISTORY_TURNS", "6"))
 HISTORY_TTL_MIN = float(os.getenv("KLOTHULHU_HISTORY_TTL_MIN", "30"))
@@ -173,19 +176,35 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         # keeps seeing the format it is expected to follow.
         history.append(cid, text, "".join(raw))
         bs = beats(shown, marks)
-        scenes = await _staged(text, bs)
-        for i, ((caption, emotion), scene) in enumerate(zip(bs, scenes, strict=True)):
-            yield _sse(
-                "scene",
-                {"index": i, "total": len(bs), "emotion": emotion, "caption": caption, "scene": scene},
-            )
+        sent = 0
+        if bs and DIRECTOR_ENABLED:
+            # Cada escena sale en cuanto el director la tiene lista (D19). Si falla, el resto va a null.
+            try:
+                async with aclosing(_director(text, bs)) as scenes:
+                    async for scene in scenes:
+                        if sent >= len(bs):
+                            break
+                        yield _scene_event(bs, sent, scene)
+                        sent += 1
+            except Exception:  # noqa: BLE001 - un director caído nunca estropea la respuesta
+                log.warning("director failed; sending the missing scenes as null", exc_info=True)
+        while sent < len(bs):
+            yield _scene_event(bs, sent, None)
+            sent += 1
         yield _sse("done", {"turns": len(history.messages(cid)) // 2})
 
 
-async def _director(question: str, bs: list[tuple[str, str]]) -> list[dict | None]:
+def _scene_event(bs: list[tuple[str, str]], i: int, scene: dict | None) -> str:
+    caption, emotion = bs[i]
+    data = {"index": i, "total": len(bs), "emotion": emotion, "caption": caption, "scene": scene}
+    return _sse("scene", data)
+
+
+def _director(question: str, bs: list[tuple[str, str]]) -> AsyncIterator[dict | None]:
+    """Escenas del director, una por golpe y según van llegando. Las pruebas la sustituyen."""
     if FAKE:
-        return await director.fake_direct(question, bs)
-    return await director.direct(
+        return director.fake_direct(question, bs)
+    return director.direct(
         question,
         bs,
         client=_anthropic,
@@ -193,19 +212,8 @@ async def _director(question: str, bs: list[tuple[str, str]]) -> list[dict | Non
         model=DIRECTOR_MODEL,
         effort=DIRECTOR_EFFORT,
         timeout=DIRECTOR_TIMEOUT,
+        thinking=DIRECTOR_THINKING,
     )
-
-
-async def _staged(question: str, bs: list[tuple[str, str]]) -> list[dict | None]:
-    """Una escena (o None) por golpe. Un director caído nunca estropea la respuesta (D14)."""
-    if not bs or not DIRECTOR_ENABLED:
-        return [None] * len(bs)
-    try:
-        scenes = list(await _director(question, bs))
-    except Exception:  # noqa: BLE001
-        log.warning("director failed; sending scenes as null", exc_info=True)
-        scenes = []
-    return (scenes + [None] * len(bs))[: len(bs)]
 
 
 async def _model_stream(cid: str, text: str) -> AsyncIterator[str]:

@@ -20,7 +20,7 @@ Server-Sent Events:
 |-----------|--------------------------|-----------------------------------------|
 | `emotion` | `{"emotion": "happy"}`   | Always first. May repeat mid-reply.     |
 | `delta`   | `{"text": "..."}`        | Text chunks, emotion tags already removed. |
-| `scene`   | `{"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} \| null}` | One per beat, after the last `delta` and before `done` (none if the reply is empty). |
+| `scene`   | `{"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} \| null}` | One per beat, after the last `delta` and before `done` (none if the reply is empty); each is sent as soon as the director has it (D19). |
 | `done`    | `{"turns": 3}`           | Reply complete and stored in history.   |
 | `error`   | `{"code": "..."}`        | `upstream_error`. HTTP errors: 401, 409 busy, 422. |
 
@@ -32,7 +32,8 @@ staging. Scenes never enter the history. The phase 1 client ignores `scene`.
 
 Settings (env, defaults): `KLOTHULHU_MODEL=claude-haiku-5-5`, `KLOTHULHU_EFFORT=low`,
 `KLOTHULHU_MAX_TOKENS=1024`, `KLOTHULHU_DIRECTOR=1`, `KLOTHULHU_DIRECTOR_MODEL=claude-haiku-5-5`,
-`KLOTHULHU_DIRECTOR_EFFORT=low`, `KLOTHULHU_DIRECTOR_TIMEOUT=10`. `GET /health` reports
+`KLOTHULHU_DIRECTOR_EFFORT=low`, `KLOTHULHU_DIRECTOR_TIMEOUT=10`, `KLOTHULHU_DIRECTOR_THINKING=1` (`0` = director
+without thinking, D19). `GET /health` reports
 `director: {enabled, model}`.
 
 Emotions: `neutral happy annoyed confused smug sleepy`. The list lives in

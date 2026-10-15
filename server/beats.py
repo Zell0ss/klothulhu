@@ -1,10 +1,12 @@
 """Trocea la respuesta del narrador en golpes (D13).
 
-Puerto a Python de ``beats()`` de ``desktop/renderer/scenes.js``: las mismas reglas, comprobadas con
-``tests/fixtures/beats_cases.json`` desde los dos lados. Si cambias una, cambia la otra.
+Puerto a Python de ``beats()`` de ``desktop/renderer/scenes.js``, con el corte equilibrado de las frases
+largas (D18): las mismas reglas, comprobadas con ``tests/fixtures/beats_cases.json`` desde los dos lados.
+Si cambias una, cambia la otra.
 """
 from __future__ import annotations
 
+import math
 import re
 
 CAPTION_MAX = 70
@@ -14,15 +16,28 @@ _SENTENCE = re.compile(r".*?[.!?…]+[»\"')\]]*(?=\s|$)|.+$", re.DOTALL)
 
 
 def _split_long(s: str) -> list[str]:
+    """Parte una frase de más de CAPTION_MAX en trozos de longitud pareja (D18).
+
+    Idéntico a ``splitLong`` de scenes.js: si cambias uno, cambia el otro.
+    """
     out: list[str] = []
     while len(s) > CAPTION_MAX:
-        i = s.rfind(" ", 0, CAPTION_MAX + 1)
-        if i > 0:
-            out.append(s[:i])
-            s = s[i + 1 :]
-        else:
+        k = math.ceil(len(s) / CAPTION_MAX)  # trozos que hacen falta
+        target = len(s) / k  # longitud objetivo de cada trozo
+        # Huecos donde cortar: lo que queda tiene que caber en k-1 trozos.
+        gaps = [
+            i
+            for i in range(1, CAPTION_MAX + 1)
+            if s[i] == " " and len(s) - (i + 1) <= CAPTION_MAX * (k - 1)
+        ]
+        if not gaps:  # palabra de más de CAPTION_MAX: corte duro
             out.append(s[:CAPTION_MAX])
             s = s[CAPTION_MAX:]
+            continue
+        clauses = [i for i in gaps if s[i - 1] in ",;:" and abs(i - target) <= 15]
+        i = min(clauses or gaps, key=lambda g: (abs(g - target), g))
+        out.append(s[:i])
+        s = s[i + 1 :]
     if s:
         out.append(s)
     return out

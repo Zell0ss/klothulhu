@@ -1,14 +1,16 @@
 """El director de escena (D14): decide cómo se pone en escena cada golpe de la respuesta.
 
-Una segunda llamada al modelo, con *structured outputs*, después de que el narrador haya escrito. El
-texto no lo toca: el ``caption`` de cada escena es el golpe tal cual. El vocabulario sale de
+Una segunda llamada al modelo, con *structured outputs* y en streaming (D19), después de que el narrador
+haya escrito. El texto no lo toca: el ``caption`` de cada escena es el golpe tal cual. El vocabulario sale de
 ``fables_vocab.json``, generado del motor vendorizado (D15).
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import time
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 log = logging.getLogger("klothulhu.director")
@@ -176,48 +178,114 @@ def _user_message(question: str, beats: list[tuple[str, str]]) -> str:
     )
 
 
-async def direct(question, beats, *, client, vocab, model, effort, timeout) -> list[dict | None]:
-    """Una escena (o None) por golpe. Nunca lanza: cualquier fallo da todo None."""
-    nones: list[dict | None] = [None] * len(beats)
-    started = time.monotonic()
+class _SceneSplitter:
+    """Saca del JSON en streaming cada objeto de ``scenes`` en cuanto se cierra (D19).
+
+    Sigue la profundidad de ``{``/``[`` y si está dentro de una cadena (con sus escapes): las llaves y
+    comillas dentro de una cadena no cuentan. ``{"scenes": [ {…}, {…} ]}``: cada escena es el objeto
+    que se abre y se cierra a profundidad 3.
+    """
+
+    def __init__(self) -> None:
+        self.depth = 0
+        self.in_str = False
+        self.escaped = False
+        self.buf: list[str] | None = None
+
+    def feed(self, chunk: str) -> list[str]:
+        done: list[str] = []
+        for ch in chunk:
+            if not self.in_str and ch in "{[":
+                self.depth += 1
+                if self.depth == 3 and ch == "{":
+                    self.buf = []
+            if self.buf is not None:
+                self.buf.append(ch)
+            if self.in_str:
+                if self.escaped:
+                    self.escaped = False
+                elif ch == "\\":
+                    self.escaped = True
+                elif ch == '"':
+                    self.in_str = False
+            elif ch == '"':
+                self.in_str = True
+            elif ch in "}]":
+                if ch == "}" and self.depth == 3 and self.buf is not None:
+                    done.append("".join(self.buf))
+                    self.buf = None
+                self.depth -= 1
+        return done
+
+
+def _scene_from_json(raw: str, caption: str, vocab: dict) -> dict | None:
     try:
-        response = await client.with_options(timeout=timeout, max_retries=1).messages.create(
-            model=model,
-            max_tokens=4096,
-            system=[{"type": "text", "text": system_prompt(vocab), "cache_control": {"type": "ephemeral"}}],
-            messages=[{"role": "user", "content": _user_message(question, beats)}],
-            output_config={
+        return build_scene(json.loads(raw), caption, vocab)
+    except ValueError:
+        return None
+
+
+async def direct(
+    question, beats, *, client, vocab, model, effort, timeout, thinking=True
+) -> AsyncIterator[dict | None]:
+    """Suelta exactamente ``len(beats)`` elementos (escena o None), en orden y en cuanto cada uno está listo.
+
+    Nunca lanza: lo que falte, por error, ``refusal``, ``max_tokens`` o plazo agotado, sale como None (D19).
+    """
+    total = len(beats)
+    emitted = 0
+    started = time.monotonic()
+    first_ms = None
+    usage = None
+    try:
+        kwargs = {
+            "model": model,
+            "max_tokens": 4096,
+            "system": [
+                {"type": "text", "text": system_prompt(vocab), "cache_control": {"type": "ephemeral"}}
+            ],
+            "messages": [{"role": "user", "content": _user_message(question, beats)}],
+            "output_config": {
                 "effort": effort,
                 "format": {"type": "json_schema", "schema": output_schema(vocab)},
             },
-        )
-        if response.stop_reason != "end_turn":
-            log.warning("director: stop_reason=%s", response.stop_reason)
-            return nones
-        text = next((b.text for b in response.content if getattr(b, "type", None) == "text"), None)
-        if not text:
-            log.warning("director: respuesta sin texto")
-            return nones
-        stagings = json.loads(text)["scenes"]
-        if not isinstance(stagings, list):
-            raise ValueError("scenes no es una lista")
-        scenes = [build_scene(s, caption, vocab) for s, (caption, _) in zip(stagings, beats, strict=False)]
-        scenes += [None] * (len(beats) - len(scenes))
+        }
+        if not thinking:
+            kwargs["thinking"] = {"type": "disabled"}
+        splitter = _SceneSplitter()
+        async with asyncio.timeout(timeout):
+            opts = client.with_options(timeout=timeout, max_retries=1)
+            async with opts.messages.stream(**kwargs) as stream:
+                async for chunk in stream.text_stream:
+                    for raw in splitter.feed(chunk):
+                        if emitted >= total:
+                            continue
+                        scene = _scene_from_json(raw, beats[emitted][0], vocab)
+                        emitted += 1
+                        if first_ms is None:
+                            first_ms = (time.monotonic() - started) * 1000
+                        yield scene
+                final = await stream.get_final_message()
+        usage = getattr(final, "usage", None)
+        if final.stop_reason != "end_turn":
+            log.warning("director: stop_reason=%s", final.stop_reason)
     except Exception as exc:  # noqa: BLE001 - el director nunca rompe la respuesta
-        log.warning("director: fallo (%s: %s)", type(exc).__name__, exc)
-        return nones
-    usage = response.usage
+        log.warning("director: fallo (%s: %s)", type(exc).__name__, exc or "sin detalle")
+    nulls_late = total - emitted
     log.info(
-        "director: model=%s ms=%d in=%s out=%s cache_read=%s nulls=%d/%d",
+        "director: model=%s thinking=%s first_ms=%s ms=%d in=%s out=%s cache_read=%s missing=%d/%d",
         model,
+        thinking,
+        None if first_ms is None else round(first_ms),
         (time.monotonic() - started) * 1000,
         getattr(usage, "input_tokens", 0),
         getattr(usage, "output_tokens", 0),
         getattr(usage, "cache_read_input_tokens", 0),
-        scenes.count(None),
-        len(beats),
+        nulls_late,
+        total,
     )
-    return scenes
+    for _ in range(nulls_late):
+        yield None
 
 
 # --- modo de pruebas ----------------------------------------------------------
@@ -232,10 +300,8 @@ _FAKE_STAGINGS = [
 ]
 
 
-async def fake_direct(question, beats) -> list[dict | None]:
+async def fake_direct(question, beats) -> AsyncIterator[dict | None]:
     """Escenas válidas y deterministas, sin API (KLOTHULHU_FAKE=1)."""
     vocab = load_vocab()
-    return [
-        build_scene(_FAKE_STAGINGS[i % len(_FAKE_STAGINGS)], caption, vocab)
-        for i, (caption, _) in enumerate(beats)
-    ]
+    for i, (caption, _) in enumerate(beats):
+        yield build_scene(_FAKE_STAGINGS[i % len(_FAKE_STAGINGS)], caption, vocab)

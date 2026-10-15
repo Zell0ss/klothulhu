@@ -13,7 +13,8 @@ Companion de escritorio: un personaje que contesta con emociones. Contexto detal
   lógica pura (troceo en frases, `STAGING` por emoción, textos fijos) y también se carga desde Node.
 - Director (v2, fase 2): tras el narrador, `server/beats.py` trocea la respuesta (mismas reglas que
   `scenes.js`, casos compartidos en `tests/fixtures/`) y `server/director.py` pide a un segundo modelo la
-  puesta en escena de cada golpe; `app.py` manda un evento `scene` por golpe. `scene: null` = el cliente usa
+  puesta en escena de cada golpe, en streaming (D19); `app.py` manda cada evento `scene` en cuanto llega.
+  El corte de frases largas es equilibrado (D18) y debe ser idéntico en `beats.py` y `scenes.js`. `scene: null` = el cliente usa
   su escena fija. El vocabulario del motor vive en `server/fables_vocab.json`: se regenera con
   `node desktop/scripts/export-vocab.js` al actualizar el motor (prueba F1).
 - Las emociones están en `server/emotion_parser.py` y en `scenes.js`; deben coincidir (prueba P7).

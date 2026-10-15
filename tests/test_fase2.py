@@ -1,4 +1,4 @@
-"""Pruebas normativas de la fase 2 (docs/fase2/PLAN.md, D13-D16). No editar: añadir en otro fichero."""
+"""Pruebas normativas de la fase 2, versión 2 (H3-encargo: D13, D16, D18, D19). No editar: añadir en otro fichero."""
 import asyncio
 import json
 import os
@@ -38,6 +38,8 @@ def _events(chunks):
 
 
 def _run(monkeypatch, reply, directed, cid="fase2"):
+    """`directed(bs)` devuelve una lista o un generador de escenas (o lanza): el director falso las va soltando."""
+
     async def fake_stream():
         for i in range(0, len(reply), 3):
             yield reply[i : i + 3]
@@ -46,7 +48,8 @@ def _run(monkeypatch, reply, directed, cid="fase2"):
 
     async def fake_director(question, bs):
         seen["question"], seen["beats"] = question, [tuple(b) for b in bs]
-        return directed(bs)
+        for scene in directed(bs):
+            yield scene
 
     monkeypatch.setattr(app, "_fake_stream", fake_stream)
     monkeypatch.setattr(app, "_director", fake_director)
@@ -62,7 +65,14 @@ def _scene_for(bs):
     return [director.build_scene(staging, caption, VOCAB) for caption, _ in bs]
 
 
-# N1 — el troceo del servidor es el del cliente
+def _collect(agen):
+    async def run():
+        return [x async for x in agen]
+
+    return asyncio.run(run())
+
+
+# N1 — el troceo del servidor es el del cliente (casos con el corte equilibrado, D18)
 def test_n1_beats_casos_compartidos():
     assert CAPTION_MAX == 70
     for c in _cases("beats_cases.json"):
@@ -177,7 +187,7 @@ def test_n10_health():
 
 # N11 — el director falso da escenas válidas, una por golpe
 def test_n11_fake_direct():
-    out = asyncio.run(director.fake_direct("q", BEATS))
+    out = _collect(director.fake_direct("q", BEATS))
     assert len(out) == 2
     for scene, (caption, _) in zip(out, BEATS):
         assert scene["caption"] == caption
@@ -185,20 +195,39 @@ def test_n11_fake_direct():
         assert scene["hero"]["action"] in VOCAB["actions"]
 
 
-class _Messages:
-    def __init__(self, payload=None, exc=None, stop="end_turn", text=None):
-        self.payload, self.exc, self.stop, self.text, self.kwargs = payload, exc, stop, text, None
+class _Stream:
+    def __init__(self, chunks, stop="end_turn", fail_after=None):
+        self.chunks, self.stop, self.fail_after = chunks, stop, fail_after
 
-    async def create(self, **kwargs):
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc):
+        return False
+
+    @property
+    def text_stream(self):
+        async def gen():
+            for i, chunk in enumerate(self.chunks):
+                if self.fail_after is not None and i == self.fail_after:
+                    raise RuntimeError("se cortó el stream")
+                yield chunk
+
+        return gen()
+
+    async def get_final_message(self):
+        return SimpleNamespace(stop_reason=self.stop, usage=SimpleNamespace(input_tokens=10, output_tokens=5))
+
+
+class _Messages:
+    def __init__(self, stream=None, exc=None):
+        self._stream, self.exc, self.kwargs = stream, exc, None
+
+    def stream(self, **kwargs):
         self.kwargs = kwargs
         if self.exc:
             raise self.exc
-        body = self.text if self.text is not None else json.dumps(self.payload)
-        return SimpleNamespace(
-            stop_reason=self.stop,
-            content=[SimpleNamespace(type="thinking", thinking=""), SimpleNamespace(type="text", text=body)],
-            usage=SimpleNamespace(input_tokens=10, output_tokens=5),
-        )
+        return self._stream
 
 
 class _Client:
@@ -211,32 +240,68 @@ class _Client:
         return self
 
 
-def _direct(client, bs):
-    return asyncio.run(
-        director.direct("¿Qué hora es?", bs, client=client, vocab=VOCAB, model="claude-haiku-5-5", effort="low", timeout=10)
+def _stagings():
+    s0, s1 = (json.loads(json.dumps(c["staging"])) for c in _cases("director_cases.json")[:2])
+    s0["props"][0]["label"] = 'a}b"c{d'  # llaves y comillas dentro de una cadena: el troceo del JSON no debe confundirse
+    return [s0, s1]
+
+
+def _direct(client, bs, thinking=False):
+    return _collect(
+        director.direct(
+            "¿Qué hora es?", bs, client=client, vocab=VOCAB, model="claude-haiku-5-5",
+            effort="low", timeout=10, thinking=thinking,
+        )
     )
 
 
-# N12 — direct: la llamada, la lectura por tipo de bloque y los fallos
-def test_n12_direct():
-    stagings = [c["staging"] for c in _cases("director_cases.json")[:2]]
-    three = [*BEATS, ("Y nada más.", "neutral")]
-    msgs = _Messages(payload={"scenes": stagings})
+THREE = [*BEATS, ("Y nada más.", "neutral")]
+
+
+# N12 — direct en streaming: la llamada, el JSON a trozos y una escena por golpe
+def test_n12_direct_stream():
+    stagings = _stagings()
+    payload = json.dumps({"scenes": stagings})
+    chunks = [payload[i : i + 7] for i in range(0, len(payload), 7)]
+    msgs = _Messages(_Stream(chunks))
     client = _Client(msgs)
-    out = _direct(client, three)
-    assert out == [director.build_scene(s, c, VOCAB) for s, (c, _) in zip(stagings, three)] + [None]
+    out = _direct(client, THREE)
+    assert out == [director.build_scene(s, c, VOCAB) for s, (c, _) in zip(stagings, THREE)] + [None]
+    assert out[0]["props"][0]["label"] == 'a}b"c{d'
     kw = msgs.kwargs
     assert kw["model"] == "claude-haiku-5-5"
     assert kw["output_config"]["effort"] == "low"
     assert kw["output_config"]["format"] == {"type": "json_schema", "schema": director.output_schema(VOCAB)}
+    assert kw["thinking"] == {"type": "disabled"}
     assert "temperature" not in kw and "top_p" not in kw and "top_k" not in kw
-    assert kw["messages"][-1]["role"] == "user"
     assert "No tengo reloj, mortal, solo eternidad." in json.dumps(kw["messages"], ensure_ascii=False)
     assert client.options == {"timeout": 10, "max_retries": 1}
-    for bad in (
-        _Messages(exc=RuntimeError("red caída")),
-        _Messages(payload={"scenes": stagings}, stop="refusal"),
-        _Messages(payload={"scenes": stagings}, stop="max_tokens"),
-        _Messages(text="esto no es JSON"),
-    ):
-        assert _direct(_Client(bad), BEATS) == [None, None]
+    msgs = _Messages(_Stream(chunks))
+    _direct(_Client(msgs), THREE, thinking=True)
+    assert "thinking" not in msgs.kwargs
+
+
+# N13 — lo que ya llegó entero se queda; lo que falta sale null; nunca lanza
+def test_n13_direct_fallos_parciales():
+    stagings = _stagings()
+    payload = json.dumps({"scenes": stagings})
+    cut = len('{"scenes": [') + len(json.dumps(stagings[0])) + 3  # la primera escena entera y un poco de la segunda
+    first = director.build_scene(stagings[0], BEATS[0][0], VOCAB)
+    assert _direct(_Client(_Messages(_Stream([payload[:cut], payload[cut:]], fail_after=1))), BEATS) == [first, None]
+    assert _direct(_Client(_Messages(_Stream([payload[:cut]], stop="refusal"))), BEATS) == [first, None]
+    assert _direct(_Client(_Messages(_Stream([payload[:cut]], stop="max_tokens"))), BEATS) == [first, None]
+    assert _direct(_Client(_Messages(exc=RuntimeError("red caída"))), BEATS) == [None, None]
+    assert _direct(_Client(_Messages(_Stream(["esto no es JSON"]))), BEATS) == [None, None]
+
+
+# N14 — el servidor manda las escenas que llegan aunque el director falle a mitad
+def test_n14_director_falla_a_mitad(monkeypatch):
+    def partial(bs):
+        yield _scene_for(bs)[0]
+        raise RuntimeError("director caído a mitad")
+
+    evs, _ = _run(monkeypatch, REPLY, partial, cid="n14")
+    kinds = [k for k, _ in evs]
+    assert "error" not in kinds and kinds[-1] == "done"
+    scenes = [d for k, d in evs if k == "scene"]
+    assert [s["scene"] is not None for s in scenes] == [True, False]

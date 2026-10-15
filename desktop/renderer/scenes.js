@@ -47,12 +47,28 @@
   // Fin de frase: . ! ? … (uno o varios, quizá cerrando »"')) seguido de espacio o fin.
   const SENTENCE = /.*?[.!?…]+[»"')\]]*(?=\s|$)|.+$/gs;
 
+  // Parte una frase de más de CAPTION_MAX en trozos de longitud pareja (D18).
+  // Idéntico a _split_long de server/beats.py: si cambias uno, cambia el otro.
   function splitLong(s) {
     const out = [];
     while (s.length > CAPTION_MAX) {
-      const i = s.lastIndexOf(' ', CAPTION_MAX);
-      if (i > 0) { out.push(s.slice(0, i)); s = s.slice(i + 1); }
-      else { out.push(s.slice(0, CAPTION_MAX)); s = s.slice(CAPTION_MAX); }
+      const k = Math.ceil(s.length / CAPTION_MAX);   // trozos que hacen falta
+      const target = s.length / k;                   // longitud objetivo de cada trozo
+      const gaps = [];                               // lo que queda tiene que caber en k-1 trozos
+      for (let i = 1; i <= CAPTION_MAX; i++) {
+        if (s[i] === ' ' && s.length - (i + 1) <= CAPTION_MAX * (k - 1)) gaps.push(i);
+      }
+      if (!gaps.length) {                            // palabra de más de CAPTION_MAX: corte duro
+        out.push(s.slice(0, CAPTION_MAX));
+        s = s.slice(CAPTION_MAX);
+        continue;
+      }
+      const clauses = gaps.filter((i) => ',;:'.includes(s[i - 1]) && Math.abs(i - target) <= 15);
+      const pool = clauses.length ? clauses : gaps;
+      let best = pool[0];
+      for (const g of pool) if (Math.abs(g - target) < Math.abs(best - target)) best = g;
+      out.push(s.slice(0, best));
+      s = s.slice(best + 1);
     }
     if (s) out.push(s);
     return out;

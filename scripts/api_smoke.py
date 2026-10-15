@@ -3,8 +3,11 @@
 Ejecuta ``app._reply`` (narrador + director) para una lista fija de preguntas, sin pasar por HTTP, y
 escribe ``docs/fase2/capturas/api_smoke.json`` con respuestas, golpes, escenas, latencias, tokens y coste.
 
-    .venv/bin/python scripts/api_smoke.py            # GASTA API (necesita ANTHROPIC_API_KEY)
-    .venv/bin/python scripts/api_smoke.py --fake     # ensayo gratis: KLOTHULHU_FAKE=1, otro fichero
+    .venv/bin/python scripts/api_smoke.py --director-thinking 1   # GASTA API (necesita ANTHROPIC_API_KEY)
+    .venv/bin/python scripts/api_smoke.py --director-thinking 0   # idem, director sin pensamiento (D19)
+    .venv/bin/python scripts/api_smoke.py --fake                  # ensayo gratis: KLOTHULHU_FAKE=1
+
+Escribe ``api_smoke-think<0|1>.json`` (nunca pisa ``api_smoke.json`` de H2).
 
 Corta si el gasto acumulado pasa de $0.50 (el tope autorizado de la fase es $1).
 """
@@ -97,7 +100,7 @@ class _Recorder:
         return response
 
     def stream(self, **kw):
-        return _StreamCM(self._inner.messages.stream(**kw), self._n)
+        return _StreamCM(self._inner.messages.stream(**kw), self._d if self._ds else self._n)
 
 
 class _StreamCM:
@@ -139,8 +142,9 @@ def _median(xs):
     return round(statistics.median(xs), 1) if xs else None
 
 
-async def main(fake: bool, out: Path) -> int:
+async def main(fake: bool, thinking: str, out: Path) -> int:
     os.environ["KLOTHULHU_FAKE"] = "1" if fake else "0"
+    os.environ["KLOTHULHU_DIRECTOR_THINKING"] = thinking
     os.environ.setdefault("KLOTHULHU_TOKENS", "smoke:" + "x" * 16)
     if not fake and not os.environ.get("ANTHROPIC_API_KEY"):
         print("Falta ANTHROPIC_API_KEY. Lánzalo con la clave en el entorno (no se gasta nada sin ella).")
@@ -152,13 +156,19 @@ async def main(fake: bool, out: Path) -> int:
     if not fake:
         app._anthropic = _Recorder(app._anthropic, narrator_u, director_u)
 
-    director_ms: list[float] = []
+    director_ms: list[float] = []  # total del director en cada pregunta
+    director_first_ms: list[float] = []  # hasta la primera escena
     real_director = app._director
 
     async def timed_director(question, bs):
         t0 = time.monotonic()
+        first = True
         try:
-            return await real_director(question, bs)
+            async for scene in real_director(question, bs):
+                if first:
+                    director_first_ms.append((time.monotonic() - t0) * 1000)
+                    first = False
+                yield scene
         finally:
             director_ms.append((time.monotonic() - t0) * 1000)
 
@@ -172,7 +182,8 @@ async def main(fake: bool, out: Path) -> int:
             stopped = f"gasto acumulado ${spent:.4f} > ${BUDGET}: se corta antes de la pregunta {n + 1}"
             print(stopped)
             break
-        narrator_u.calls.clear(), director_u.calls.clear(), director_ms.clear(), capture.messages.clear()
+        narrator_u.calls.clear(), director_u.calls.clear(), director_ms.clear(), director_first_ms.clear()
+        capture.messages.clear()
         text, events = "", []
         t0, first_delta, narrator_done = time.monotonic(), None, None
         async for chunk in app._reply(f"smoke{n}", question, asyncio.Lock()):
@@ -182,7 +193,8 @@ async def main(fake: bool, out: Path) -> int:
                 first_delta = first_delta or (time.monotonic() - t0) * 1000
                 text += data["text"]
             elif kind == "scene" and narrator_done is None:
-                narrator_done = (time.monotonic() - t0) * 1000 - (director_ms[-1] if director_ms else 0)
+                lag = director_first_ms[-1] if director_first_ms else 0
+                narrator_done = (time.monotonic() - t0) * 1000 - lag
             events.append((kind, data))
         total_ms = (time.monotonic() - t0) * 1000
         scenes = [d for k, d in events if k == "scene"]
@@ -197,6 +209,7 @@ async def main(fake: bool, out: Path) -> int:
                 "first_delta": round(first_delta or 0),
                 "until_text_done": round(narrator_done or 0),
             },
+            "director_first_scene_ms": round(director_first_ms[0]) if director_first_ms else None,
             "director_ms": round(director_ms[0]) if director_ms else None,
             "total_ms": round(total_ms),
             "tokens": {"narrator": nu, "director": du},
@@ -206,14 +219,22 @@ async def main(fake: bool, out: Path) -> int:
         spent += row["cost_usd"]["narrator"] + row["cost_usd"]["director"]
         rows.append(row)
         nulls_q = sum(s["scene"] is None for s in scenes)
-        print(f"{n + 1:2}/{len(QUESTIONS)} beats={len(scenes)} null={nulls_q} "
-              f"director={row['director_ms']}ms acumulado=${spent:.4f}")
+        print(
+            f"{n + 1:2}/{len(QUESTIONS)} beats={len(scenes)} null={nulls_q} "
+            f"1ª escena={row['director_first_scene_ms']}ms director={row['director_ms']}ms "
+            f"acumulado=${spent:.4f}"
+        )
 
     dms = [r["director_ms"] for r in rows if r["director_ms"] is not None]
+    fms = [r["director_first_scene_ms"] for r in rows if r["director_first_scene_ms"] is not None]
+    all_beats = [b for r in rows for b in r["beats"]]
+    short = [b[0] for b in all_beats if len(b[0].split()) <= 3]
+    backdrops = sorted({sc["backdrop"] for r in rows for sc in r["scenes"] if sc})
     nulls = sum(s is None for r in rows for s in r["scenes"])
     beats_total = sum(len(r["scenes"]) for r in rows)
     summary = {
         "fake": fake,
+        "director_thinking": thinking == "1",
         "questions_run": len(rows),
         "stopped": stopped,
         "cost_usd": {
@@ -222,9 +243,16 @@ async def main(fake: bool, out: Path) -> int:
             "total": round(spent, 6),
         },
         "narrator_first_delta_ms_median": _median([r["narrator_ms"]["first_delta"] for r in rows]),
+        "director_first_scene_ms_median": _median(fms),
+        "director_first_scene_ms_max": round(max(fms)) if fms else None,
         "director_ms_median": _median(dms),
         "director_ms_max": round(max(dms)) if dms else None,
         "beats_total": beats_total,
+        "beats_up_to_3_words": len(short),
+        "beats_up_to_3_words_pct": round(100 * len(short) / len(all_beats), 1) if all_beats else None,
+        "beats_up_to_3_words_list": short,
+        "backdrops_used": backdrops,
+        "backdrops_distinct": len(backdrops),
         "beats_per_reply": [len(r["scenes"]) for r in rows],
         "null_scenes": nulls,
         "director_cache_read_tokens_by_question": [r["tokens"]["director"]["cache_read"] for r in rows],
@@ -245,7 +273,9 @@ async def main(fake: bool, out: Path) -> int:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--fake", action="store_true", help="ensayo gratis (KLOTHULHU_FAKE=1)")
+    ap.add_argument("--director-thinking", choices=["0", "1"], default="1")
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
-    default = ROOT / "docs/fase2/capturas" / ("api_smoke_fake.json" if args.fake else "api_smoke.json")
-    sys.exit(asyncio.run(main(args.fake, args.out or default)))
+    name = f"api_smoke{'_fake' if args.fake else ''}-think{args.director_thinking}.json"
+    default = ROOT / "docs/fase2/capturas" / name
+    sys.exit(asyncio.run(main(args.fake, args.director_thinking, args.out or default)))
