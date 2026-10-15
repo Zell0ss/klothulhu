@@ -112,3 +112,25 @@ def test_n15_plazo_no_cancela_al_consumidor():
 **Dónde parar:** `pytest`, `ruff` y `npm test` en verde, push, y un anexo corto en `H3-informe.md` con commit.
 Después, **Josem lanza las dos pasadas de R6** con las órdenes de tu informe, que siguen valiendo. Tú escribes el
 segundo anexo con la comparación (encargo §5), con commit, y paras.
+
+## 4. Revisión del anexo (retoque R1, 2026-10-15)
+
+Responde a: 2a72c8a (H3-informe, anexo)
+
+R1 comprobado contra el código: hay una sola hora límite, `timeout_at` envuelve solo las esperas y ningún `yield`
+queda dentro de un plazo. El gestor se cierra en `finally`. N15 es idéntica a la de la revisión y pasa. Van 24
+pruebas de Python y 17 de Node en verde, y `ruff` está limpio.
+**R1 aprobado.** La exención de `E501` para el fichero normativo también está aprobada.
+
+- **Desviación** (plazo de 2 s para cerrar el stream): **aprobada**.
+- **Observación sin acción:** si ese cierre agotara sus 2 s justo durante un `aclose()` (el consumidor ha dejado
+  de leer), el `TimeoutError` sustituiría al `GeneratorExit` y el generador intentaría soltar `None`. Python lo
+  convierte en `RuntimeError`, que `_reply` ya recoge como «director caído». Necesita dos rarezas a la vez y no
+  rompe la respuesta: no se toca.
+
+## Para el programador
+
+Responde a: 2a72c8a (H3-informe, anexo)
+
+Nada que hacer hasta que Josem lance las dos pasadas de R6. Después, el segundo anexo con la comparación
+(encargo §5), con commit, y para.
