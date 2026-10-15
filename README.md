@@ -24,8 +24,8 @@ Server-Sent Events:
 | `error`   | `{"code": "..."}`        | `upstream_error`. HTTP errors: 401, 409 busy, 422. |
 
 Emotions: `neutral happy annoyed confused smug sleepy`. The list lives in
-`server/emotion_parser.py` and the pose table in `desktop/renderer/index.html`
-(`EMOTIONS`); keep both in sync. "Thinking" is a client-only state between
+`server/emotion_parser.py` and in `desktop/renderer/scenes.js` (`EMOTIONS`);
+keep both in sync (test P7 checks it). "Thinking" is a client-only state between
 sending and the first event.
 
 Other endpoints: `GET /health` (no auth), `DELETE /history` (auth).
@@ -71,23 +71,35 @@ Requires Node.js 20+.
 
 ```powershell
 cd desktop
-npm install
-copy config.example.json config.json   # apiUrl + konnos token
+npm ci                                  # Electron is pinned (44.4.5) with a lockfile
+copy config.example.json config.json   # apiUrl + konnos token (+ optional look)
+npm test                                # pure logic: scenes, vendored engine, CSP
 npm start
 ```
 
+v2: the character is drawn by the **claude-fables engine** (a scene JSON becomes an
+animated SVG). The window shows one 640x128 strip (scaled by `scale`). Each
+sentence of a reply becomes one fixed scene chosen by its emotion, and the
+scenes play in turn, each for as long as it takes to read it. `config.json`
+accepts `look` (default `"pixel"`; an unknown value falls back to `pixel`, see
+`VOCAB.looks` in the engine).
+
 - Click on klothulhu (or `Ctrl+Alt+K`) to open the input, `Enter` to send, `Esc` to close.
-- Drag him anywhere. Clicks on transparent areas go through to the desktop.
+- Drag him anywhere. The whole strip is interactive; clicks outside it go through to the desktop.
 - Tray icon: show/hide, talk, forget conversation, quit.
 - The token stays in the main process; the renderer never sees it.
 
-### Sprites
+### Scenes
 
-`desktop/renderer/sprites/*.png` are the Procreate layers extracted from
-`klothulhu-sprite-design.html`, all 320x240 and stacked at (0,0). New layers
-with the same canvas size are picked up automatically. For the thinking pose,
-add `Ojos7.png` (looking left) and `Ojos8.png` (looking right); until then the
-client slides `Ojos1` 5 px to each side.
+`desktop/renderer/scenes.js` is pure data and functions (no DOM, loadable from
+Node): `STAGING` holds the backdrop, hero action, particles and tone for each
+emotion plus `thinking` and `idle`, `LINES` the fixed texts, and `beats()` splits a
+reply into one caption per sentence (max 70 characters, never mixing emotions).
+Tweak `STAGING` to change the look of an emotion; `npm test` checks the engine
+still paints it without corrections.
+
+The engine is vendored in `desktop/renderer/vendor/` (only the IIFE build). How
+it got there and how to update it: `vendor/VENDOR.md`.
 
 ## Not in this POC
 
