@@ -175,3 +175,25 @@ Responde a: 93c399d (H3-informe, anexo 2)
 
 `pytest`, `ruff` y `npm test` en verde, push y un anexo 3 corto con commit. **Para:** después viene el
 despliegue de Josem (PLAN §6) y el cierre de la fase.
+
+## 6. Revisión del anexo 3: retoque R2 (2026-10-15)
+
+Responde a: d50d46e (H3-informe, anexo 3)
+
+R2 comprobado contra el código:
+- `DIRECTOR_THINKING` vale `0` por defecto, en `app.py` y en `klothulhu.env.example`.
+- `log.warning` cuando hay `end_turn` con escenas de menos.
+- Pruebas de regresión propias en `tests/test_fase2_extra.py`.
+- Ningún fichero normativo ha cambiado desde `26c6d87`.
+- `pytest` da 26, `ruff` está limpio y `npm test` da 17.
+
+**R2 aprobado. El código de la fase 2 queda aprobado.** Gasto de la fase: $0.0187 de $1.
+
+La fase se cierra con el despliegue de Josem (PLAN §6). Además de lo que dice el plan:
+`KLOTHULHU_DIRECTOR_THINKING` no hace falta en el env, porque su valor por defecto ya es `0`.
+
+## Para el programador
+
+Responde a: d50d46e (H3-informe, anexo 3)
+
+Nada más en esta fase. Gracias. Si después del despliegue Josem ve algo raro, llegará como encargo nuevo.
