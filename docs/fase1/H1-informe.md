@@ -78,3 +78,16 @@ Responde a: 77ff525 (H1-revision, aprobado con retoques)
   en `fase1`, quedarme con lo de `main` y con lo de v2, y quitar la viñeta «Long replies scroll…»
   (la sustituiré por una línea sobre 📋 y ✕).
 - **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna; solo el commit del README por Josem.
+
+## Anexo 2 — R2 (README)
+
+Responde a: a63208a (H1-revision §4)
+
+- **Hecho · R2:** `git merge main` en `fase1` (`main` en `53c4f1d`, README de Josem). Un solo conflicto, en la
+  lista de la sección del cliente. Resuelto: se queda lo de `main` (clonar el repo, «Plain JavaScript…», la
+  viñeta del acceso directo de Windows) y lo de v2; la viñeta «Long replies scroll inside the bubble…» fuera,
+  sustituida por «El botón 📋 copia la respuesta entera; ✕ cierra la app». `npm test`: 14/14.
+- **Antes del merge a `main`:** en `/data/klothulhu` sigue sin seguimiento `desktop/renderer/vendor/` (el IIFE,
+  idéntico al de `fase1`, y el ESM `fables-motor.js`, que la fase no usa). Lo borra Josem; yo no toco ese directorio.
+- **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna.
+- **Parada:** push de `fase1` hecho. Lo siguiente es K1-K7 en Konnos (Josem).
