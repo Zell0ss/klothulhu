@@ -11,10 +11,10 @@ import re
 
 CAPTION_MAX = 70
 
-# Fin de frase: . ! ? … (uno o varios, quizá cerrando »"')) seguido de espacio o fin.
 # Cierre de frase al final del caption, ignorando espacios y cierres (D22/D23).
 _ENDS_SENTENCE = re.compile(r"[.!?…][\s»\"”')\]]*$")
 
+# Fin de frase: . ! ? … (uno o varios, quizá cerrando »"')) seguido de espacio o fin.
 _SENTENCE = re.compile(r".*?[.!?…]+[»\"')\]]*(?=\s|$)|.+$", re.DOTALL)
 
 
