@@ -39,10 +39,12 @@
 <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
 <script src="vendor/fables-motor.iife.js"></script>
 <script src="scenes.js"></script>
+<script src="feed.js"></script>
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
-const { beats, sceneFor, readMs, LINES, CAPTION_MAX, EMOTIONS } = window.KlScenes;
+const { sceneFor, readMs, LINES, CAPTION_MAX } = window.KlScenes;
+const { createFeed } = window.KlFeed;
 
 const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -53,8 +55,16 @@ const input = document.getElementById('ask');
 const copyBtn = document.getElementById('copyBtn');
 const closeBtn = document.getElementById('closeBtn');
 
+const warnedNow = new Set();   // se vacía en cada ask()
 let look = VOCAB.defaults.look;
 let lookWarned = false;
+let debug = false;   // config.json "debug": true -> las medidas también van a un fichero de log (D20)
+
+// Siempre a la consola; con debug, también al log del proceso principal.
+function note(line) {
+  console.info('[klothulhu]', line);
+  if (debug) kl.debug(line);
+}
 
 // --- painting ---------------------------------------------------------------
 
@@ -67,6 +77,10 @@ function paint(scene, fadeIn) {
     r = renderScene(scene, { look, fadeIn });
   }
   if (!r.ok) { console.warn(`renderScene falló: ${r.error}`); return null; }
+  // Avisos del motor (p. ej. props-not-drawn con un look 3D): una vez por aviso y respuesta.
+  for (const w of r.warnings || []) {
+    if (!warnedNow.has(w)) { warnedNow.add(w); console.warn(`motor: ${w}`); if (debug) kl.debug(`warning ${w}`); }
+  }
   // El SVG entra como imagen, no como DOM (D10). Asignar el mismo src reinicia la animación, así que solo se asigna si cambia.
   const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.svg);
   if (sceneImg.getAttribute('src') !== src) sceneImg.src = src;
@@ -81,24 +95,37 @@ let timer = null;
 let queue = [];
 let lastBackdrop = null;
 
-// Devuelve cuánto se queda la escena en pantalla (ms), o false si no se pudo pintar.
-function play(kind, caption, tone) {
-  const scene = sceneFor(kind, caption, tone ? { tone } : undefined);
-  const fadeIn = lastBackdrop !== null && scene.backdrop !== lastBackdrop;
-  const shown = paint(scene, fadeIn);
+// Pinta un item de la cola: la escena del servidor si la hay y el motor la acepta; si no, la fija (D21.2).
+// Devuelve { hold (ms que se queda en pantalla), source ('server' | 'fixed') } o false si no se pudo pintar.
+function play(item) {
+  const fixed = () => sceneFor(item.kind, item.caption, item.tone ? { tone: item.tone } : undefined);
+  let scene = item.scene || fixed();
+  let source = item.scene ? 'server' : 'fixed';
+  const prev = lastBackdrop;
+  let fadeIn = prev !== null && scene.backdrop !== prev;
+  let shown = paint(scene, fadeIn);
+  if (!shown && item.scene) {
+    scene = fixed(); source = 'fixed';
+    fadeIn = prev !== null && scene.backdrop !== prev;
+    shown = paint(scene, fadeIn);
+  }
   if (!shown) return false;
   lastBackdrop = scene.backdrop;
-  return readMs(caption, shown.speaksAfter, fadeIn);
+  return { hold: readMs(item.caption, shown.speaksAfter, fadeIn), source };
 }
 
 function pump() {
   clearTimeout(timer); timer = null;
   while (queue.length) {
     const item = queue.shift();
-    const hold = play(item.kind, item.caption, item.tone);
-    if (hold === false) continue;
+    const shown = play(item);
+    if (shown === false) continue;
+    if (item.fromServer && firstSceneAt === null) {
+      firstSceneAt = performance.now();
+      note(`first-scene ms=${Math.round(firstSceneAt - t0)} director=${item.scene ? 1 : 0} painted=${shown.source}`);
+    }
     phase = 'reading';
-    timer = setTimeout(pump, hold);
+    timer = setTimeout(pump, shown.hold);
     return;
   }
   // Cola vacía y última escena leída: espera y duerme.
@@ -123,12 +150,16 @@ function think() {
 
 // --- conversation -----------------------------------------------------------
 
+let feed = createFeed(); // qué entra en la cola para la respuesta en curso (feed.js, D21)
+let t0 = 0;              // performance.now() al pulsar Enter
+let firstSceneAt = null; // cuándo se pintó la primera escena del servidor (null = aún no)
 let reply = '';          // la respuesta entera, sin etiquetas
 let marks = [];          // [{at, emotion}]
 let awaiting = false;
 
 function ask(text) {
   reply = ''; marks = []; awaiting = true;
+  feed = createFeed(); warnedNow.clear(); firstSceneAt = null; t0 = performance.now();
   copyBtn.style.display = 'none';
   think();
   kl.ask(text);
@@ -136,16 +167,22 @@ function ask(text) {
 
 kl.onEvent(({ type, data }) => {
   if (type === 'emotion') {
-    const e = EMOTIONS.includes(data.emotion) ? data.emotion : 'neutral';
+    const e = KlScenes.EMOTIONS.includes(data.emotion) ? data.emotion : 'neutral';
     marks.push({ at: marks.length ? reply.length : 0, emotion: e });
   } else if (type === 'delta') {
     reply += data.text;
+  } else if (type === 'scene') {
+    const item = feed.onScene(data);
+    if (item) enqueue([item]);   // en cuanto llega: la primera sustituye a «pensando» (D21.1)
   } else if (type === 'done') {
     awaiting = false;
-    enqueue(beats(reply, marks).map((b) => ({ kind: b.emotion, caption: b.caption })));
+    note(`done ms=${Math.round(performance.now() - t0)} scenes=${feed.count}`);
+    // Siempre se llama a enqueue, aunque no haya nada: con una respuesta vacía saca al cliente de «pensando».
+    enqueue(feed.onDone(reply, marks));
     copyBtn.style.display = reply ? 'block' : 'none';
   } else if (type === 'error') {
     awaiting = false;
+    feed.onError();
     const known = Object.prototype.hasOwnProperty.call(LINES.errors, data.code);
     const [kind, text] = known
       ? LINES.errors[data.code]
@@ -222,6 +259,7 @@ kl.onSummon(() => toggleInput(true));
 
 kl.init().then((cfg) => {
   look = cfg.look || VOCAB.defaults.look;
+  debug = Boolean(cfg.debug);
   const w = `${STAGE_W * cfg.scale}px`, h = `${STAGE_H * cfg.scale}px`;
   stage.style.width = w; stage.style.height = h;
   sceneImg.style.width = w; sceneImg.style.height = h;

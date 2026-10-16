@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('kl', {
   ask: (text) => ipcRenderer.invoke('ask', text),
   forget: () => ipcRenderer.invoke('forget'),
   copy: (text) => ipcRenderer.invoke('copy', text),
+  debug: (line) => ipcRenderer.send('debug', String(line)),
   quit: () => ipcRenderer.send('quit'),
   clickThrough: (on) => ipcRenderer.send('click-through', on),
   dragStart: () => ipcRenderer.send('drag-start'),

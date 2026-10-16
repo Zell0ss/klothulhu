@@ -5,11 +5,14 @@ const {
 const fs = require('fs');
 const path = require('path');
 const { streamChat, forget } = require('./sse-client');
+const { appendLog } = require('./debug-log');
 
 // The engine draws a 640x128 strip (D12); the input box sits below it.
 const STAGE_W = 640;
 const STAGE_H = 128;
 const INPUT_H = 44;
+
+const LOG_FILE = path.join(__dirname, 'klothulhu-debug.log');   // ruta fija: el renderer no elige nada
 
 let win = null;
 let tray = null;
@@ -31,6 +34,8 @@ function loadConfig() {
     hotkey: c.hotkey || 'Control+Alt+K',
     // Validated by the renderer, which owns the engine; unknown values fall back to its default.
     look: String(c.look || 'pixel'),
+    // D20: con true, el renderer manda sus medidas y se escriben en LOG_FILE.
+    debug: c.debug === true,
   };
 }
 
@@ -89,7 +94,9 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look }));
+ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug }));
+
+ipcMain.on('debug', (_e, line) => { if (cfg.debug) appendLog(LOG_FILE, line); });
 
 ipcMain.on('click-through', (_e, on) => {
   if (!drag) win.setIgnoreMouseEvents(Boolean(on), { forward: true });
