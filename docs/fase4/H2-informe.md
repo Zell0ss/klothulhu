@@ -21,7 +21,7 @@ Pasada de la fase (16 preguntas), ambos modelos Claude Haiku 5.5:
 | **Total** | **0,007801** |
 
 La pasada de antes (13 preguntas, `main`) costó $0,006005. Total gastado en la fase: $0,0138 de los $0,10
-autorizados por Josem el 2026-10-16 (lo confirmó en esta ventana al lanzar las dos pasadas).
+autorizados en el PLAN (Josem, 2026-10-16); la segunda pasada la lanzó Josem tras decirme «sí» en esta ventana.
 
 ## Resultados D23
 
