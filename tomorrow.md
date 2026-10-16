@@ -1,17 +1,15 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 2 aprobada por el arquitecto (H3-revision §6, 2026-10-15). Código en `fase2`, sin merge a `main`.
-Gasto de la fase: $0.0187 de $1.
+**Parada:** fase 3, plan aprobado (H0-revision, 9f6b829) y T1-T7 hechas en `fase3` (worktree `/data/klothulhu-fase3`,
+pushed). Informe: `docs/fase3/H1-informe.md`. Falta la prueba L1-L7 de Josem en Konnos (PLAN §5) y la revisión.
 
-**Siguiente paso:** nada del programador. Josem despliega (PLAN §6 de `docs/fase2/PLAN.md`): merge `--ff-only` de
-`fase2` en `main` desde `/data/klothulhu`, `.venv` de producción con Python 3.12, reinicio de `klothulhu-api`
-y `/health` con `director`. Después, lo que vea Josem llega como encargo nuevo; la fase 3 es el cliente.
+**Siguiente paso:** nada del programador hasta la revisión o un encargo nuevo. Merge `--ff-only` de `fase3` en `main`
+desde `/data/klothulhu`: lo hace Josem, y el cliente no necesita reinicio del servidor.
 
 **Gotchas:**
-- Desarrollo en el worktree `/data/klothulhu-fase2` (`.venv` 3.12 propio); `/data/klothulhu` se queda en `main`.
-- `KLOTHULHU_DIRECTOR_THINKING` no hace falta en el env: por defecto `0` (D20).
-- Las pruebas `tests/test_fase2.py` y `tests/test_fase2_plazo.py` son normativas: no se editan.
-- El corte de frases largas (D18) tiene que ser idéntico en `server/beats.py` y `desktop/renderer/scenes.js`.
+- `/data/klothulhu` se queda en `main`; `.venv` 3.12 propio en el worktree.
+- `play(item)` en `index.html` recibe un item `{kind, caption, scene?, tone?}`; no la firma antigua de la fase 1.
+- Humo sin Electron: `scratchpad/smoke.js` (se pierde con la sesión; el informe cuenta qué comprobaba).
 - Pasos [API]: `scripts/api_smoke.py` con la clave en el shell de Josem; yo no la tengo.
 
 **Bloqueos:** ninguno.

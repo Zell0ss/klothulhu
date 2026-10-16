@@ -1,1 +1,30 @@
-ESTA PARTE VA EN EL DESKTOP!
+# klothulhu — cliente de escritorio
+
+Electron en JavaScript plano, sin build. Corre en Konnos (Windows). Contexto general: `../README.md`.
+
+```powershell
+cd desktop ; npm ci ; copy config.example.json config.json ; npm start
+```
+
+`config.json`: `apiUrl`, `token`, `scale`, `hotkey`, `look` y `debug`.
+
+## Escenas del servidor (fase 3, D21)
+
+Cada evento `scene` entra en la cola en cuanto llega (`renderer/feed.js`, lógica pura con pruebas en
+`test/fase3.test.js`). Se pinta la escena del director; si el evento trae `scene: null`, o el motor no la
+acepta, se pinta la escena fija de `STAGING` con el caption del evento. Si `done` llega sin ningún `scene`
+(servidor anterior a la fase 2), se trocea con `beats()` como en la fase 1; nunca se hacen las dos cosas.
+
+## Depuración (`"debug": true`)
+
+Escribe en `desktop/klothulhu-debug.log` (se vacía al pasar de 256 KB; no se versiona):
+
+- `first-scene ms=… director=0|1 painted=server|fixed`: desde `Enter` hasta que se pinta la primera escena
+  del servidor. `director=0` significa que el servidor mandó `scene: null`.
+- `done ms=… scenes=n`: desde `Enter` hasta `done`.
+- `warning …`: avisos del motor.
+
+## Accesorios con estilos 3D
+
+Con un `look` 3D el motor no pinta los accesorios (`props-not-drawn`) y lo avisa; el cliente lo registra y
+sigue. Con `pixel` no pasa.
