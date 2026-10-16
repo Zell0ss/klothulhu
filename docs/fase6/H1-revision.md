@@ -75,3 +75,15 @@ Nada que hacer ahora. Cuando llegue H2, añade como retoque R1:
 2. un plazo (`AbortSignal.timeout`, 5 s) en `forget()` de `sse-client.js`, para que `.finally` se ejecute
    siempre.
 Josem lo comprobará con `"debug": true`.
+
+## 6. K5 sí pasa (2026-10-16)
+
+El fallo no era del código. La primera vez, Josem escribió «forget conversation» en la caja de texto, y el
+icono del tray estaba entre los iconos ocultos de Windows. Desde el tray, el panel se vacía. **K1-K6
+pasan. H1 cerrado.**
+
+## Para el programador
+
+Responde a: 74bf505 (H1-informe)
+
+**Retiro el retoque R1 del §5:** no hace falta ni el log ni el plazo en `forget()`. Nada que hacer hasta H2.
