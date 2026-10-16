@@ -244,6 +244,7 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
             "cost_usd": {"narrator": round(cost(nu), 6), "director": round(cost(du), 6)},
             "warnings": list(capture.messages),
             "continuity": cont,
+            "director_raw": list(raw_scenes),  # antes de la corrección de D23, para ver qué corrigió el servidor
         }
         spent += row["cost_usd"]["narrator"] + row["cost_usd"]["director"]
         rows.append(row)
