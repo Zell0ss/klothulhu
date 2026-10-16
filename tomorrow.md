@@ -1,18 +1,19 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 4, H1 y H2 aprobados por el arquitecto (H2-revision, ac957fd). Código en `fase4` (worktree
-`/data/klothulhu-fase4`, pushed), sin merge a `main`. Gasto de la fase: $0,0138 de $0,10.
+**Parada:** fase 5, H1 hecho en `fase5` (worktree `/data/klothulhu-fase5`): T1-T6 y preparación de T7, todo en verde
+(pytest 42, npm test 42). Informe: `docs/fase5/H1-informe.md`. Falta la revisión del arquitecto.
 
-**Siguiente paso:** nada del programador hasta el juicio de Josem sobre `docs/fase4/capturas/galeria.html`.
-Si no convence, llega como `H3-encargo.md`. Si convence: Josem hace merge `--ff-only` de `fase4` en `main` desde
-`/data/klothulhu` y reinicia `klothulhu-api` (cambia `server/`); Konnos no necesita nada. La fase 5 (bocadillo con
-scroll) espera a claude-fables.
+**Siguiente paso:** tras la revisión, Josem autoriza el gasto de T7 [API] (tope $0,10; anotarlo en el informe H2) y lo
+lanza; yo escribo `docs/fase5/H2-informe.md` (coste por modelo, métricas, 2-3 respuestas con sus tramos, ruta de la
+galería). Después H3: Josem prueba en Konnos contra el servidor de la rama en el puerto 8766 (orden en H1-informe).
+Merge `--ff-only` de `fase5` en `main`, reinicio de `klothulhu-api` y `git pull` en Konnos: de Josem, **el mismo día**.
 
 **Gotchas:**
-- `/data/klothulhu` se queda en `main`; `.venv` 3.12 propio en el worktree.
-- `api_smoke.py`: pasa siempre `--out` explícito (por defecto `docs/fase4/capturas/`, nunca `docs/fase2/`); guarda `director_raw`.
-- `continuations`/`fixed_*` se miden sobre la salida cruda del director, antes de `continue_scene`.
-- `tests/test_fase4.py` y `cut_cases.json` son normativos: no se editan.
+- `/data/klothulhu` se queda en `main`; `.venv` 3.12 propio en el worktree (`npm ci` hecho en `desktop/`).
+- Normativas de la fase: `tests/test_fase5.py`, `tests/fixtures/tramos_cases.json`, `desktop/test/fase5.test.js`
+  (copias de `docs/fase5/normativas/`, no se editan). P9 (fase1) y G7-G9 (fase4) son las únicas antiguas tocadas.
+- `api_smoke.py`: pasa siempre `--out` explícito; nunca a `docs/fase2/` ni `docs/fase4/`.
+- `beats()` y sus pruebas se quedan aunque ya no pinten (deuda para otra fase).
 - Pasos [API]: la clave la pone Josem en su shell; yo no la tengo.
 
-**Bloqueos:** ninguno.
+**Bloqueos:** autorización de gasto de T7 (Josem).
