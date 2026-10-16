@@ -131,7 +131,7 @@ function pump() {
   // Cola vacía y última escena leída: espera y duerme.
   phase = 'lingering';
   timer = setTimeout(() => {
-    play('idle', LINES.idle);
+    play({ kind: 'idle', caption: LINES.idle });
     phase = 'idle'; timer = null;
   }, LINGER_MS);
 }
@@ -144,7 +144,7 @@ function enqueue(items) {
 function think() {
   clearTimeout(timer); timer = null;
   queue = [];
-  play('thinking', LINES.thinking);
+  play({ kind: 'thinking', caption: LINES.thinking });
   phase = 'thinking';
 }
 
