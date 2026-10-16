@@ -1,0 +1,248 @@
+{
+ "_comment": "Casos normativos de tramos() (fase 5: D24). Los comparten desktop/renderer/scenes.js y server/beats.py. No editar para que pase una prueba.",
+ "cases": [
+  {
+   "name": "una frase larga no se corta a 70",
+   "text": "Llevo eones esperando a que alguien me pregunte algo interesante, y tú vienes a preguntarme por la hora, como si el tiempo significara algo para un ser que ya estaba aquí antes de las estrellas.",
+   "marks": [
+    [
+     0,
+     "annoyed"
+    ]
+   ],
+   "tramos": [
+    [
+     "Llevo eones esperando a que alguien me pregunte algo interesante, y tú vienes a preguntarme por la hora, como si el tiempo significara algo para un ser que ya estaba aquí antes de las estrellas.",
+     "annoyed"
+    ]
+   ]
+  },
+  {
+   "name": "varias frases del mismo tramo van juntas",
+   "text": "Hola, mortal. Sigo atrapado en tu escritorio, lo cual es humillante para algo que devoró estrellas. Pero estoy bien.",
+   "marks": [
+    [
+     0,
+     "smug"
+    ]
+   ],
+   "tramos": [
+    [
+     "Hola, mortal. Sigo atrapado en tu escritorio, lo cual es humillante para algo que devoró estrellas. Pero estoy bien.",
+     "smug"
+    ]
+   ]
+  },
+  {
+   "name": "cambio de emoción: tramo nuevo",
+   "text": "No tengo reloj, mortal, solo eternidad. Pero Tokio va siete horas por delante.",
+   "marks": [
+    [
+     0,
+     "confused"
+    ],
+    [
+     40,
+     "smug"
+    ]
+   ],
+   "tramos": [
+    [
+     "No tengo reloj, mortal, solo eternidad.",
+     "confused"
+    ],
+    [
+     "Pero Tokio va siete horas por delante.",
+     "smug"
+    ]
+   ]
+  },
+  {
+   "name": "emoción nueva a media frase: tramo cortado",
+   "text": "Hola, mortal, sigo atrapado en tu escritorio y eso me humilla. Pero estoy bien.",
+   "marks": [
+    [
+     0,
+     "smug"
+    ],
+    [
+     45,
+     "annoyed"
+    ],
+    [
+     63,
+     "neutral"
+    ]
+   ],
+   "tramos": [
+    [
+     "Hola, mortal, sigo atrapado en tu escritorio",
+     "smug"
+    ],
+    [
+     "y eso me humilla.",
+     "annoyed"
+    ],
+    [
+     "Pero estoy bien.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "párrafo nuevo (línea en blanco): tramo nuevo con la misma emoción",
+   "text": "Primera idea, dicha con calma.\n\nSegunda idea, en otro párrafo.",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ]
+   ],
+   "tramos": [
+    [
+     "Primera idea, dicha con calma.",
+     "neutral"
+    ],
+    [
+     "Segunda idea, en otro párrafo.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "un salto de línea simple también separa",
+   "text": "Una línea.\nOtra línea.",
+   "marks": [
+    [
+     0,
+     "happy"
+    ]
+   ],
+   "tramos": [
+    [
+     "Una línea.",
+     "happy"
+    ],
+    [
+     "Otra línea.",
+     "happy"
+    ]
+   ]
+  },
+  {
+   "name": "espacios y párrafos vacíos se limpian",
+   "text": "  Uno   dos.  \n\n\n   \n  Tres.  ",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ]
+   ],
+   "tramos": [
+    [
+     "Uno dos.",
+     "neutral"
+    ],
+    [
+     "Tres.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "párrafo de más de 500: se parte entre frases",
+   "text": "Frase número 01 de un párrafo largo que no cabe entero en un bocadillo. Frase número 02 de un párrafo largo que no cabe entero en un bocadillo. Frase número 03 de un párrafo largo que no cabe entero en un bocadillo. Frase número 04 de un párrafo largo que no cabe entero en un bocadillo. Frase número 05 de un párrafo largo que no cabe entero en un bocadillo. Frase número 06 de un párrafo largo que no cabe entero en un bocadillo. Frase número 07 de un párrafo largo que no cabe entero en un bocadillo. Frase número 08 de un párrafo largo que no cabe entero en un bocadillo. Frase número 09 de un párrafo largo que no cabe entero en un bocadillo.",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ]
+   ],
+   "tramos": [
+    [
+     "Frase número 01 de un párrafo largo que no cabe entero en un bocadillo. Frase número 02 de un párrafo largo que no cabe entero en un bocadillo. Frase número 03 de un párrafo largo que no cabe entero en un bocadillo. Frase número 04 de un párrafo largo que no cabe entero en un bocadillo. Frase número 05 de un párrafo largo que no cabe entero en un bocadillo. Frase número 06 de un párrafo largo que no cabe entero en un bocadillo.",
+     "neutral"
+    ],
+    [
+     "Frase número 07 de un párrafo largo que no cabe entero en un bocadillo. Frase número 08 de un párrafo largo que no cabe entero en un bocadillo. Frase número 09 de un párrafo largo que no cabe entero en un bocadillo.",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "frase de más de 500 sin puntos: se parte entre palabras",
+   "text": "palabra000 palabra001 palabra002 palabra003 palabra004 palabra005 palabra006 palabra007 palabra008 palabra009 palabra010 palabra011 palabra012 palabra013 palabra014 palabra015 palabra016 palabra017 palabra018 palabra019 palabra020 palabra021 palabra022 palabra023 palabra024 palabra025 palabra026 palabra027 palabra028 palabra029 palabra030 palabra031 palabra032 palabra033 palabra034 palabra035 palabra036 palabra037 palabra038 palabra039 palabra040 palabra041 palabra042 palabra043 palabra044 palabra045 palabra046 palabra047 palabra048 palabra049 palabra050 palabra051 palabra052 palabra053 palabra054 palabra055 palabra056 palabra057 palabra058 palabra059",
+   "marks": [
+    [
+     0,
+     "sleepy"
+    ]
+   ],
+   "tramos": [
+    [
+     "palabra000 palabra001 palabra002 palabra003 palabra004 palabra005 palabra006 palabra007 palabra008 palabra009 palabra010 palabra011 palabra012 palabra013 palabra014 palabra015 palabra016 palabra017 palabra018 palabra019 palabra020 palabra021 palabra022 palabra023 palabra024 palabra025 palabra026 palabra027 palabra028 palabra029 palabra030 palabra031 palabra032 palabra033 palabra034 palabra035 palabra036 palabra037 palabra038 palabra039 palabra040 palabra041 palabra042 palabra043 palabra044",
+     "sleepy"
+    ],
+    [
+     "palabra045 palabra046 palabra047 palabra048 palabra049 palabra050 palabra051 palabra052 palabra053 palabra054 palabra055 palabra056 palabra057 palabra058 palabra059",
+     "sleepy"
+    ]
+   ]
+  },
+  {
+   "name": "palabra de más de 500: corte duro",
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ]
+   ],
+   "tramos": [
+    [
+     "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "neutral"
+    ],
+    [
+     "xxxxxxxxxxxxxxxxxxxx",
+     "neutral"
+    ]
+   ]
+  },
+  {
+   "name": "texto vacío",
+   "text": "",
+   "marks": [
+    [
+     0,
+     "neutral"
+    ]
+   ],
+   "tramos": []
+  },
+  {
+   "name": "marcas fuera de rango o duplicadas en 0",
+   "text": "Hola. Adiós.",
+   "marks": [
+    [
+     0,
+     "happy"
+    ],
+    [
+     0,
+     "smug"
+    ],
+    [
+     99,
+     "annoyed"
+    ]
+   ],
+   "tramos": [
+    [
+     "Hola. Adiós.",
+     "smug"
+    ]
+   ]
+  }
+ ]
+}
