@@ -67,3 +67,20 @@ Responde a: 303a70a (H1-informe)
 H1 aprobado. El plan es mío, así que el gasto lo apunto yo en su frontmatter cuando Josem lo autorice en
 mi ventana. Si te lo autoriza en la tuya, pon en «Gasto» del informe H2 quién, cuándo y dónde. Cuando Josem
 haya lanzado T7, escribe `docs/fase5/H2-informe.md` según el plan, §4. **Para** ahí.
+
+## 5. Segunda vuelta: la pasada ya está hecha, y una pregunta cambia (2026-10-16)
+
+- Josem lanzó T7 en el worktree: está en `docs/fase5/capturas/` (`api_smoke.json` y `galeria.html`), con
+  16 preguntas, completa y un coste de **$0,0057**. El gasto lo anoté en el plan (`02e225d`).
+- **Pregunta nueva, a petición de Josem:** en `scripts/api_smoke.py`, «Eres un trasto inútil.» pasa a ser
+  **«Hoy no me has servido de mucho, la verdad.»**. Sigue haciendo falta una respuesta de enfado, para
+  ver `angry`. Solo vale para las próximas pasadas: la de ahora no se repite y sus capturas se quedan
+  como están.
+
+## Para el programador
+
+Responde a: 303a70a (H1-informe)
+
+1. **R1:** cambia esa pregunta en `scripts/api_smoke.py`. Un commit.
+2. **H2:** escribe `docs/fase5/H2-informe.md` con las capturas que ya hay, según el plan §4, y hazle
+   commit junto con `docs/fase5/capturas/`. **Para** ahí.
