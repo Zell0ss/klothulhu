@@ -5,7 +5,7 @@ titulo: bocadillo con scroll y una escena por tramo
 plan: arquitecto
 fecha: 2026-10-16
 decisiones: "vault 30-projects/klothulhu/ficha.md § Decisiones (D24-D26; también D10, D15, D18, D22, D23)"
-gasto_autorizado: "pendiente: el paso [API] (T7) necesita el sí de Josem, tope propuesto $0.10"
+gasto_autorizado: "hasta $0.10 en T7 [API]; Josem lanzó la pasada el 2026-10-16 ($0.0057), lo que el arquitecto anota como su autorización"
 ---
 
 # Fase 5: bocadillo con scroll y una escena por tramo
