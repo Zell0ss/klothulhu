@@ -32,7 +32,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 import director
-from beats import beats, is_cut
+from beats import is_cut, tramos
 from emotion_parser import EMOTIONS, EmotionStreamParser
 from history import HistoryStore
 
@@ -175,7 +175,7 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         # Only complete replies enter history; tags are kept so the model
         # keeps seeing the format it is expected to follow.
         history.append(cid, text, "".join(raw))
-        bs = beats(shown, marks)
+        bs = tramos(shown, marks)  # D24: una escena por tramo, no por golpe de 70
         sent = 0
         last = None  # la última escena emitida, ya corregida (D23)
         stats = {"continuations": 0, "fixed_backdrop": 0, "fixed_hero": 0}
@@ -218,7 +218,7 @@ def _scene_event(bs: list[tuple[str, str]], i: int, scene: dict | None) -> str:
 
 
 def _director(question: str, bs: list[tuple[str, str]]) -> AsyncIterator[dict | None]:
-    """Escenas del director, una por golpe y según van llegando. Las pruebas la sustituyen."""
+    """Escenas del director, una por tramo (D24) y según van llegando. Las pruebas la sustituyen."""
     if FAKE:
         return director.fake_direct(question, bs)
     return director.direct(

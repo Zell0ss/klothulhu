@@ -1,7 +1,7 @@
-"""El director de escena (D14): decide cómo se pone en escena cada golpe de la respuesta.
+"""El director de escena (D14): decide cómo se pone en escena cada tramo de la respuesta (D24).
 
 Una segunda llamada al modelo, con *structured outputs* y en streaming (D19), después de que el narrador
-haya escrito. El texto no lo toca: el ``caption`` de cada escena es el golpe tal cual. El vocabulario sale de
+haya escrito. El texto no lo toca: el ``caption`` de cada escena es el tramo tal cual. El vocabulario sale de
 ``fables_vocab.json``, generado del motor vendorizado (D15).
 """
 from __future__ import annotations
@@ -120,7 +120,7 @@ def _clamp(value, lo, hi):
 
 
 def build_scene(staging: dict, caption: str, vocab: dict) -> dict | None:
-    """Convierte la puesta en escena de un golpe en un FablesScene, o None si algo no es del vocabulario."""
+    """Convierte la puesta en escena de un tramo en un FablesScene, o None si algo no es del vocabulario."""
     try:
         if staging["backdrop"] not in vocab["backdrops"] or staging["tone"] not in vocab["tones"]:
             return None
@@ -130,6 +130,8 @@ def build_scene(staging: dict, caption: str, vocab: dict) -> dict | None:
         then = h.get("then")
         if then is not None and then not in vocab["actions"]:
             return None
+        if then == "approach":  # D26: solo abre una escena; el motor lo descartaría y avisaría
+            then = None
         hero = {
             "action": h["action"],
             "from": _clamp(round(h["from"]), 0, 100),
@@ -176,7 +178,7 @@ def build_scene(staging: dict, caption: str, vocab: dict) -> dict | None:
 
 
 def continue_scene(prev: dict | None, prev_caption: str | None, scene: dict | None) -> dict | None:
-    """Si el golpe anterior está cortado, la escena conserva su fondo y partículas y sale de donde acabó.
+    """Si el tramo anterior está cortado, la escena conserva su fondo y partículas y sale de donde acabó.
 
     Pura: devuelve una copia y no toca ni ``prev`` ni ``scene``. Con ``prev``/``scene``/``prev_caption``
     en ``None`` (o el anterior sin cortar) devuelve ``scene`` tal cual.
@@ -201,7 +203,7 @@ def continue_scene(prev: dict | None, prev_caption: str | None, scene: dict | No
 
 
 def _user_message(question: str, beats: list[tuple[str, str]]) -> str:
-    # D23: un golpe cuyo anterior está cortado continúa su frase.
+    # D23: un tramo cuyo anterior está cortado continúa su frase.
     lines = "\n".join(
         f"{i}. [{emotion}]{' (continues)' if i > 1 and is_cut(beats[i - 2][0]) else ''} {caption}"
         for i, (caption, emotion) in enumerate(beats, 1)
