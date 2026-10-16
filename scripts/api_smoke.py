@@ -41,7 +41,7 @@ QUESTIONS = [
     "¿Qué hora es en Tokio?",
     "¿Cuál es la diferencia entre una lista y una tupla en Python?",
     "Quiero que cuentes hasta el infinito, dos veces.",
-    "Eres un trasto inútil.",
+    "Hoy no me has servido de mucho, la verdad.",
     "Hoy ha sido un día horrible y no tengo ganas de nada.",
     "¡He arreglado el bug que llevaba tres días sin encontrar!",
     "¿Puedes explicarme con calma cómo funciona git rebase y cuándo es mejor usarlo que merge, "
