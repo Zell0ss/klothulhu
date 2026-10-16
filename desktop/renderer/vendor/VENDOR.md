@@ -4,10 +4,10 @@ Motor que convierte una escena JSON (`FablesScene`) en un SVG animado. Decisión
 
 | | |
 |---|---|
-| Origen | repo `/data/claude-fables`, rama `fase1-motor`, commit `dafe0df` |
+| Origen | repo `/data/claude-fables`, rama `main`, commit `a247d95` (fase 2 de claude-fables) |
 | Fichero | `fables-motor.iife.js` (solo el IIFE; **no** se incluye el ESM `fables-motor.js`) |
-| sha256 | `56788549409ac24e9180d149bbca08a1213c09323c0c7b15adfeb62a80e0b03b` |
-| `SCHEMA_VERSION` | 1 |
+| sha256 | `029c99ec9e95a2b5756b29977855e5bb20597e9b17b5465c0ec42c36c1a9166d` |
+| `SCHEMA_VERSION` | 2 |
 | Carga | `<script src="vendor/fables-motor.iife.js">` clásico → `window.FablesMotor` |
 
 ## Actualizarlo

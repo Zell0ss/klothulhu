@@ -1,5 +1,5 @@
 {
- "schemaVersion": 1,
+ "schemaVersion": 2,
  "backdrops": [
   "forest",
   "space",
@@ -29,7 +29,10 @@
   "point",
   "peek",
   "trip",
-  "shrug"
+  "shrug",
+  "approach",
+  "angry",
+  "dazed"
  ],
  "motions": [
   "none",
@@ -114,11 +117,17 @@
  "defaults": {
   "look": "pixel",
   "width": 640,
-  "height": 128
+  "height": 128,
+  "secondsPerChar": 0.03
  },
  "limits": {
   "maxProps": 8,
   "maxCaption": 80,
+  "maxLongCaption": 500,
+  "bubbleLines": [
+   1,
+   4
+  ],
   "maxLabel": 18,
   "maxTitle": 24,
   "maxPixelSide": 16,

@@ -124,7 +124,7 @@ test('P9 vendor', () => {
   assert.match(head, /MIT License/);
   assert.match(head, /SIL Open Font License/);
   assert.equal(fs.existsSync(path.join(VENDOR, 'fables-motor.js')), false);
-  assert.equal(M.SCHEMA_VERSION, 1);
+  assert.equal(M.SCHEMA_VERSION, 2);  // D25: motor v2
 });
 
 // P10 — CSP y pintado (D10)

@@ -338,7 +338,10 @@ var FablesMotor = (() => {
     "point",
     "peek",
     "trip",
-    "shrug"
+    "shrug",
+    "approach",
+    "angry",
+    "dazed"
   ];
   var MOTIONS = [
     "none",
@@ -358,9 +361,14 @@ var FablesMotor = (() => {
     "snow",
     "leaves"
   ];
+  var APPROACH_SECONDS = 2.4;
+  var APPROACH_SCALE = 2.5;
   var MAX_PROPS = 8;
   var MAX_CAPTION = 80;
+  var MAX_LONG_CAPTION = 500;
   var TYPE_SECONDS_PER_CHAR = 0.03;
+  var READ_HOLD_MIN = 1.2;
+  var SCROLL_SECONDS = 0.3;
   var ENTRANCE_SECONDS = 0.6;
   var MAX_LABEL = 18;
   var MAX_TITLE = 24;
@@ -388,15 +396,15 @@ var FablesMotor = (() => {
     if (flat === "") return void 0;
     return flat.length > max ? `${flat.slice(0, max - 1).trimEnd()}\u2026` : flat;
   }
-  function cleanCaption(v) {
+  function cleanCaption(v, max = MAX_CAPTION) {
     const flat = cleanText(v, Infinity);
-    if (!flat || flat.length <= MAX_CAPTION) return flat;
-    const head = flat.slice(0, MAX_CAPTION);
+    if (!flat || flat.length <= max) return flat;
+    const head = flat.slice(0, max);
     const sentence = /^.*[.!?](?=\s)/.exec(head)?.[0];
-    if (sentence && sentence.length >= MAX_CAPTION * 0.6) return sentence;
-    const room = flat.slice(0, MAX_CAPTION - 1);
+    if (sentence && sentence.length >= max * 0.6) return sentence;
+    const room = flat.slice(0, max - 1);
     const space2 = room.lastIndexOf(" ");
-    const words2 = space2 >= MAX_CAPTION / 2 ? room.slice(0, space2) : room;
+    const words2 = space2 >= max / 2 ? room.slice(0, space2) : room;
     return `${words2.replace(/[\s,;:.\-–—]+$/, "")}\u2026`;
   }
   function parsePixelArt(v) {
@@ -432,9 +440,9 @@ var FablesMotor = (() => {
     if (color) prop.color = color;
     return prop;
   }
-  function parseScene(raw) {
+  function parseScene(raw, { maxCaption = MAX_CAPTION } = {}) {
     if (!isObject(raw)) return null;
-    const caption2 = cleanCaption(raw.caption);
+    const caption2 = cleanCaption(raw.caption, maxCaption);
     if (!caption2) return null;
     const hero11 = isObject(raw.hero) ? raw.hero : {};
     const palette = isObject(raw.palette) ? raw.palette : {};
@@ -446,7 +454,8 @@ var FablesMotor = (() => {
         from: Math.round(clampNumber(hero11.from, 0, 100, 10)),
         to: Math.round(clampNumber(hero11.to, 0, 100, 60)),
         // What comes next is played where Claude stands, so a second journey is just its moves in place.
-        ...typeof hero11.then === "string" && HERO_ACTIONS.includes(hero11.then) ? { then: hero11.then } : {}
+        // `approach` only opens a scene: it is never the second move.
+        ...typeof hero11.then === "string" && hero11.then !== "approach" && HERO_ACTIONS.includes(hero11.then) ? { then: hero11.then } : {}
       },
       props: (Array.isArray(raw.props) ? raw.props : []).map(parseProp).filter((p) => p !== void 0).slice(0, MAX_PROPS),
       caption: caption2
@@ -666,7 +675,14 @@ var FablesMotor = (() => {
         else if (p.eyes === "focus") eyes.push({ poly: ellipse(ew * 1.1, eh * 0.42, -eh * 0.1) });
         else if (p.eyes === "dizzy") eyes.push({ line: [E(-ew, eh * 0.7), E(ew, -eh * 0.7)] }, { line: [E(-ew, -eh * 0.7), E(ew, eh * 0.7)] });
         else if (p.eyes === "sad") eyes.push({ poly: ellipse(ew * 0.85, eh * 0.8, -eh * 0.15) }, { line: [E(side * ew * 1.3, eh * 1.15), E(-side * ew * 0.9, eh * 1.6)] });
-        else if (p.eyes === "happy") eyes.push({ line: [E(-ew * 1.15, -eh * 0.2), E(-ew * 0.6, eh * 0.3), E(0, eh * 0.5), E(ew * 0.6, eh * 0.3), E(ew * 1.15, -eh * 0.2)] });
+        else if (p.eyes === "angry") eyes.push({ poly: ellipse(ew * 1.05, eh * 0.6, -eh * 0.1) }, { line: [E(side * ew * 1.5, eh * 1.55), E(-side * ew * 1.1, eh * 0.9)] });
+        else if (p.eyes === "spiral") {
+          const steps = 24;
+          eyes.push({ line: Array.from({ length: steps }, (_, i) => {
+            const k = i / (steps - 1);
+            return E(side * Math.cos(k * 4 * Math.PI) * eh * 1.6 * k, Math.sin(k * 4 * Math.PI) * eh * 1.6 * k);
+          }) });
+        } else if (p.eyes === "happy") eyes.push({ line: [E(-ew * 1.15, -eh * 0.2), E(-ew * 0.6, eh * 0.3), E(0, eh * 0.5), E(ew * 0.6, eh * 0.3), E(ew * 1.15, -eh * 0.2)] });
         else if (p.eyes === "closed") eyes.push({ line: [E(-ew * 1.2, eh * 0.05), E(-ew * 0.5, -eh * 0.22), E(0, -eh * 0.28), E(ew * 0.5, -eh * 0.22), E(ew * 1.2, eh * 0.05)] });
         else {
           const pts = [];
@@ -705,7 +721,9 @@ var FablesMotor = (() => {
     point: { frames: 6, dur: 1.2, kind: "loop" },
     peek: { frames: 8, dur: 2.4, kind: "loop" },
     trip: { frames: 14, dur: 2.6, kind: "once" },
-    shrug: { frames: 10, dur: 1.8, kind: "once" }
+    shrug: { frames: 10, dur: 1.8, kind: "once" },
+    angry: { frames: 8, dur: 0.8, kind: "loop" },
+    dazed: { frames: 12, dur: 2.4, kind: "loop" }
   };
   var ease = (t, a, b) => {
     const x = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -811,6 +829,12 @@ var FablesMotor = (() => {
         const up = ease(t, 0, 0.3) - ease(t, 0.7, 1);
         return { yaw: yaw * 0.5, armL: 0.06 + up * 0.9, armR: 0.06 + up * 0.9, liftL: up * 1.6, liftR: up * 1.6, roll: up * 0.12, sq: 1 + up * 0.04, eyes: up > 0.4 ? "sad" : "open" };
       }
+      // Stamping in place, a foot at a time with a short hop on each, arms stiff and a little out, hunched, a slight tremble.
+      case "angry":
+        return { yaw: yaw * 0.5, walk: a, stride: 1.1, hop: Math.abs(Math.sin(2 * a)) * 0.5, crouch: 0.2, pitch: 0.1, dx: 0.15 * Math.sin(3 * a), roll: 0.02 * Math.sin(3 * a), armL: 0.32, armR: 0.32, sq: 0.97, eyes: "angry" };
+      // Swaying slowly round in a circle, arms hanging loose, eyes spinning.
+      case "dazed":
+        return { yaw: yaw * 0.5, dx: 0.9 * Math.cos(a), roll: 0.12 * Math.sin(a), pitch: 0.06 * Math.cos(a), armL: 0.2 + 0.25 * Math.sin(a - 0.8), armR: 0.2 + 0.25 * Math.sin(a - 2.4), sq: 1 + 0.01 * Math.sin(2 * a), eyes: "spiral" };
     }
   }
   function outlinedOrder(m) {
@@ -4084,7 +4108,11 @@ var FablesMotor = (() => {
   var HERO_W = 13 * U;
   var HERO_H = 9 * U;
   var heroColor = (k) => PALETTE[k];
+  var isApproach = (scene) => scene.hero.action === "approach";
   var MODEL_STAGE_H = 40;
+  var APPROACH_MARGIN = 4;
+  var APPROACH_YAW = 0;
+  var asMotion = (a) => a === "approach" ? "walk" : a;
   var SPRITE_ACTION = {
     walk: "walk",
     run: "run",
@@ -4105,15 +4133,19 @@ var FablesMotor = (() => {
     point: "inspect",
     peek: "inspect",
     trip: "think",
-    shrug: "think"
+    shrug: "think",
+    approach: "walk",
+    angry: "inspect",
+    dazed: "think"
   };
   var SPEED = { run: 110, fly: 80, tumble: 90, jump: 60, carry: 30, sneak: 25 };
-  var heroReach = (action) => action === "celebrate" ? 16 : action === "jump" ? 18 : action === "dance" ? 6 : action === "fly" || action === "panic" ? 2 : 0;
+  var heroReach = (action) => action === "celebrate" ? 16 : action === "jump" ? 18 : action === "dance" ? 6 : action === "fly" || action === "panic" || action === "angry" ? 2 : 0;
   var LOOP_FIRST = (motion) => Math.max(2.4, 2 * MOTION_TIMING[motion].dur);
   function hero10(scene, floor, sw, figure, tint = (svg) => svg) {
     const cell = figure.kind === "pixel" ? figure.cell : "solid";
-    const action = figure.kind === "pixel" ? SPRITE_ACTION[scene.hero.action] : scene.hero.action;
-    const then = figure.kind === "pixel" ? void 0 : scene.hero.then;
+    const approach = isApproach(scene);
+    const action = asMotion(figure.kind === "pixel" ? SPRITE_ACTION[scene.hero.action] : scene.hero.action);
+    const then = figure.kind === "pixel" || !scene.hero.then ? void 0 : asMotion(scene.hero.then);
     const kind = MOTION_TIMING[action].kind;
     const isMoving = kind === "travel";
     const span = sw - HERO_W;
@@ -4121,14 +4153,15 @@ var FablesMotor = (() => {
     const toX = Math.round(span * scene.hero.to / 100);
     const baseY = action === "fly" ? 34 : floor - HERO_H;
     const speed = SPEED[action] ?? 45;
-    const moveDur = isMoving ? Math.max(0.6, Math.abs(toX - fromX) / speed) : 0;
+    const moveDur = approach ? APPROACH_SECONDS : isMoving ? Math.max(0.6, Math.abs(toX - fromX) / speed) : 0;
     const step2 = action === "run" ? 0.18 : 0.32;
     const steps = isMoving ? Math.max(2, Math.round(moveDur / step2)) : 0;
-    const flip = toX < fromX ? ` translate(${HERO_W} 0) scale(-1 1)` : "";
+    const yaw = approach ? APPROACH_YAW : 0.55;
+    const flip = toX < fromX && !(approach && figure.kind === "3d" && yaw === 0) ? ` translate(${HERO_W} 0) scale(-1 1)` : "";
     const second = figure.kind === "pixel" ? void 0 : then ?? (kind === "once" || isMoving && action !== "fly" ? "idle" : void 0);
     const handover = second === void 0 ? void 0 : isMoving ? moveDur : kind === "once" ? MOTION_TIMING[action].dur : LOOP_FIRST(action);
     const legs = (frame, values) => `<g opacity="${frame === 0 ? 1 : 0}" transform="scale(${U})">${pixelPaths(HERO_FRAMES[frame] ?? [], heroColor, cell)}` + (steps ? `<animate attributeName="opacity" values="${values}" dur="${step2 * 2}s" calcMode="discrete" repeatCount="${steps / 2}"/>` : "") + `</g>`;
-    const model = (motion, when = {}) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw: 0.55, hero: figure.hero, ...when }).svg : "";
+    const model = (motion, when = {}) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw, hero: figure.hero, ...when }).svg : "";
     const frames = figure.kind === "pixel" ? legs(0, "1;0") + legs(1, "0;1") : second === void 0 || handover === void 0 ? model(action) : model(action, { until: handover }) + model(second, { from: handover, maxFrames: figure.kind === "3d" ? figure.lean ? 2 : figure.second : void 0 });
     const until = handover === void 0 ? 'repeatCount="indefinite"' : `repeatDur="${n2(handover)}s"`;
     let inner = "";
@@ -4155,7 +4188,9 @@ var FablesMotor = (() => {
     const extras = shown(flourish(action, figure), handover === void 0 ? void 0 : 0, handover) + (second && handover !== void 0 ? shown(flourish(second, figure), handover) : "");
     const travel = isMoving ? `<animateTransform attributeName="transform" type="translate" values="${fromX} ${baseY};${toX} ${baseY}" dur="${n2(moveDur)}s" fill="freeze"/>` : "";
     const at = isMoving ? fromX : toX;
-    const svg = `<g transform="translate(${at} ${baseY})">${travel}<g>${inner}<g transform="${flip.trim() || "translate(0 0)"}">${frames}</g>${tint(extras)}</g></g>`;
+    const body = `<g>${inner}<g transform="${flip.trim() || "translate(0 0)"}">${frames}</g>${tint(extras)}</g>`;
+    const grow = `begin="0s" dur="${n2(APPROACH_SECONDS)}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .6 1"`;
+    const svg = approach ? `<g transform="translate(${fromX + HERO_W / 2} ${floor})"><animateTransform attributeName="transform" type="translate" values="${fromX + HERO_W / 2} ${floor};${toX + HERO_W / 2} ${H2 - APPROACH_MARGIN}" ${grow}/><g transform="scale(1)"><animateTransform attributeName="transform" type="scale" values="1;${APPROACH_SCALE}" ${grow}/><g transform="translate(${-HERO_W / 2} ${-HERO_H})">${body}</g></g></g>` : `<g transform="translate(${at} ${baseY})">${travel}${body}</g>`;
     return { svg, startX: isMoving ? fromX : toX, endX: toX, endY: baseY, arrive: isMoving ? moveDur : 0 };
   }
   function flourish(action, figure) {
@@ -4242,6 +4277,21 @@ var FablesMotor = (() => {
     if (line.length) lines.push(line);
     return lines;
   }
+  function bubbleTimeline(cols2, o) {
+    const out = [];
+    cols2.forEach((c, i) => {
+      let typeStart = o.start;
+      if (i > 0) typeStart = out[i - 1].typeEnd;
+      if (i >= o.lines) {
+        const gone = out[i - o.lines];
+        const hold = Math.max(READ_HOLD_MIN, 2 * o.secondsPerChar * cols2[i - o.lines]);
+        gone.leaves = Math.max(out[i - 1].typeEnd, gone.typeEnd + hold);
+        typeStart = gone.leaves + SCROLL_SECONDS;
+      }
+      out.push({ typeStart, typeEnd: typeStart + Math.max(0.2, c * o.secondsPerChar) });
+    });
+    return out;
+  }
   var lineLen = (line) => line.reduce((t, w) => t + wordLen(w), 0) + line.length - 1;
   var lineSvg = (line, skin) => line.map((w) => escapeXml(w.lead) + (w.kind === "plain" ? escapeXml(w.core) : `<tspan ${kindAttrs(w.kind, skin)}>${escapeXml(w.core)}</tspan>`) + escapeXml(w.tail)).join(" ");
   var overlap = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
@@ -4260,15 +4310,17 @@ var FablesMotor = (() => {
     }
     return rects;
   }
-  function caption(text, hero11, idPrefix, sw, look, avoid, tone3, start = 0.2) {
+  function caption(text, hero11, idPrefix, sw, look, avoid, tone3, start = 0.2, bubble, secondsPerChar = TYPE_SECONDS_PER_CHAR) {
     const { fill, stroke, radius } = look.caption;
     const onPaper = tone3 !== void 0;
     const skin = look.paper ?? PAPER2;
     const ink5 = onPaper ? skin.ink : look.caption.ink;
     const heroX = hero11.x;
     const heroY = hero11.y;
-    const heroBox = { x: heroX - 4 - hero11.sway, y: heroY - 8 - hero11.jump, w: HERO_W + 8 + hero11.sway * 2, h: HERO_H + 12 + hero11.jump };
-    const top = heroY + HERO_H - MODEL_STAGE_H - hero11.jump;
+    const scale = hero11.scale ?? 1;
+    const [heroW, heroH, modelH] = [HERO_W * scale, HERO_H * scale, MODEL_STAGE_H * scale];
+    const heroBox = { x: heroX - 4 - hero11.sway, y: heroY - 8 - hero11.jump, w: heroW + 8 + hero11.sway * 2, h: heroH + 12 + hero11.jump };
+    const top = heroY + heroH - modelH - hero11.jump;
     const list = onPaper ? words(look.bubble?.upper ? text.toUpperCase() : text, tone3) : text.split(" ").filter(Boolean).map((core) => ({ lead: "", core, tail: "", kind: "plain" }));
     const type = onPaper ? look.bubble ?? { font: MONO_FONT, size: 9, charW: 6, line: 12, base: 13 } : { font: look.font, size: 9.5, charW: look.charW, line: 11, base: 12 };
     const KEYS = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
@@ -4287,29 +4339,29 @@ var FablesMotor = (() => {
     const hi = (w2) => sw - w2 - 2 - Math.max(hero11.startX, heroX);
     const isRightward = heroX > hero11.startX;
     let best = { x: 2, y: 4, ox: 0, score: Infinity, lines: [], w: 0, h: 0 };
-    const wraps = [32, 25, 19, 15].map((width) => wrapWords(list, width));
-    const fits = wraps.filter((lines2) => lines2.length <= MAX_LINES);
+    const wraps = (bubble ? [32] : [32, 25, 19, 15]).map((width) => wrapWords(list, width));
+    const fits = wraps.filter((lines2) => bubble || lines2.length <= MAX_LINES);
     for (const [wi, lines2] of (fits.length ? fits : wraps.slice(0, 1)).entries()) {
       const w2 = Math.ceil(Math.max(...lines2.map(lineLen)) * type.charW + 14);
-      const h2 = lines2.length * type.line + 7;
+      const h2 = (bubble ? bubble.lines : lines2.length) * type.line + 7;
       const beside = Math.min(GROUND_Y - h2 - 4, Math.max(4, top - 4));
       const above = top - h2 - 8;
-      const below = heroY + HERO_H + 9;
+      const below = heroY + heroH + 9;
       const spots = [
-        [HERO_W + 8, beside],
+        [heroW + 8, beside],
         [-w2 - 8, beside],
-        [HERO_W / 2 - w2 / 2, above],
-        [HERO_W - 10, above],
+        [heroW / 2 - w2 / 2, above],
+        [heroW - 10, above],
         [-w2 + 10, above],
         // Under Claude, for when it flies and there is no room above it.
-        [HERO_W / 2 - w2 / 2, below]
+        [heroW / 2 - w2 / 2, below]
       ];
       for (const [si, [ox0, y0]] of spots.entries()) {
         const y2 = y0 === below ? Math.min(H2 - h2 - 3, y0) : Math.min(GROUND_Y - h2 - 4, Math.max(4, y0));
         const isOver = si >= 2;
-        const [a, b] = [Math.max(lo, -w2 + 14), Math.min(hi(w2), HERO_W - 14)];
-        const along = Math.min(HERO_W - 14, Math.max(-w2 + 14, ox0));
-        const ox2 = !isOver ? ox0 : a <= b ? Math.min(b, Math.max(a, ox0)) : isRightward ? Math.max(-w2 + 14, Math.min(along, hi(w2))) : Math.min(HERO_W - 14, Math.max(along, lo));
+        const [a, b] = [Math.max(lo, -w2 + 14), Math.min(hi(w2), heroW - 14)];
+        const along = Math.min(heroW - 14, Math.max(-w2 + 14, ox0));
+        const ox2 = !isOver ? ox0 : a <= b ? Math.min(b, Math.max(a, ox0)) : isRightward ? Math.max(-w2 + 14, Math.min(along, hi(w2))) : Math.min(heroW - 14, Math.max(along, lo));
         const x2 = clampX(heroX + ox2, w2);
         const covers = KEYS.reduce((t, k) => t + overlap({ x: clampX(heroAt(k) + ox2, w2), y: y2, w: w2, h: h2 }, boxAt(k)), 0);
         const waits = joinsAt(ox2, w2) * hero11.arrive;
@@ -4319,21 +4371,27 @@ var FablesMotor = (() => {
     }
     const { lines, w, h, x, y, ox } = best;
     const joins = joinsAt(ox, w);
-    const appear = joins * hero11.arrive;
+    const appear = joins * hero11.arrive + (hero11.wait ?? 0);
     let delay = start + appear;
-    const rows = lines.map((line, i) => {
-      const dur = Math.max(0.2, lineLen(line) * TYPE_SECONDS_PER_CHAR);
+    const timeline = bubble ? bubbleTimeline(lines.map(lineLen), { lines: bubble.lines, secondsPerChar, start: delay }) : [];
+    const typed = lines.map((line, i) => {
+      const dur = timeline[i] ? timeline[i].typeEnd - timeline[i].typeStart : Math.max(0.2, lineLen(line) * secondsPerChar);
       const id = `${idPrefix}${i}`;
-      const reveal = `<clipPath id="${id}"><rect x="${n2(x)}" y="${n2(y + 2 + i * type.line)}" width="0" height="${type.line + 2}"><animate attributeName="width" from="0" to="${w}" dur="${n2(dur)}s" begin="${n2(delay)}s" fill="freeze"/></rect></clipPath>`;
+      const reveal = `<clipPath id="${id}"><rect x="${n2(x)}" y="${n2(y + 2 + i * type.line)}" width="0" height="${type.line + 2}"><animate attributeName="width" from="0" to="${w}" dur="${n2(dur)}s" begin="${n2(timeline[i]?.typeStart ?? delay)}s" fill="freeze"/></rect></clipPath>`;
       delay += dur;
       return reveal + `<text clip-path="url(#${id})" x="${n2(x + 7)}" y="${n2(y + type.base + i * type.line)}" font-family="${type.font}" font-size="${type.size}" fill="${ink5}">${lineSvg(line, skin)}</text>`;
     }).join("");
+    const rises = timeline.map(
+      (t, i) => t.leaves === void 0 ? "" : `<animateTransform attributeName="transform" type="translate" from="0 ${n2(-i * type.line)}" to="0 ${n2(-(i + 1) * type.line)}" begin="${n2(t.leaves)}s" dur="${n2(SCROLL_SECONDS)}s" fill="freeze"/>`
+    ).join("");
+    const rows = bubble ? `<clipPath id="${idPrefix}win"><rect x="${n2(x)}" y="${n2(y + type.base - type.line + type.size * 0.3 + 0.5)}" width="${w}" height="${bubble.lines * type.line}"/></clipPath><g clip-path="url(#${idPrefix}win)"><g>${rises}${typed}</g></g>` : typed;
+    const dims = bubble ? ` data-lines="${bubble.lines}" data-rows="${lines.length}"` : "";
     const follows = [.../* @__PURE__ */ new Set([0, joins, ...KEYS.filter((k) => k > joins)])].sort((p, q) => p - q);
     const follow = hero11.arrive && hero11.startX !== heroX ? ` transform="translate(${n2(clampX(heroAt(0) + ox, w) - x)} 0)"><animateTransform attributeName="transform" type="translate" values="${follows.map((k) => `${n2(clampX(heroAt(k) + ox, w) - x)} 0`).join(";")}" keyTimes="${follows.join(";")}" dur="${n2(hero11.arrive)}s" fill="freeze"/` : "";
     const fade = `<animate attributeName="opacity" values="0;1" dur=".2s"${appear ? ` begin="${n2(appear)}s"` : ""} fill="freeze"/>`;
     const hidden = appear ? ` opacity="0" data-speaks="${n2(appear)}"` : "";
     if (onPaper) {
-      const hx = heroX + HERO_W / 2;
+      const hx = heroX + heroW / 2;
       const hy = top + 10;
       let base;
       if (x >= hx) base = [[x + 2, y + h - 13], [x + 2, y + h - 5]];
@@ -4347,11 +4405,11 @@ var FablesMotor = (() => {
       const len = Math.hypot(hx - mx, hy - my) || 1;
       const reach = Math.min(10, len * 0.6);
       const tip = [mx + (hx - mx) / len * reach, my + (hy - my) / len * reach];
-      if (look.bubble) return `<g data-part="speech" data-tone="${tone3}"${hidden}${follow || ""}>${look.bubble.font.includes("Monocraft") ? MONO_FACE : ""}${look.bubble.draw({ x, y, w, h }, { base, tip })}${rows}${fade}</g>`;
+      if (look.bubble) return `<g data-part="speech" data-tone="${tone3}"${dims}${hidden}${follow || ""}>${look.bubble.font.includes("Monocraft") ? MONO_FACE : ""}${look.bubble.draw({ x, y, w, h }, { base, tip })}${rows}${fade}</g>`;
       const shape = `<rect x="${n2(x)}" y="${n2(y)}" width="${w}" height="${h}" rx="6"/><path d="M${n2(base[0][0])} ${n2(base[0][1])}L${n2(tip[0])} ${n2(tip[1])}L${n2(base[1][0])} ${n2(base[1][1])}z"/>`;
-      return `<g data-part="speech" data-tone="${tone3}"${hidden}${follow || ""}>${MONO_FACE}${paper(shape, skin)}${rows}${fade}</g>`;
+      return `<g data-part="speech" data-tone="${tone3}"${dims}${hidden}${follow || ""}>${MONO_FACE}${paper(shape, skin)}${rows}${fade}</g>`;
     }
-    return `<g data-part="speech"${hidden}${follow || ""}><rect x="${n2(x)}" y="${n2(y)}" width="${w}" height="${h}" rx="${radius}" fill="${fill}" stroke="${stroke}" stroke-width="1"/>${rows}${fade}</g>`;
+    return `<g data-part="speech"${dims}${hidden}${follow || ""}><rect x="${n2(x)}" y="${n2(y)}" width="${w}" height="${h}" rx="${radius}" fill="${fill}" stroke="${stroke}" stroke-width="1"/>${rows}${fade}</g>`;
   }
   function title(text, color, look) {
     const w = text.length * (look.charW - 0.3) + 16;
@@ -4422,11 +4480,17 @@ var FablesMotor = (() => {
       ...tag ? [{ x: 0, y: 0, w: tag.w, h: tag.h }] : [],
       ...stage.keep
     ];
-    const claudeBox = { x: Math.min(plan.startX, plan.endX) - 30, y: plan.endY - 40, w: Math.abs(plan.endX - plan.startX) + HERO_W + 60, h: HERO_H + 56 };
+    const approach = isApproach(scene);
+    const grown = HERO_W * APPROACH_SCALE;
+    const claudeBox = approach ? { x: Math.min(plan.startX, plan.endX) + HERO_W / 2 - grown / 2 - 30, y: 0, w: Math.abs(plan.endX - plan.startX) + grown + 60, h: H2 } : { x: Math.min(plan.startX, plan.endX) - 30, y: plan.endY - 40, w: Math.abs(plan.endX - plan.startX) + HERO_W + 60, h: HERO_H + 56 };
+    const reach = Math.max(heroReach(scene.hero.action), scene.hero.then ? heroReach(scene.hero.then) : 0);
+    const sway = scene.hero.action === "inspect" ? 2 * U : 0;
+    const bigX = plan.endX + HERO_W / 2 - grown / 2;
+    const speaker = approach ? { startX: bigX, x: bigX, y: H2 - APPROACH_MARGIN - HERO_H * APPROACH_SCALE, arrive: 0, jump: reach * APPROACH_SCALE, sway: sway * APPROACH_SCALE, scale: APPROACH_SCALE, wait: APPROACH_SECONDS } : { startX: plan.startX, x: plan.endX, y: plan.endY, arrive: plan.arrive, jump: reach, sway };
     const fore = (withDust, propCount) => (withDust ? dust : "") + props.slice(0, propCount).join("") + (pixelArt ? `<g filter="url(#sc-pixelize-claude)">${plan.svg}</g>` : plan.svg);
     const build2 = (withDust, propCount) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sw} ${H2}" width="${width}" height="${height}" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet" style="display:block;background:${look.grade ? edge : ground}"${look.grade || art ? ` data-look="${look.name}"` : ""}>` + grade + `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 4 + GROUND_Y}" fill="${look.grade ? edge : sky3}"/>` + (art?.defs ? `<defs>${art.defs(sw, H2)}</defs>` : "") + (pixelArt ? `<defs>${PIXELIZE(sw, claudeBox, gradeBody)}</defs><g filter="url(#sc-pixelize)">` : "") + (grade ? `<g filter="url(#lk-grade)">` : "") + // The graded stage carries its own sky, so the grade sees the whole picture.
     (look.grade ? `<rect width="${sw}" height="${H2}" fill="${sky3}"/>` : "") + (art?.under?.(sw, H2) ?? "") + stage.back + `<rect x="${-sw * 4}" y="${stage.groundTop}" width="${sw * 9}" height="${H2 * 4}" fill="${ground}"/>` + // Ground-level scenery goes down before anything that stands on it.
-    stage.near + fore(withDust, propCount) + stage.lens + (grade ? "</g>" : "") + (pixelArt ? "</g>" : "") + (look.texture?.(sw, H2, GROUND_Y, pixelArt) ?? "") + (look.frame?.(sw, H2, GROUND_Y) ?? "") + (tag?.svg ?? "") + caption(scene.caption, { startX: plan.startX, x: plan.endX, y: plan.endY, arrive: plan.arrive, jump: Math.max(heroReach(scene.hero.action), scene.hero.then ? heroReach(scene.hero.then) : 0), sway: scene.hero.action === "inspect" ? 2 * U : 0 }, idPrefix, sw, look, avoid(propCount), rich ? scene.tone ?? (scene.hero.action === "celebrate" ? "milestone" : "work") : void 0, entrance + 0.2) + // A new setting fades in from the dark, so the band never jumps from one place to the next.
+    stage.near + fore(withDust, propCount) + stage.lens + (grade ? "</g>" : "") + (pixelArt ? "</g>" : "") + (look.texture?.(sw, H2, GROUND_Y, pixelArt) ?? "") + (look.frame?.(sw, H2, GROUND_Y) ?? "") + (tag?.svg ?? "") + caption(scene.caption, speaker, idPrefix, sw, look, avoid(propCount), rich ? scene.tone ?? (scene.hero.action === "celebrate" ? "milestone" : "work") : void 0, entrance + 0.2, options.bubble, options.secondsPerChar) + // A new setting fades in from the dark, so the band never jumps from one place to the next.
     (entrance ? `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 9}" fill="#0b0b10" pointer-events="none"><animate attributeName="opacity" values="1;0" dur="${n2(entrance)}s" fill="freeze"/></rect>` : "") + `</svg>`;
     const propsShown = props.length;
     let svg = build2(true, propsShown);
@@ -4451,9 +4515,17 @@ var FablesMotor = (() => {
     return svg;
   }
   var speaksAfter = (svg) => Number(/data-part="speech"[^>]*\sdata-speaks="([\d.]+)"/.exec(svg)?.[1] ?? 0);
+  function typedAfter(svg) {
+    const bubble = svg.slice(Math.max(0, svg.indexOf('data-part="speech"')));
+    let last = 0;
+    for (const m of bubble.matchAll(/<animate attributeName="width" from="0" to="[\d.]+" dur="([\d.]+)s" begin="(-?[\d.]+)s"/g)) last = Math.max(last, Number(m[1]) + Number(m[2]));
+    return Math.round(last * 100) / 100;
+  }
 
   // index.ts
-  var SCHEMA_VERSION = 1;
+  var SCHEMA_VERSION = 2;
+  var BUBBLE_LINES = [1, 4];
+  var SECONDS_PER_CHAR = [0.01, 0.2];
   function renderScene(input, options = {}) {
     try {
       let raw = input;
@@ -4470,16 +4542,26 @@ var FablesMotor = (() => {
       if (options.figure !== void 0 && !VOCAB.figures.includes(options.figure)) {
         return { ok: false, error: `unknown figure "${options.figure}"` };
       }
-      const scene = parseScene(raw);
+      const { bubble, secondsPerChar } = options;
+      if (bubble !== void 0) {
+        const lines = bubble?.lines;
+        if (typeof bubble !== "object" || bubble === null || typeof lines !== "number" || !Number.isInteger(lines) || lines < BUBBLE_LINES[0] || lines > BUBBLE_LINES[1]) {
+          return { ok: false, error: `bubble must be { lines: integer ${BUBBLE_LINES[0]}-${BUBBLE_LINES[1]} }` };
+        }
+      }
+      if (secondsPerChar !== void 0 && (typeof secondsPerChar !== "number" || !Number.isFinite(secondsPerChar) || secondsPerChar < SECONDS_PER_CHAR[0] || secondsPerChar > SECONDS_PER_CHAR[1])) {
+        return { ok: false, error: `secondsPerChar must be a number between ${SECONDS_PER_CHAR[0]} and ${SECONDS_PER_CHAR[1]}` };
+      }
+      const scene = parseScene(raw, { maxCaption: bubble ? MAX_LONG_CAPTION : MAX_CAPTION });
       if (!scene) return { ok: false, error: "not a scene: it needs a caption" };
       if (options.fadeIn) scene.enter = "fade";
-      const svg = sceneToSvg(scene, { look: options.look, figure: options.figure, width: options.width, height: options.height });
+      const svg = sceneToSvg(scene, { look: options.look, figure: options.figure, width: options.width, height: options.height, bubble: bubble && { lines: bubble.lines }, secondsPerChar });
       const warnings = [];
       const figure = options.figure && options.figure !== "auto" ? options.figure : LOOKS[options.look ?? DEFAULT_LOOK]?.figure;
       if (scene.props?.length && figure === "3d") {
         warnings.push('props-not-drawn: the 3d figure draws no props; pass figure "pixel" to show them');
       }
-      return { ok: true, svg, scene, speaksAfter: speaksAfter(svg), warnings };
+      return { ok: true, svg, scene, speaksAfter: speaksAfter(svg), typedAfter: typedAfter(svg), warnings };
     } catch (e) {
       return { ok: false, error: e instanceof Error ? e.message : String(e) };
     }
@@ -4495,10 +4577,12 @@ var FablesMotor = (() => {
     figures: ["auto", "pixel", "3d"],
     tones: ["work", "trouble", "milestone"],
     heights: ["ground", "air", "sky"],
-    defaults: { look: DEFAULT_LOOK, width: W2, height: H2 },
+    defaults: { look: DEFAULT_LOOK, width: W2, height: H2, secondsPerChar: TYPE_SECONDS_PER_CHAR },
     limits: {
       maxProps: MAX_PROPS,
       maxCaption: MAX_CAPTION,
+      maxLongCaption: MAX_LONG_CAPTION,
+      bubbleLines: BUBBLE_LINES,
       maxLabel: MAX_LABEL,
       maxTitle: MAX_TITLE,
       maxPixelSide: MAX_PIXEL_SIDE,
