@@ -32,7 +32,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 import director
-from beats import beats
+from beats import beats, is_cut
 from emotion_parser import EMOTIONS, EmotionStreamParser
 from history import HistoryStore
 
@@ -177,6 +177,8 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         history.append(cid, text, "".join(raw))
         bs = beats(shown, marks)
         sent = 0
+        last = None  # la última escena emitida, ya corregida (D23)
+        stats = {"continuations": 0, "fixed_backdrop": 0, "fixed_hero": 0}
         if bs and DIRECTOR_ENABLED:
             # Cada escena sale en cuanto el director la tiene lista (D19). Si falla, el resto va a null.
             try:
@@ -184,14 +186,29 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
                     async for scene in scenes:
                         if sent >= len(bs):
                             break
-                        yield _scene_event(bs, sent, scene)
+                        prev_caption = bs[sent - 1][0] if sent else None
+                        fixed = director.continue_scene(last, prev_caption, scene)
+                        _count_continuation(stats, last, prev_caption, scene, fixed)
+                        last = fixed
+                        yield _scene_event(bs, sent, fixed)
                         sent += 1
             except Exception:  # noqa: BLE001 - un director caído nunca estropea la respuesta
                 log.warning("director failed; sending the missing scenes as null", exc_info=True)
         while sent < len(bs):
             yield _scene_event(bs, sent, None)
             sent += 1
+        log.info("D23 for %s: %s", cid, stats)
         yield _sse("done", {"turns": len(history.messages(cid)) // 2})
+
+
+def _count_continuation(stats: dict, prev: dict | None, prev_caption: str | None,
+                        scene: dict | None, fixed: dict | None) -> None:
+    """Cuenta las continuaciones (D23) y cuántas hubo que corregir, fondo y personaje por separado."""
+    if scene is None or prev is None or prev_caption is None or not is_cut(prev_caption):
+        return
+    stats["continuations"] += 1
+    stats["fixed_backdrop"] += scene["backdrop"] != fixed["backdrop"]
+    stats["fixed_hero"] += scene["hero"] != fixed["hero"]
 
 
 def _scene_event(bs: list[tuple[str, str]], i: int, scene: dict | None) -> str:
