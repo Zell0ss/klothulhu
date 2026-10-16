@@ -20,8 +20,10 @@ Backdrops: <backdrops>. What each one means:
 Use the whole range of backdrops; night and space are not the default. The eerie tone of klothulhu goes in
 the metaphors and the props you pick, not in always choosing the night.
 Hero actions. Moving across the stage, from "from" to "to" (0-100, percent of the stage): walk, run, fly,
-carry, sneak, jump, tumble. In place (from equal to to): dig, inspect, think, point, peek, spin, wave, sleep,
-panic, dance, celebrate. Played once: trip, shrug. "then" chains a second action where the hero stands; use it
+carry, sneak, jump, tumble, and approach (walks toward the viewer and grows, facing front; only as the main
+action, never in "then"; rarely, for a confidence or an important moment). In place (from equal to to): dig,
+inspect, think, point, peek, spin, wave, sleep, panic, dance, celebrate, angry (stomping, for anger), dazed
+(dizzy swaying, for bewilderment). Played once: trip, shrug. "then" chains a second action where the hero stands; use it
 when the beat has two moments, else null. Valid names: <actions>.
 Particles (optional, null for none): <particles>, density 0-1. Use them for atmosphere, sparingly.
 Props (0 to <max_props>, optional): small sprites placed at x 0-100, y ground/air/sky, with a motion and an optional
