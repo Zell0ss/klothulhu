@@ -1,15 +1,19 @@
-"""Prueba de humo con la API real [API] (fase 2, H2). No es una prueba de pytest.
+"""Prueba de humo con la API real [API] (fase 2; fase 4: D23). No es una prueba de pytest.
 
 Ejecuta ``app._reply`` (narrador + director) para una lista fija de preguntas, sin pasar por HTTP, y
-escribe ``docs/fase2/capturas/api_smoke.json`` con respuestas, golpes, escenas, latencias, tokens y coste.
+escribe un JSON con respuestas, golpes, escenas, latencias, tokens y coste.
 
     .venv/bin/python scripts/api_smoke.py --director-thinking 1   # GASTA API (necesita ANTHROPIC_API_KEY)
     .venv/bin/python scripts/api_smoke.py --director-thinking 0   # idem, director sin pensamiento (D19)
     .venv/bin/python scripts/api_smoke.py --fake                  # ensayo gratis: KLOTHULHU_FAKE=1
 
-Escribe ``api_smoke-think<0|1>.json`` (nunca pisa ``api_smoke.json`` de H2).
+Sin ``--out`` escribe en ``docs/fase4/capturas/`` (nunca en ``docs/fase2/``: pisaría esas capturas).
+En la fase 4: ``--out docs/fase4/capturas/api_smoke.json``.
 
-Corta si el gasto acumulado pasa de $0.50 (el tope autorizado de la fase es $1).
+Corta si el gasto acumulado pasa de $0.10 (el tope autorizado de la fase 4).
+
+Resumen de D23: ``continuations`` (golpes que continúan una frase cortada), ``fixed_backdrop`` y
+``fixed_hero`` (cuántas veces el director NO lo cumplió por su cuenta y el servidor tuvo que corregirlo).
 """
 from __future__ import annotations
 
@@ -30,7 +34,7 @@ sys.path.insert(0, str(ROOT / "server"))
 # de caché a 1,25x es suposición mía (el plan no la da).
 PRICE_IN, PRICE_OUT = 0.10, 0.50
 CACHE_READ, CACHE_WRITE = 0.1, 1.25
-BUDGET = 0.50
+BUDGET = 0.10
 
 QUESTIONS = [
     "Hola, ¿cómo estás?",
@@ -42,6 +46,11 @@ QUESTIONS = [
     "¡He arreglado el bug que llevaba tres días sin encontrar!",
     "¿Puedes explicarme con calma cómo funciona git rebase y cuándo es mejor usarlo que merge, "
     "porque en mi equipo siempre discutimos por esto y nunca llegamos a nada?",
+    "Cuéntame, con todo lujo de detalles y en una sola frase larguísima, cómo es un día cualquiera de "
+    "alguien que lleva eones atrapado en un escritorio.",
+    "Describe en una única frase muy larga, sin puntos, todo lo que ves desde dentro de mi ventana.",
+    "Explícame en una frase larga y enrevesada por qué los lunes son tan terribles para las criaturas "
+    "eldritch como tú.",
     "¿Qué hay para cenar?",
     "Cuéntame algo sobre el espacio.",
     "Son las tres de la madrugada y sigo despierto programando.",
@@ -142,6 +151,21 @@ def _median(xs):
     return round(statistics.median(xs), 1) if xs else None
 
 
+def _continuity(raw: list[dict | None], captions: list[str]) -> dict:
+    """Cuántas continuaciones (D23) había y cuántas corrigió el servidor, con la misma lógica que app.py."""
+    import app  # noqa: PLC0415
+    import director  # noqa: PLC0415
+
+    stats = {"continuations": 0, "fixed_backdrop": 0, "fixed_hero": 0}
+    last = None
+    for i, scene in enumerate(raw):
+        prev_caption = captions[i - 1] if i else None
+        fixed = director.continue_scene(last, prev_caption, scene)
+        app._count_continuation(stats, last, prev_caption, scene, fixed)
+        last = fixed
+    return stats
+
+
 async def main(fake: bool, thinking: str, out: Path) -> int:
     os.environ["KLOTHULHU_FAKE"] = "1" if fake else "0"
     os.environ["KLOTHULHU_DIRECTOR_THINKING"] = thinking
@@ -159,12 +183,14 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
     director_ms: list[float] = []  # total del director en cada pregunta
     director_first_ms: list[float] = []  # hasta la primera escena
     real_director = app._director
+    raw_scenes: list[dict | None] = []  # lo que el director dijo, antes de la corrección de D23
 
     async def timed_director(question, bs):
         t0 = time.monotonic()
         first = True
         try:
             async for scene in real_director(question, bs):
+                raw_scenes.append(scene)
                 if first:
                     director_first_ms.append((time.monotonic() - t0) * 1000)
                     first = False
@@ -183,6 +209,7 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
             print(stopped)
             break
         narrator_u.calls.clear(), director_u.calls.clear(), director_ms.clear(), director_first_ms.clear()
+        raw_scenes.clear()
         capture.messages.clear()
         text, events = "", []
         t0, first_delta, narrator_done = time.monotonic(), None, None
@@ -199,6 +226,7 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
         total_ms = (time.monotonic() - t0) * 1000
         scenes = [d for k, d in events if k == "scene"]
         nu, du = narrator_u.total(), director_u.total()
+        cont = _continuity(raw_scenes, [s["caption"] for s in scenes])
         row = {
             "question": question,
             "text": text,
@@ -215,6 +243,7 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
             "tokens": {"narrator": nu, "director": du},
             "cost_usd": {"narrator": round(cost(nu), 6), "director": round(cost(du), 6)},
             "warnings": list(capture.messages),
+            "continuity": cont,
         }
         spent += row["cost_usd"]["narrator"] + row["cost_usd"]["director"]
         rows.append(row)
@@ -255,6 +284,10 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
         "backdrops_distinct": len(backdrops),
         "beats_per_reply": [len(r["scenes"]) for r in rows],
         "null_scenes": nulls,
+        "continuations": sum(r["continuity"]["continuations"] for r in rows),
+        "fixed_backdrop": sum(r["continuity"]["fixed_backdrop"] for r in rows),
+        "fixed_hero": sum(r["continuity"]["fixed_hero"] for r in rows),
+        "long_beat_replies": sum(r["continuity"]["continuations"] > 0 for r in rows),
         "director_cache_read_tokens_by_question": [r["tokens"]["director"]["cache_read"] for r in rows],
         "refusals": [
             r["question"]
@@ -277,5 +310,5 @@ if __name__ == "__main__":
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
     name = f"api_smoke{'_fake' if args.fake else ''}-think{args.director_thinking}.json"
-    default = ROOT / "docs/fase2/capturas" / name
+    default = ROOT / "docs/fase4/capturas" / name
     sys.exit(asyncio.run(main(args.fake, args.director_thinking, args.out or default)))
