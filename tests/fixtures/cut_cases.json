@@ -1,0 +1,20 @@
+{
+  "_comment": "Casos normativos de is_cut (servidor) e isCut (cliente), fase 4, D23. No editar para que pase una prueba.",
+  "cases": [
+    {"caption": "Hola, mortal. Sigo atrapado en tu escritorio,", "cut": true},
+    {"caption": "lo dice así:", "cut": true},
+    {"caption": "sin punto", "cut": true},
+    {"caption": "uno; dos;", "cut": true},
+    {"caption": "y tú vienes a preguntarme por la hora, como si el tiempo significara", "cut": true},
+    {"caption": "Fin.", "cut": false},
+    {"caption": "Fin. ", "cut": false},
+    {"caption": "¿Sí?", "cut": false},
+    {"caption": "¡Ya!", "cut": false},
+    {"caption": "Bueno…", "cut": false},
+    {"caption": "Bueno...", "cut": false},
+    {"caption": "«Hola.»", "cut": false},
+    {"caption": "\"Hola.\"", "cut": false},
+    {"caption": "(así.)", "cut": false},
+    {"caption": "lo cual es humillante para algo que devoró estrellas.", "cut": false}
+  ]
+}

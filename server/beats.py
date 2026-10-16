@@ -12,6 +12,9 @@ import re
 CAPTION_MAX = 70
 
 # Fin de frase: . ! ? … (uno o varios, quizá cerrando »"')) seguido de espacio o fin.
+# Cierre de frase al final del caption, ignorando espacios y cierres (D22/D23).
+_ENDS_SENTENCE = re.compile(r"[.!?…][\s»\"”')\]]*$")
+
 _SENTENCE = re.compile(r".*?[.!?…]+[»\"')\]]*(?=\s|$)|.+$", re.DOTALL)
 
 
@@ -75,3 +78,11 @@ def beats(text: str, marks: list[tuple[int, str]]) -> list[tuple[str, str]]:
         end = cuts[i + 1][0] if i + 1 < len(cuts) else len(text)
         out.extend((caption, emotion) for caption in _beats_of_span(text[at:end]))
     return out
+
+
+def is_cut(caption: str) -> bool:
+    """True si el golpe no cierra frase, o sea, la frase sigue en el siguiente (D22, D23).
+
+    Idéntico a ``isCut`` de scenes.js, con casos compartidos en ``tests/fixtures/cut_cases.json``.
+    """
+    return not _ENDS_SENTENCE.search(caption)
