@@ -7,6 +7,7 @@ const path = require('path');
 const { streamChat, forget } = require('./sse-client');
 const { appendLog } = require('./debug-log');
 const { normalizeConfig } = require('./config');
+const { PANEL_W, openBounds, closeBounds } = require('./layout');
 
 // The engine draws a 640x128 strip (D12); the input box sits below it.
 const STAGE_W = 640;
@@ -19,6 +20,7 @@ let win = null;
 let tray = null;
 let cfg = null;
 let inflight = null;   // AbortController of the current /chat request
+let panelShift = null; // null = panel de historial cerrado; si no, lo que la ventana se movió a la izquierda al abrirlo (D27)
 let drag = null;       // { timer, dx, dy }
 
 function loadConfig() {
@@ -73,7 +75,10 @@ function createTray() {
   tray.setContextMenu(Menu.buildFromTemplate([
     { label: 'Show / hide', click: toggleVisible },
     { label: 'Talk', click: summon },
-    { label: 'Forget conversation', click: () => forget(cfg).catch(() => {}) },
+    {
+      label: 'Forget conversation',
+      click: () => forget(cfg).catch(() => {}).finally(() => { if (win) win.webContents.send('forgotten'); }),
+    },
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() },
   ]));
@@ -90,7 +95,30 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed }));
+ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed, panelW: PANEL_W }));
+
+// D27: abrir y cerrar el panel de historial ensancha la ventana. Abrir dos veces o cerrar sin abrir no hace nada.
+ipcMain.handle('panel', (_e, open) => {
+  const add = Math.round(PANEL_W * cfg.scale);
+  const setBounds = (b) => {
+    // Windows: con resizable:false, setBounds puede no cambiar el tamaño.
+    win.setResizable(true);
+    win.setBounds(b);
+    win.setResizable(false);
+  };
+  if (open) {
+    if (panelShift !== null) return false;
+    const area = screen.getDisplayMatching(win.getBounds()).workArea;
+    const r = openBounds(win.getBounds(), area, add);
+    setBounds(r.bounds);
+    panelShift = r.shift;
+    return true;
+  }
+  if (panelShift === null) return false;
+  setBounds(closeBounds(win.getBounds(), add, panelShift));
+  panelShift = null;
+  return true;
+});
 
 ipcMain.on('debug', (_e, line) => { if (cfg.debug) appendLog(LOG_FILE, line); });
 
