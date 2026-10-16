@@ -114,49 +114,7 @@ def test_g6_pure():
     assert (prev, scene) == before
 
 
-# G7 — de punta a punta: una frase cortada en dos y otra frase nueva
-def test_g7_reply_two_sentences(monkeypatch):
-    reply = ("[smug] Hola, mortal. Sigo atrapado en tu escritorio, lo cual es humillante para algo que "
-             "devoró estrellas. [neutral] Pero estoy bien, dentro de lo que cabe en una ventana.")
-    stagings = [_scene("space", "walk", 10, 70, particles="stars"), _scene("forest", "think", 20, 20),
-                _scene("lab", "run", 0, 50)]
-    scenes, bs = _run(monkeypatch, reply, stagings, "fase4-g7")
-    assert [c for c, _ in bs] == [
-        "Hola, mortal. Sigo atrapado en tu escritorio,",
-        "lo cual es humillante para algo que devoró estrellas.",
-        "Pero estoy bien, dentro de lo que cabe en una ventana.",
-    ]
-    assert scenes[0]["backdrop"] == "space" and scenes[0]["hero"] == {"action": "walk", "from": 10, "to": 70}
-    assert scenes[1]["backdrop"] == "space" and scenes[1]["particles"]["kind"] == "stars"
-    assert scenes[1]["hero"] == {"action": "think", "from": 70, "to": 70}
-    assert scenes[2]["backdrop"] == "lab" and "particles" not in scenes[2]  # frase nueva: libre
-    assert scenes[2]["hero"] == {"action": "run", "from": 0, "to": 50}
-
-
-# G8 — una frase en tres trozos encadena con la escena ya corregida
-def test_g8_chain(monkeypatch):
-    reply = ("[annoyed] Llevo eones esperando a que alguien me pregunte algo interesante, y tú vienes a "
-             "preguntarme por la hora, como si el tiempo significara algo para un ser que ya estaba aquí "
-             "antes de las estrellas.")
-    stagings = [_scene("space", "walk", 10, 70, particles="stars"), _scene("forest", "run", 20, 90),
-                _scene("lab", "think", 5, 5, particles="sparks")]
-    scenes, bs = _run(monkeypatch, reply, stagings, "fase4-g8")
-    assert len(bs) == 3 and is_cut(bs[0][0]) and is_cut(bs[1][0])
-    assert [s["backdrop"] for s in scenes] == ["space", "space", "space"]
-    assert all(s["particles"]["kind"] == "stars" for s in scenes)
-    assert scenes[1]["hero"] == {"action": "run", "from": 70, "to": 90}
-    assert scenes[2]["hero"] == {"action": "think", "from": 90, "to": 90}
-
-
-# G9 — una escena null rompe la cadena: la siguiente sale tal cual
-def test_g9_null_breaks_chain(monkeypatch):
-    reply = ("[annoyed] Llevo eones esperando a que alguien me pregunte algo interesante, y tú vienes a "
-             "preguntarme por la hora, como si el tiempo significara algo para un ser que ya estaba aquí "
-             "antes de las estrellas.")
-    stagings = [_scene("space", "walk", 10, 70), None, _scene("lab", "think", 5, 5)]
-    scenes, _ = _run(monkeypatch, reply, stagings, "fase4-g9")
-    assert scenes[1] is None
-    assert scenes[2]["backdrop"] == "lab" and scenes[2]["hero"]["from"] == 5
+# G7-G9: superadas por tests/test_fase5.py H4-H6 (D24: ya no hay golpes de 70 caracteres)
 
 
 # G10 — el director ve qué golpes continúan
