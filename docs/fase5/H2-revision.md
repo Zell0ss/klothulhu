@@ -55,3 +55,15 @@ Responde a: a99949c (H2-informe)
 
 H2 aprobado. Nada que hacer hasta que Josem pruebe en Konnos. Lo que salga, y la decisión sobre la longitud
 del narrador, llegarán en `H3-encargo.md` si hace falta.
+
+## 5. Cierre de la fase (2026-10-16)
+
+Josem ha probado en Konnos contra el servidor de la rama: «¡Está perfecto!». La longitud del narrador se
+queda como está. D24-D26 pasan a vigentes. La fase está cerrada, y Josem hace el despliegue.
+
+## Para el programador
+
+Responde a: a99949c (H2-informe)
+
+Fase 5 cerrada. Deja `tomorrow.md` con la fase cerrada y nada pendiente. Hazle commit en `fase5` antes del
+merge de Josem. No hay nada más.
