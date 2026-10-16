@@ -6,7 +6,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "check": "node --check main.js && node --check preload.js && node --check sse-client.js && node --check debug-log.js && node --check config.js && node --check renderer/scenes.js && node --check renderer/feed.js",
+    "check": "node --check main.js && node --check preload.js && node --check sse-client.js && node --check debug-log.js && node --check config.js && node --check layout.js && node --check renderer/scenes.js && node --check renderer/feed.js && node --check renderer/convo.js",
     "test": "node --test"
   },
   "devDependencies": {

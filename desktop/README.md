@@ -13,6 +13,11 @@ del bocadillo, y con ellos el tiempo que se queda cada escena (D25): 0.5 va el d
 (p. ej. un string) se ignora y sale un aviso en la consola de `npm start`; lo mismo vale para `debug`, que
 solo se enciende con `true` sin comillas.
 
+## Historial (📜, D27)
+
+El botón 📜 de la franja abre y cierra, a la derecha, un panel con la conversación de esta sesión; la ventana se
+ensancha para hacerle sitio. Vive en memoria: «Forget conversation» del tray lo vacía, y al cerrar klothulhu se pierde.
+
 ## Escenas del servidor (fase 3, D21)
 
 Cada evento `scene` entra en la cola en cuanto llega (`renderer/feed.js`, lógica pura con pruebas en

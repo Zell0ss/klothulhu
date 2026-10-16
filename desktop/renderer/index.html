@@ -8,14 +8,17 @@
 <style>
   :root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); }
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; }
-  body { display: flex; flex-direction: column; align-items: center; }
+  body { display: flex; flex-direction: row; align-items: flex-start; }
+  #col { display: flex; flex-direction: column; align-items: center; flex: none; }
   #stage { position: relative; flex: none; }
   #scene { display: block; }
-  #copyBtn, #closeBtn {
+  #copyBtn, #closeBtn, #histBtn {
     position: absolute; top: 4px; width: 18px; height: 18px; padding: 0;
     border: none; border-radius: 4px; background: rgba(26, 20, 18, 0.7); color: var(--ink);
     font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0.7;
   }
+  #histBtn { right: 48px; }
+  #histBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #copyBtn { right: 26px; display: none; }
   #copyBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #copyBtn.copied { background: #4a7c4e; opacity: 1; }
@@ -27,24 +30,37 @@
     font: 13px ui-monospace, Consolas, monospace; outline: none;
   }
   #ask.on { visibility: visible; }
+  #history {
+    display: none; flex: none; box-sizing: border-box; height: 100%; padding: 8px 10px;
+    overflow-y: auto; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
+    font: 12px/1.4 ui-monospace, Consolas, monospace; user-select: text;
+  }
+  #history .turn { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #history .who { color: var(--rust); font-weight: bold; }
   #ask::placeholder { color: rgba(243, 239, 232, 0.45); }
 </style>
 </head>
 <body>
+<div id="col">
 <div id="stage">
   <img id="scene" alt="" draggable="false">
+  <button id="histBtn" type="button" title="Historial" aria-label="Historial">📜</button>
   <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
   <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
 </div>
 <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+</div>
+<div id="history"></div>
 <script src="vendor/fables-motor.iife.js"></script>
 <script src="scenes.js"></script>
 <script src="feed.js"></script>
+<script src="convo.js"></script>
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
+const { createConvo } = window.KlConvo;
 
 const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -52,6 +68,9 @@ const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última 
 const stage = document.getElementById('stage');
 const sceneImg = document.getElementById('scene');
 const input = document.getElementById('ask');
+const col = document.getElementById('col');
+const historyPanel = document.getElementById('history');
+const histBtn = document.getElementById('histBtn');
 const copyBtn = document.getElementById('copyBtn');
 const closeBtn = document.getElementById('closeBtn');
 
@@ -160,7 +179,42 @@ let reply = '';          // la respuesta entera, sin etiquetas
 let marks = [];          // [{at, emotion}]
 let awaiting = false;
 
+// --- historial (D27): la conversación de esta sesión, en memoria; no se guarda en disco ---
+const convo = createConvo();
+let historyOpen = false;
+
+function renderHistory() {
+  if (!historyOpen) return;
+  historyPanel.replaceChildren(...convo.entries().map((e) => {
+    const turn = document.createElement('div');
+    turn.className = 'turn';
+    const who = document.createElement('span');
+    who.className = 'who';
+    who.textContent = e.role === 'user' ? 'tú: ' : 'klothulhu: ';
+    const text = document.createElement('span');
+    text.textContent = e.text;   // nunca HTML (D10)
+    turn.append(who, text);
+    return turn;
+  }));
+  historyPanel.scrollTop = historyPanel.scrollHeight;
+}
+
+// Mostrar el panel solo después de que la ventana haya crecido, para que no salga aplastado; al cerrar, al revés.
+async function toggleHistory() {
+  if (!historyOpen) {
+    await kl.panel(true);
+    historyOpen = true;
+    historyPanel.style.display = 'block';
+    renderHistory();
+  } else {
+    historyOpen = false;
+    historyPanel.style.display = 'none';
+    await kl.panel(false);
+  }
+}
+
 function ask(text) {
+  convo.add('user', text); renderHistory();
   reply = ''; marks = []; awaiting = true;
   feed = createFeed(); warnedNow.clear(); firstSceneAt = null; t0 = performance.now();
   copyBtn.style.display = 'none';
@@ -183,6 +237,7 @@ kl.onEvent(({ type, data }) => {
     // Siempre se llama a enqueue, aunque no haya nada: con una respuesta vacía saca al cliente de «pensando».
     enqueue(feed.onDone(reply, marks));
     copyBtn.style.display = reply ? 'block' : 'none';
+    convo.add('klothulhu', reply); renderHistory();
   } else if (type === 'error') {
     awaiting = false;
     feed.onError();
@@ -206,6 +261,13 @@ copyBtn.addEventListener('click', (e) => {
   copyBtn._resetT = setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = '📋'; }, 1200);
 });
 
+histBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  toggleHistory();
+});
+
+kl.onForgotten(() => { convo.clear(); renderHistory(); });
+
 closeBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   kl.quit();
@@ -219,8 +281,8 @@ function setInteractive(on) {
   if (on !== interactive) { interactive = on; kl.clickThrough(!on); }
 }
 
-const onStrip = (t) => stage.contains(t);
-const onButton = (t) => t === copyBtn || t === closeBtn;
+const onStrip = (t) => stage.contains(t) || historyPanel.contains(t);   // el panel de historial también (D27)
+const onButton = (t) => t === copyBtn || t === closeBtn || t === histBtn;
 
 window.addEventListener('mousemove', (e) => {
   if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
@@ -265,6 +327,8 @@ kl.init().then((cfg) => {
   debug = Boolean(cfg.debug);
   readSpeed = cfg.readSpeed;
   const w = `${STAGE_W * cfg.scale}px`, h = `${STAGE_H * cfg.scale}px`;
+  col.style.width = w;
+  historyPanel.style.width = `${cfg.panelW * cfg.scale}px`;
   stage.style.width = w; stage.style.height = h;
   sceneImg.style.width = w; sceneImg.style.height = h;
   enqueue([{ kind: 'happy', caption: LINES.boot(cfg.hotkey) }]);
