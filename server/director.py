@@ -7,16 +7,22 @@ haya escrito. El texto no lo toca: el ``caption`` de cada escena es el golpe tal
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import logging
 import time
 from collections.abc import AsyncIterator
 from pathlib import Path
 
+from beats import is_cut
+
 log = logging.getLogger("klothulhu.director")
 
 HERE = Path(__file__).parent
 MAX_PROPS = 3
+# D23: acciones de desplazamiento (`from` != `to`). Es la lista del prompt y las de MOTION_TIMING con
+# `kind: "travel"` del motor vendorizado: al actualizar el motor (VENDOR.md), mira ahí.
+TRAVEL = frozenset({"walk", "run", "fly", "carry", "sneak", "jump", "tumble"})
 _PROMPT_PATH = HERE / "director_prompt.md"
 
 
@@ -166,11 +172,40 @@ def build_scene(staging: dict, caption: str, vocab: dict) -> dict | None:
         return None
 
 
+# --- continuidad dentro de la frase (D23) -----------------------------------
+
+
+def continue_scene(prev: dict | None, prev_caption: str | None, scene: dict | None) -> dict | None:
+    """Si el golpe anterior está cortado, la escena conserva su fondo y partículas y sale de donde acabó.
+
+    Pura: devuelve una copia y no toca ni ``prev`` ni ``scene``. Con ``prev``/``scene``/``prev_caption``
+    en ``None`` (o el anterior sin cortar) devuelve ``scene`` tal cual.
+    """
+    if scene is None or prev is None or prev_caption is None or not is_cut(prev_caption):
+        return scene
+    out = copy.deepcopy(scene)
+    out["backdrop"] = prev["backdrop"]
+    if "particles" in prev:
+        out["particles"] = copy.deepcopy(prev["particles"])
+    else:
+        out.pop("particles", None)
+    start = prev["hero"]["to"]
+    hero = out["hero"]
+    hero["from"] = start
+    if hero["action"] not in TRAVEL:
+        hero["to"] = start
+    return out
+
+
 # --- la llamada --------------------------------------------------------------
 
 
 def _user_message(question: str, beats: list[tuple[str, str]]) -> str:
-    lines = "\n".join(f"{i}. [{emotion}] {caption}" for i, (caption, emotion) in enumerate(beats, 1))
+    # D23: un golpe cuyo anterior está cortado continúa su frase.
+    lines = "\n".join(
+        f"{i}. [{emotion}]{' (continues)' if i > 1 and is_cut(beats[i - 2][0]) else ''} {caption}"
+        for i, (caption, emotion) in enumerate(beats, 1)
+    )
     return (
         f'The mortal asked: "{question}"\n'
         f"klothulhu's reply, in beats (in order):\n{lines}\n"

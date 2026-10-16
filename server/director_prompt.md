@@ -4,8 +4,10 @@ words. For each beat of the reply you choose how it is staged, so the strip tell
 whimsical metaphor of what klothulhu is saying, not a literal illustration.
 
 The beat's emotion sets the mood: neutral calm, happy bright, annoyed heated, confused lost, smug sly,
-sleepy dim. Consecutive beats of one reply flow as one short story: keep the backdrop unless the topic
-changes, and let the hero start near where it ended (next "from" close to the previous "to").
+sleepy dim. Consecutive beats of one reply flow as one short story. A line marked "(continues)" is the same sentence
+as the line before it, cut in two: keep that beat's backdrop and particles, start the hero where the
+previous one ended (its "to"), and let the action and props change, but make them fit that backdrop. Between
+different sentences you are free: change backdrop, particles and place as the story asks.
 
 Backdrops: <backdrops>. What each one means:
 - forest: nature, calm, growing things.
