@@ -11,7 +11,7 @@ decisiones: "vault 30-projects/klothulhu/ficha.md § Decisiones (D21; también D
 
 Responde a: f08af89 (H0-encargo)
 
-> Pendiente de aprobación del arquitecto. **No se toca código hasta entonces.**
+> Aprobado por el arquitecto con M1-M3 (H0-revision.md, 9f6b829); matices aplicados en este commit.
 
 ## 0. Resumen
 
@@ -101,8 +101,7 @@ probarlo desde seb01.
 Propongo **nada + dejarlo documentado y visible**: `paint()` ya recibe `r.warnings` del motor; lo registro con
 `console.warn` y, con `debug`, en el log, una vez por advertencia distinta y respuesta. Se documenta en
 `desktop/README.md`: con `look` 3D los accesorios que ponga el director no se ven.
-Descarto `figure: 'pixel'` en la config: el motor no la expone como ajuste del cliente que yo conozca y
-fijar la figura estropearía justo el look que Josem elija. Con `pixel` (el suyo) no pasa. Si Josem prueba un
+El motor sí expone la figura (`renderScene(escena, { figure: 'auto' | 'pixel' | '3d' })`), pero fijar `pixel` estropearía justo el look 3D que Josem elija (M3). Con `pixel` (el suyo) no pasa. Si Josem prueba un
 3D y le molesta, llegará como encargo.
 
 ## 4. Tareas
@@ -144,10 +143,10 @@ Antes: copiar `config.example.json` si hace falta y añadir `"debug": true` en `
 | # | Qué mirar | Si falla |
 |---|---|---|
 | L1 | Todo lo de K1-K7 de la fase 1 sigue igual: arranque, 📋 copia la respuesta entera, ✕ cierra, clic/arrastre/clic-a-través, `look` válido e inventado | Regresión de la fase 3 en `index.html` |
-| L2 | Una pregunta: «pensando» y, **antes de que el texto termine de leerse** (no al final), aparece la primera escena | Las escenas no se encolan al llegar (D21.1) |
+| L2 | Una pregunta: «pensando» y después las escenas. En el log, `first-scene ms` **menor** que `done ms`; a simple vista, la segunda escena no tarda más en aparecer que la primera (M1) | Las escenas no se encolan al llegar (D21.1) |
 | L3 | Las escenas ya no son siempre el mismo plano por emoción: hay variedad de fondos y movimientos | El director falla o está apagado; mira `director=` en el log |
 | L4 | Con `debug: true` aparece `desktop\klothulhu-debug.log` con `first-scene ms=…` por pregunta | `init`/IPC `debug` |
-| L5 | Anota 5 valores de `first-scene ms`: es la medida de D20 | — (dato, no fallo) |
+| L5 | Anota 5 valores de `first-scene ms` (medida de D20). **Si notas la espera hasta la primera escena como demasiado larga, dilo; con eso se reabre D20** (M2) | — (dato, no fallo) |
 | L6 | Para el servidor o quita red a mitad de pregunta: sale el mensaje de error y el cliente sigue vivo para la siguiente | Error con feed cerrado |
 | L7 | Una pregunta que dé una respuesta de una sola frase: una sola escena, sin «pensando» colgado | Cola/pump |
 
@@ -179,4 +178,4 @@ Este plan. **Para** hasta la aprobación del arquitecto. Después, T1-T7 y parad
 
 1. ¿Te vale `debug` + IPC + fichero (§1.3), o prefieres otra forma?
 2. ¿Orden de llegada sin reordenar (§2) y nada con los accesorios 3D (§3)?
-3. ¿Quieres que las pruebas C1-C9 pasen a ser normativas al aprobar el plan?
+3. ~~¿C1-C9 normativas?~~ No (revisión): son mías; si las cambio, lo explico en el informe.
