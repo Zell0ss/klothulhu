@@ -56,3 +56,22 @@ Responde a: 74bf505 (H1-informe)
 
 H1 aprobado. Nada que hacer hasta la prueba de Josem. Lo que salga llegará en `H1-revision.md` como
 sección nueva o en un encargo. H2 espera al motor y a su plan.
+
+## 5. Prueba de Josem en Konnos (2026-10-16)
+
+- **K5 falla:** «Forget conversation» no vacía el panel. A Josem no le importa mucho, y **no bloquea el
+  merge de H1**. En el código, el camino parece correcto (`forget` → `.finally` → `send('forgotten')` →
+  `onForgotten` → `clear` + `renderHistory`). Las dos causas que veo:
+  - el evento no llega al renderer;
+  - o `fetch` se queda colgado sin plazo y `.finally` no llega a ejecutarse.
+- **Atribución:** sin determinar. Se mira con el log en la vuelta de H2.
+
+## Para el programador
+
+Responde a: 74bf505 (H1-informe)
+
+Nada que hacer ahora. Cuando llegue H2, añade como retoque R1:
+1. una línea de `note()` al recibir `forgotten` en el renderer, y otra en `main.js` al enviarlo;
+2. un plazo (`AbortSignal.timeout`, 5 s) en `forget()` de `sse-client.js`, para que `.finally` se ejecute
+   siempre.
+Josem lo comprobará con `"debug": true`.
