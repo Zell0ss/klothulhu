@@ -10,6 +10,9 @@ import math
 import re
 
 CAPTION_MAX = 70
+# D24: un tramo cabe en el bocadillo de scroll del motor (VOCAB.limits.maxLongCaption). La longitud se cuenta
+# en caracteres aquí y en unidades UTF-16 en scenes.js: son iguales sin emojis, que el narrador no usa.
+TRAMO_MAX = 500
 
 # Cierre de frase al final del caption, ignorando espacios y cierres (D22/D23).
 _ENDS_SENTENCE = re.compile(r"[.!?…][\s»\"”')\]]*$")
@@ -86,3 +89,61 @@ def is_cut(caption: str) -> bool:
     Idéntico a ``isCut`` de scenes.js, con casos compartidos en ``tests/fixtures/cut_cases.json``.
     """
     return not _ENDS_SENTENCE.search(caption)
+
+
+_PARAGRAPH = re.compile(r"\s*\n\s*")
+
+
+def _split_hard(s: str) -> list[str]:
+    """Parte una frase de más de TRAMO_MAX por el último espacio que quepa, o en duro si no hay (D24)."""
+    out: list[str] = []
+    while len(s) > TRAMO_MAX:
+        i = s.rfind(" ", 1, TRAMO_MAX + 1)
+        if i <= 0:
+            out.append(s[:TRAMO_MAX])
+            s = s[TRAMO_MAX:]
+        else:
+            out.append(s[:i])
+            s = s[i + 1 :]
+    if s:
+        out.append(s)
+    return out
+
+
+def _tramos_of_paragraph(paragraph: str) -> list[str]:
+    text = re.sub(r"\s+", " ", paragraph).strip()
+    if not text:
+        return []
+    if len(text) <= TRAMO_MAX:
+        return [text]
+    pieces: list[str] = []
+    for m in _SENTENCE.findall(text):
+        sentence = m.strip()
+        if sentence:
+            pieces.extend(_split_hard(sentence))
+    out: list[str] = []
+    for p in pieces:
+        if out and len(out[-1]) + 1 + len(p) <= TRAMO_MAX:
+            out[-1] += " " + p
+        else:
+            out.append(p)
+    return out
+
+
+def tramos(text: str, marks: list[tuple[int, str]]) -> list[tuple[str, str]]:
+    """Un tramo es el texto entre cambios de emoción o saltos de línea; los de más de TRAMO_MAX se parten
+    entre frases (D24). Mismas marcas que ``beats()``. Idéntico a ``tramos`` de scenes.js.
+    """
+    text = text or ""
+    cuts: list[tuple[int, str]] = [(0, "neutral")]
+    for at, emotion in marks or []:
+        if at <= 0:
+            cuts[0] = (0, emotion)
+        elif at < len(text):
+            cuts.append((at, emotion))
+    out: list[tuple[str, str]] = []
+    for i, (at, emotion) in enumerate(cuts):
+        end = cuts[i + 1][0] if i + 1 < len(cuts) else len(text)
+        for paragraph in _PARAGRAPH.split(text[at:end]):
+            out.extend((caption, emotion) for caption in _tramos_of_paragraph(paragraph))
+    return out

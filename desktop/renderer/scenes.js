@@ -13,6 +13,11 @@
   // CAPTION_BUDGET de upstream; el motor recorta a partir de 80.
   const CAPTION_MAX = 70;
 
+  // D24: un tramo cabe en el bocadillo de scroll del motor (VOCAB.limits.maxLongCaption). La longitud se
+  // cuenta en unidades UTF-16 aquí y en caracteres en server/beats.py: iguales sin emojis, que el narrador no usa.
+  const TRAMO_MAX = 500;
+  const BUBBLE_LINES = 2;
+
   const hero = (action, from, to, then) => (then ? { action, from, to, then } : { action, from, to });
 
   // Puesta en escena por tipo. Josem la puede retocar; la prueba P4 vigila que el motor la pinte sin correcciones.
@@ -107,6 +112,60 @@
     return out;
   }
 
+  // Una frase de más de TRAMO_MAX se parte por el último espacio que quepa, o en duro si no hay (D24).
+  function splitHard(s) {
+    const out = [];
+    while (s.length > TRAMO_MAX) {
+      const i = s.lastIndexOf(' ', TRAMO_MAX);
+      if (i <= 0) {
+        out.push(s.slice(0, TRAMO_MAX));
+        s = s.slice(TRAMO_MAX);
+      } else {
+        out.push(s.slice(0, i));
+        s = s.slice(i + 1);
+      }
+    }
+    if (s) out.push(s);
+    return out;
+  }
+
+  function tramosOfParagraph(paragraph) {
+    const text = paragraph.replace(/\s+/g, ' ').trim();
+    if (!text) return [];
+    if (text.length <= TRAMO_MAX) return [text];
+    const pieces = [];
+    for (const m of text.match(SENTENCE) || []) {
+      const sentence = m.trim();
+      if (sentence) pieces.push(...splitHard(sentence));
+    }
+    const out = [];
+    for (const p of pieces) {
+      const last = out.length - 1;
+      if (last >= 0 && out[last].length + 1 + p.length <= TRAMO_MAX) out[last] += ' ' + p;
+      else out.push(p);
+    }
+    return out;
+  }
+
+  // Un tramo es el texto entre cambios de emoción o saltos de línea; los de más de TRAMO_MAX se parten
+  // entre frases (D24). Mismas marcas que beats(). Idéntico a tramos() de server/beats.py.
+  function tramos(text, marks) {
+    text = String(text || '');
+    const cuts = [{ at: 0, emotion: 'neutral' }];
+    for (const m of marks || []) {
+      if (m.at <= 0) cuts[0] = { at: 0, emotion: m.emotion };
+      else if (m.at < text.length) cuts.push({ at: m.at, emotion: m.emotion });
+    }
+    const out = [];
+    cuts.forEach((c, i) => {
+      const end = i + 1 < cuts.length ? cuts[i + 1].at : text.length;
+      for (const paragraph of text.slice(c.at, end).split(/\s*\n\s*/)) {
+        for (const caption of tramosOfParagraph(paragraph)) out.push({ caption, emotion: c.emotion });
+      }
+    });
+    return out;
+  }
+
   function sceneFor(kind, caption, opts) {
     const s = STAGING[kind] || STAGING.neutral;
     const scene = {
@@ -136,5 +195,5 @@
     return !/[.!?…][\s»"”')\]]*$/.test(caption);
   }
 
-  return { EMOTIONS, CAPTION_MAX, STAGING, LINES, beats, sceneFor, readMs, isCut };
+  return { EMOTIONS, CAPTION_MAX, TRAMO_MAX, BUBBLE_LINES, STAGING, LINES, beats, tramos, sceneFor, readMs, isCut };
 });
