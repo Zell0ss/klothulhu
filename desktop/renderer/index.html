@@ -43,7 +43,7 @@
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
-const { sceneFor, readMs, LINES, CAPTION_MAX } = window.KlScenes;
+const { sceneFor, readMs, isCut, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 
 const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
@@ -58,6 +58,7 @@ const closeBtn = document.getElementById('closeBtn');
 const warnedNow = new Set();   // se vacía en cada ask()
 let look = VOCAB.defaults.look;
 let lookWarned = false;
+let readSpeed = 1;  // config.json "readSpeed": multiplica el tiempo de lectura (D22)
 let debug = false;   // config.json "debug": true -> las medidas también van a un fichero de log (D20)
 
 // Siempre a la consola; con debug, también al log del proceso principal.
@@ -111,7 +112,7 @@ function play(item) {
   }
   if (!shown) return false;
   lastBackdrop = scene.backdrop;
-  return { hold: readMs(item.caption, shown.speaksAfter, fadeIn), source };
+  return { hold: readMs(item.caption, shown.speaksAfter, fadeIn, { cut: isCut(item.caption), speed: readSpeed }), source };
 }
 
 function pump() {
@@ -260,6 +261,7 @@ kl.onSummon(() => toggleInput(true));
 kl.init().then((cfg) => {
   look = cfg.look || VOCAB.defaults.look;
   debug = Boolean(cfg.debug);
+  readSpeed = cfg.readSpeed;
   const w = `${STAGE_W * cfg.scale}px`, h = `${STAGE_H * cfg.scale}px`;
   stage.style.width = w; stage.style.height = h;
   sceneImg.style.width = w; sceneImg.style.height = h;

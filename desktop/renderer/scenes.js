@@ -122,10 +122,19 @@
   }
 
   // readMs de upstream (hooks/narrator.ts) más la espera de la burbuja (speaksAfter) y el fundido.
-  function readMs(caption, speaksAfterSec, fadeIn) {
+  // D22: en un golpe cortado (D18) la frase sigue en el siguiente, así que no se suman los 2 s
+  // de pausa y la lectura es la mitad; `speed` (config readSpeed) multiplica solo la lectura.
+  function readMs(caption, speaksAfterSec, fadeIn, opts) {
+    const { cut = false, speed = 1 } = opts || {};
     const len = caption.length;
-    return Math.round((speaksAfterSec || 0) * 1000 + (fadeIn ? 600 : 0) + 200 + len * 30 + 2000 + len * 45);
+    const read = cut ? (len * 45) / 2 : 2000 + len * 45;
+    return Math.round((speaksAfterSec || 0) * 1000 + (fadeIn ? 600 : 0) + 200 + len * 30 + speed * read);
   }
 
-  return { EMOTIONS, CAPTION_MAX, STAGING, LINES, beats, sceneFor, readMs };
+  // D22: true si el caption acaba sin cierre de frase (., !, ?, …), ignorando espacios y cierres.
+  function isCut(caption) {
+    return !/[.!?…][\s»"”')\]]*$/.test(caption);
+  }
+
+  return { EMOTIONS, CAPTION_MAX, STAGING, LINES, beats, sceneFor, readMs, isCut };
 });
