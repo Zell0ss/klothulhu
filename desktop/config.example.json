@@ -3,5 +3,6 @@
   "token": "CHANGE_ME_konnos_secret",
   "scale": 1.5,
   "hotkey": "Control+Alt+K",
-  "look": "pixel"
+  "look": "pixel",
+  "debug": false
 }

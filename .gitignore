@@ -7,3 +7,4 @@ node_modules/
 logs/
 .vscode/
 CLAUDE.local.md
+desktop/klothulhu-debug.log
