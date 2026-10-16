@@ -6,6 +6,7 @@ const fs = require('fs');
 const path = require('path');
 const { streamChat, forget } = require('./sse-client');
 const { appendLog } = require('./debug-log');
+const { normalizeConfig } = require('./config');
 
 // The engine draws a 640x128 strip (D12); the input box sits below it.
 const STAGE_W = 640;
@@ -26,17 +27,12 @@ function loadConfig() {
     dialog.showErrorBox('Klothulhu', `Missing ${file}. Copy config.example.json and fill it in.`);
     app.exit(1);
   }
-  const c = JSON.parse(fs.readFileSync(file, 'utf8'));
-  return {
-    apiUrl: String(c.apiUrl || '').replace(/\/+$/, ''),
-    token: String(c.token || ''),
-    scale: Number(c.scale) > 0 ? Number(c.scale) : 1.5,
-    hotkey: c.hotkey || 'Control+Alt+K',
-    // Validated by the renderer, which owns the engine; unknown values fall back to its default.
-    look: String(c.look || 'pixel'),
-    // D20: con true, el renderer manda sus medidas y se escriben en LOG_FILE.
-    debug: c.debug === true,
-  };
+  const { cfg: normalized, warnings } = normalizeConfig(JSON.parse(fs.readFileSync(file, 'utf8')));
+  for (const w of warnings) {
+    console.warn(w);
+    if (normalized.debug) appendLog(LOG_FILE, `warning ${w}`);
+  }
+  return normalized;
 }
 
 function createWindow() {
@@ -94,7 +90,7 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug }));
+ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed }));
 
 ipcMain.on('debug', (_e, line) => { if (cfg.debug) appendLog(LOG_FILE, line); });
 

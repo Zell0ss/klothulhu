@@ -4,5 +4,6 @@
   "scale": 1.5,
   "hotkey": "Control+Alt+K",
   "look": "pixel",
-  "debug": false
+  "debug": false,
+  "readSpeed": 1
 }
