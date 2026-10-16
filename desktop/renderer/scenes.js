@@ -195,5 +195,23 @@
     return !/[.!?…][\s»"”')\]]*$/.test(caption);
   }
 
-  return { EMOTIONS, CAPTION_MAX, TRAMO_MAX, BUBBLE_LINES, STAGING, LINES, beats, tramos, sceneFor, readMs, isCut };
+  // D25: el bocadillo de scroll del motor corta a 32 columnas (fables D16). Una línea no sube hasta llevar escrita
+  // max(1,2 s; 2 × secondsPerChar × columnas); ese margen se suma al final como tiempo de lectura de la última línea.
+  const BUBBLE_COLS = 32;
+
+  // ms que una escena se queda en pantalla: lo que tarda el motor en escribirla (`typedAfter`, s) más el margen.
+  function holdMs(typedAfter, spc) {
+    return Math.round(typedAfter * 1000 + Math.max(1200, 2 * spc * BUBBLE_COLS * 1000));
+  }
+
+  // readSpeed (config) mueve la escritura y el scroll a la vez, dentro de lo que admite el motor (0,01-0,2).
+  function secondsPerChar(readSpeed, base) {
+    const v = Math.round((readSpeed === undefined ? 1 : readSpeed) * base * 1e4) / 1e4;
+    return Math.min(0.2, Math.max(0.01, v));
+  }
+
+  return {
+    EMOTIONS, CAPTION_MAX, TRAMO_MAX, BUBBLE_LINES, STAGING, LINES, beats, tramos, sceneFor, readMs, isCut,
+    holdMs, secondsPerChar,
+  };
 });

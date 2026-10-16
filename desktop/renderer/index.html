@@ -43,7 +43,7 @@
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
-const { sceneFor, readMs, isCut, LINES, CAPTION_MAX } = window.KlScenes;
+const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 
 const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
@@ -58,7 +58,7 @@ const closeBtn = document.getElementById('closeBtn');
 const warnedNow = new Set();   // se vacía en cada ask()
 let look = VOCAB.defaults.look;
 let lookWarned = false;
-let readSpeed = 1;  // config.json "readSpeed": multiplica el tiempo de lectura (D22)
+let readSpeed = 1;  // config.json "readSpeed": mueve la escritura y el scroll del bocadillo (D25)
 let debug = false;   // config.json "debug": true -> las medidas también van a un fichero de log (D20)
 
 // Siempre a la consola; con debug, también al log del proceso principal.
@@ -69,13 +69,15 @@ function note(line) {
 
 // --- painting ---------------------------------------------------------------
 
-// Devuelve { speaksAfter } o null si no se pudo pintar (entonces se queda la escena anterior).
+// Devuelve { speaksAfter, typedAfter, spc } o null si no se pudo pintar (entonces se queda la escena anterior).
 function paint(scene, fadeIn) {
-  let r = renderScene(scene, { look, fadeIn });
+  const spc = secondsPerChar(readSpeed, VOCAB.defaults.secondsPerChar);
+  const opts = () => ({ look, fadeIn, bubble: { lines: BUBBLE_LINES }, secondsPerChar: spc });   // D25
+  let r = renderScene(scene, opts());
   if (!r.ok && look !== VOCAB.defaults.look) {
     if (!lookWarned) { console.warn(`look "${look}" no válido (${r.error}); uso "${VOCAB.defaults.look}"`); lookWarned = true; }
     look = VOCAB.defaults.look;
-    r = renderScene(scene, { look, fadeIn });
+    r = renderScene(scene, opts());
   }
   if (!r.ok) { console.warn(`renderScene falló: ${r.error}`); return null; }
   // Avisos del motor (p. ej. props-not-drawn con un look 3D): una vez por aviso y respuesta.
@@ -85,7 +87,7 @@ function paint(scene, fadeIn) {
   // El SVG entra como imagen, no como DOM (D10). Asignar el mismo src reinicia la animación, así que solo se asigna si cambia.
   const src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(r.svg);
   if (sceneImg.getAttribute('src') !== src) sceneImg.src = src;
-  return { speaksAfter: r.speaksAfter };
+  return { speaksAfter: r.speaksAfter, typedAfter: r.typedAfter, spc };
 }
 
 // --- director: cola de escenas ---------------------------------------------
@@ -112,7 +114,7 @@ function play(item) {
   }
   if (!shown) return false;
   lastBackdrop = scene.backdrop;
-  return { hold: readMs(item.caption, shown.speaksAfter, fadeIn, { cut: isCut(item.caption), speed: readSpeed }), source };
+  return { hold: holdMs(shown.typedAfter, shown.spc), source };
 }
 
 function pump() {

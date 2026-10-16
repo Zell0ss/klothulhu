@@ -25,9 +25,9 @@ test('C2 scene:null -> item con scene null y el caption del evento', () => {
 });
 
 test('C3 emoción desconocida -> neutral; caption largo recortado', () => {
-  const it = createFeed().onScene(ev(0, { emotion: 'furious', caption: 'x'.repeat(200) }));
+  const it = createFeed().onScene(ev(0, { emotion: 'furious', caption: 'x'.repeat(600) }));
   assert.equal(it.kind, 'neutral');
-  assert.equal(it.caption.length, K.CAPTION_MAX);
+  assert.equal(it.caption.length, K.TRAMO_MAX);
 });
 
 test('C4 index repetido y datos inválidos se ignoran', () => {
@@ -46,14 +46,14 @@ test('C5 index fuera de orden: se emiten en orden de llegada', () => {
   assert.deepEqual(got.map((i) => i.caption), ['frase 1', 'frase 0', 'frase 2']);
 });
 
-test('C6 done: con escenas -> []; sin ninguna -> beats()', () => {
+test('C6 done: con escenas -> []; sin ninguna -> tramos()', () => {
   const marks = [{ at: 0, emotion: 'happy' }];
   const text = 'Hola. Adiós.';
   const a = createFeed(); a.onScene(ev(0));
   assert.deepEqual(a.onDone(text, marks), []);
   const b = createFeed();
   const items = b.onDone(text, marks);
-  assert.deepEqual(items.map((i) => [i.caption, i.kind]), K.beats(text, marks).map((x) => [x.caption, x.emotion]));
+  assert.deepEqual(items.map((i) => [i.caption, i.kind]), K.tramos(text, marks).map((x) => [x.caption, x.emotion]));
   assert.ok(items.every((i) => i.scene === null && i.fromServer === false));
 });
 

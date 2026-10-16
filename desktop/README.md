@@ -8,8 +8,8 @@ cd desktop ; npm ci ; copy config.example.json config.json ; npm start
 
 `config.json`: `apiUrl`, `token`, `scale`, `hotkey`, `look`, `debug` y `readSpeed`.
 
-`readSpeed` (número entre 0.25 y 4, por defecto 1) multiplica el tiempo que se queda cada frase en pantalla
-antes de pasar a la siguiente (D22): 0.5 va el doble de rápido, 2 el doble de lento. Un valor inválido
+`readSpeed` (número entre 0.25 y 4, por defecto 1) mueve a la vez la velocidad de escritura y el scroll
+del bocadillo, y con ellos el tiempo que se queda cada escena (D25): 0.5 va el doble de rápido, 2 el doble de lento. Un valor inválido
 (p. ej. un string) se ignora y sale un aviso en la consola de `npm start`; lo mismo vale para `debug`, que
 solo se enciende con `true` sin comillas.
 

@@ -6,7 +6,7 @@
   'use strict';
   // Lógica pura (sin DOM ni motor): qué va a la cola de escenas y cuándo (D21).
   // Un feed por respuesta. Las escenas del servidor entran al llegar; solo si `done` llega sin
-  // ninguna (servidor anterior a la fase 2) se trocea con beats(), y nunca se hacen las dos cosas.
+  // ninguna (servidor anterior a la fase 2) se trocea con tramos(), y nunca se hacen las dos cosas.
 
   function createFeed() {
     const seen = new Set();
@@ -29,14 +29,14 @@
       last = Math.max(last, data.index);
       const kind = S.EMOTIONS.includes(data.emotion) ? data.emotion : 'neutral';
       const scene = data.scene && typeof data.scene === 'object' ? data.scene : null;
-      return { kind, caption: data.caption.slice(0, S.CAPTION_MAX), scene, fromServer: true };
+      return { kind, caption: data.caption.slice(0, S.TRAMO_MAX), scene, fromServer: true };
     }
 
     function onDone(reply, marks) {
       const fallback = !closed && seen.size === 0;
       closed = true;
       if (!fallback) return [];
-      return S.beats(reply, marks).map((b) => ({ kind: b.emotion, caption: b.caption, scene: null, fromServer: false }));
+      return S.tramos(reply, marks).map((b) => ({ kind: b.emotion, caption: b.caption, scene: null, fromServer: false }));
     }
 
     function onError() { closed = true; }
