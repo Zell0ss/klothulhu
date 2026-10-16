@@ -1,16 +1,16 @@
-"""Prueba de humo con la API real [API] (fase 2; fase 4: D23). No es una prueba de pytest.
+"""Prueba de humo con la API real [API] (fase 2; D23 en la fase 4; D24-D26 en la fase 5). No es de pytest.
 
 Ejecuta ``app._reply`` (narrador + director) para una lista fija de preguntas, sin pasar por HTTP, y
-escribe un JSON con respuestas, golpes, escenas, latencias, tokens y coste.
+escribe un JSON con respuestas, tramos, escenas, latencias, tokens y coste.
 
     .venv/bin/python scripts/api_smoke.py --director-thinking 1   # GASTA API (necesita ANTHROPIC_API_KEY)
     .venv/bin/python scripts/api_smoke.py --director-thinking 0   # idem, director sin pensamiento (D19)
     .venv/bin/python scripts/api_smoke.py --fake                  # ensayo gratis: KLOTHULHU_FAKE=1
 
-Sin ``--out`` escribe en ``docs/fase4/capturas/`` (nunca en ``docs/fase2/``: pisaría esas capturas).
-En la fase 4: ``--out docs/fase4/capturas/api_smoke.json``.
+Sin ``--out`` escribe en ``docs/fase5/capturas/`` (nunca en ``docs/fase2/``: pisaría esas capturas).
+En la fase 5: ``--out docs/fase5/capturas/api_smoke.json``.
 
-Corta si el gasto acumulado pasa de $0.10 (el tope autorizado de la fase 4).
+Corta si el gasto pasa de $0.10, el tope propuesto de la fase 5. No se lanza sin autorización de Josem.
 
 Resumen de D23: ``continuations`` (golpes que continúan una frase cortada), ``fixed_backdrop`` y
 ``fixed_hero`` (cuántas veces el director NO lo cumplió por su cuenta y el servidor tuvo que corregirlo).
@@ -285,6 +285,18 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
         "backdrops_distinct": len(backdrops),
         "beats_per_reply": [len(r["scenes"]) for r in rows],
         "null_scenes": nulls,
+        "tramos_per_reply": [len(r["scenes"]) for r in rows],
+        "tramo_len_mean": round(statistics.mean(len(b[0]) for b in all_beats), 1) if all_beats else None,
+        "tramo_len_max": max((len(b[0]) for b in all_beats), default=None),
+        "new_actions": {
+            a: sum(
+                a in (sc["hero"]["action"], sc["hero"].get("then"))
+                for r in rows
+                for sc in r["scenes"]
+                if sc
+            )
+            for a in ("approach", "angry", "dazed")
+        },
         "continuations": sum(r["continuity"]["continuations"] for r in rows),
         "fixed_backdrop": sum(r["continuity"]["fixed_backdrop"] for r in rows),
         "fixed_hero": sum(r["continuity"]["fixed_hero"] for r in rows),
@@ -311,5 +323,5 @@ if __name__ == "__main__":
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
     name = f"api_smoke{'_fake' if args.fake else ''}-think{args.director_thinking}.json"
-    default = ROOT / "docs/fase4/capturas" / name
+    default = ROOT / "docs/fase5/capturas" / name
     sys.exit(asyncio.run(main(args.fake, args.director_thinking, args.out or default)))
