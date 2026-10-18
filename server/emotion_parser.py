@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 
-EMOTIONS = ("neutral", "happy", "annoyed", "confused", "smug", "sleepy")
+EMOTIONS = ("neutral", "happy", "annoyed", "confused", "smug", "sleepy", "sad")
 DEFAULT_EMOTION = "neutral"
 
 _MAX_TAG_LEN = 22  # "[" + 20 chars + "]"

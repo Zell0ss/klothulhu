@@ -8,7 +8,7 @@
   // Fase 1 (D9): cada frase de la respuesta es una escena fija elegida por la emoción.
 
   // Mismo orden que EMOTIONS en server/emotion_parser.py (lo vigila la prueba P7).
-  const EMOTIONS = Object.freeze(['neutral', 'happy', 'annoyed', 'confused', 'smug', 'sleepy']);
+  const EMOTIONS = Object.freeze(['neutral', 'happy', 'annoyed', 'confused', 'smug', 'sleepy', 'sad']);
 
   // CAPTION_BUDGET de upstream; el motor recorta a partir de 80.
   const CAPTION_MAX = 70;
@@ -28,6 +28,7 @@
     confused: { backdrop: 'space',   hero: hero('think', 45, 45, 'shrug'),     particles: { kind: 'stars', density: 0.2 }, tone: 'work' },
     smug:     { backdrop: 'city',    hero: hero('sneak', 10, 40, 'point'),     tone: 'work' },
     sleepy:   { backdrop: 'night',   hero: hero('sleep', 50, 50),              particles: { kind: 'stars', density: 0.3 }, tone: 'work' },
+    sad:      { backdrop: 'desert',  hero: hero('approach', 30, 50, 'sad'),   particles: { kind: 'rain', density: 0.3 }, tone: 'work' },
     thinking: { backdrop: 'lab',     hero: hero('think', 45, 45),              particles: { kind: 'bubbles', density: 0.3 }, tone: 'work' },
     idle:     { backdrop: 'night',   hero: hero('sleep', 50, 50),              particles: { kind: 'stars', density: 0.2 }, tone: 'work' },
   });
@@ -193,7 +194,7 @@
         particles: { kind: 'stars', density: 0.2 }, tone: 'work',
       }),
       mk('annoyed', '¡¡KLOTHULHU DESPIERTA!!', {
-        backdrop: 'volcano', palette: { ...BOOT_PALETTE }, hero: hero('approach', 30, 50, 'angry'),
+        backdrop: 'volcano', palette: { ...BOOT_PALETTE }, hero: hero('emerge', 50, 50, 'angry'),
         particles: { kind: 'sparks', density: 0.8 }, tone: 'trouble',
       }),
       mk('smug', help, {
