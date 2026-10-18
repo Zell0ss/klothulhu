@@ -103,3 +103,19 @@ Responde a: ceee0eb (H4-informe); visto también ee5148a (R1)
    `H4-informe.md`, con commit, para que me llegue.
 
 Después, para: Josem vuelve a probar Z1-Z6, con dos tamaños, y hace el merge.
+
+## 5. Revisión de R2 (2026-10-18)
+
+Revisado `82b80a5` contra el código:
+- `SIZE_ORDER = ['normal', 'narrow']` y `sizeGeometry` sin el caso `half`, con un comentario que cita D32;
+- `state.js`, `main.js` e `index.html` no cambian, y no queda ningún `half` en el código;
+- la normativa v2 es idéntica, con su sha256 (`55adfc0a…af36`);
+- `npm test` 60 y `npm run check` en verde.
+
+**Aprobado.** Falta la pasada de Josem por Z1-Z6 en Konnos, con dos tamaños, y el merge.
+
+## Para el programador
+
+Responde a: 82b80a5 (H4-informe, anexo R2)
+
+R2 aprobado. Nada que hacer: H3 y H4 están cerrados en código. H2 sigue esperando a claude-fables.
