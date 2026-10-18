@@ -1,5 +1,6 @@
 'use strict';
 // Pruebas normativas de la fase 6, H3 (docs/fase6/H3-encargo.md, D29). No editar: añadir en otro fichero.
+// Versión 2 (docs/fase6/H2-encargo.md, D29, D30): la escena 2 se alza con `emerge` en lugar de `approach`.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -24,7 +25,7 @@ test('L1 bootScenes: tres escenas y su papel', () => {
   }
   const [dormido, despierta, ayuda] = items.map((it) => it.scene);
   assert.equal(dormido.hero.action, 'sleep');
-  assert.equal(despierta.hero.action, 'approach');
+  assert.equal(despierta.hero.action, 'emerge');
   assert.equal(despierta.hero.then, 'angry');
   assert.equal(despierta.tone, 'trouble');
   assert.match(despierta.caption, /KLOTHULHU DESPIERTA/);
@@ -65,7 +66,7 @@ test('L4 bootScenes no comparte estado', () => {
   a[1].scene.hero.action = 'walk';
   a[1].scene.palette.sky = '#000000';
   const b = K.bootScenes(HOTKEY);
-  assert.equal(b[1].scene.hero.action, 'approach');
+  assert.equal(b[1].scene.hero.action, 'emerge');
   assert.notEqual(b[1].scene.palette.sky, '#000000');
 });
 
