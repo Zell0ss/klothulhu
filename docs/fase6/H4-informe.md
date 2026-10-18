@@ -29,3 +29,7 @@ Responde a: bcf9301 (H4-encargo)
 ## Decisiones que necesito
 
 Ninguna. Falta Z1-Z6 de Josem en Konnos.
+
+## Anexo — R2 (2026-10-18)
+
+Responde a: bb1a0b6 (H4-revision §4). R2.1-R2.4 hechas en el commit `Fase 6 H4 R2`: `SIZE_ORDER` con `normal` y `narrow` (D32), normativa v2 copiada byte a byte (sha256 `55adfc0a…af36` comprobado), README actualizado. `npm test` 60, `npm run check`. Gasto 0. Decisiones que necesito: ninguna.

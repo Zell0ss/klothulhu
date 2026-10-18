@@ -19,14 +19,13 @@ function closeBounds(bounds, add, shift) {
   return { x: bounds.x + shift, y: bounds.y, width: bounds.width - add, height: bounds.height };
 }
 
-// D31: tres tamaños; `half` reduce el zoom a la mitad, `narrow` pide al motor un escenario de 320 (su minWidth).
-const SIZE_ORDER = Object.freeze(['normal', 'half', 'narrow']);
+// D32 (supera a D31): dos tamaños; `narrow` pide al motor un escenario de 320 (su minWidth). `half` se quitó: no se leía.
+const SIZE_ORDER = Object.freeze(['normal', 'narrow']);
 
 function sizeGeometry(name, scale) {
   const size = SIZE_ORDER.includes(name) ? name : 'normal';
-  const zoom = size === 'half' ? scale * 0.5 : scale;
   const stageW = size === 'narrow' ? 320 : STAGE_W;
-  return { size, zoom, stageW, width: Math.round(stageW * zoom), height: Math.round(STAGE_H * zoom) + INPUT_H };
+  return { size, zoom: scale, stageW, width: Math.round(stageW * scale), height: Math.round(STAGE_H * scale) + INPUT_H };
 }
 
 function nextSize(name) {

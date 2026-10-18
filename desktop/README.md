@@ -18,9 +18,9 @@ solo se enciende con `true` sin comillas.
 El botón 📜 de la franja abre y cierra, a la derecha, un panel con la conversación de esta sesión; la ventana se
 ensancha para hacerle sitio. Vive en memoria: «Forget conversation» del tray lo vacía, y al cerrar klothulhu se pierde.
 
-## Tamaños (⤡, D31)
+## Tamaños (⤡, D31, D32)
 
-El botón ⤡ de la franja pasa por `normal` → `half` (zoom a la mitad) → `narrow` (escenario de 320) → `normal`; las
+El botón ⤡ de la franja alterna entre `normal` y `narrow` (escenario de 320; D32 quitó `half`, que no se leía); las
 entradas `Size:` del tray hacen lo mismo. Solo cambia con klothulhu parado y el panel 📜 cerrado, y la esquina de abajo
 a la derecha se queda donde está. El tamaño y la posición se guardan en `estado.json`
 (`%APPDATA%\klothulhu-desktop\estado.json` en Windows); borrarlo devuelve klothulhu a `normal` y abajo a la derecha.
