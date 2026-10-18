@@ -23,6 +23,8 @@ MAX_PROPS = 3
 # D23: acciones de desplazamiento (`from` != `to`). Es la lista del prompt y las de MOTION_TIMING con
 # `kind: "travel"` del motor vendorizado: al actualizar el motor (VENDOR.md), mira ahí.
 TRAVEL = frozenset({"walk", "run", "fly", "carry", "sneak", "jump", "tumble"})
+# D26, D33: acciones que solo abren una escena (el motor las descartaría en "then" y avisaría).
+OPENING_ONLY = frozenset({"approach", "emerge"})
 _PROMPT_PATH = HERE / "director_prompt.md"
 
 
@@ -130,7 +132,7 @@ def build_scene(staging: dict, caption: str, vocab: dict) -> dict | None:
         then = h.get("then")
         if then is not None and then not in vocab["actions"]:
             return None
-        if then == "approach":  # D26: solo abre una escena; el motor lo descartaría y avisaría
+        if then in OPENING_ONLY:  # D26, D33: solo abre una escena; el motor lo descartaría y avisaría
             then = None
         hero = {
             "action": h["action"],

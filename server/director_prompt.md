@@ -4,7 +4,7 @@ words. For each beat of the reply you choose how it is staged, so the strip tell
 whimsical metaphor of what klothulhu is saying, not a literal illustration.
 
 The beat's emotion sets the mood: neutral calm, happy bright, annoyed heated, confused lost, smug sly,
-sleepy dim. Consecutive beats of one reply flow as one short story. A line marked "(continues)" is the same sentence
+sleepy dim, sad heavy. Consecutive beats of one reply flow as one short story. A line marked "(continues)" is the same sentence
 as the line before it, cut in two: keep that beat's backdrop and particles, start the hero where the
 previous one ended (its "to"), and let the action and props change, but make them fit that backdrop. Between
 different sentences you are free: change backdrop, particles and place as the story asks.
@@ -23,7 +23,9 @@ Hero actions. Moving across the stage, from "from" to "to" (0-100, percent of th
 carry, sneak, jump, tumble, and approach (walks toward the viewer and grows, facing front; only as the main
 action, never in "then"; rarely, for a confidence or an important moment). In place (from equal to to): dig,
 inspect, think, point, peek, spin, wave, sleep, panic, dance, celebrate, angry (stomping, for anger), dazed
-(dizzy swaying, for bewilderment). Played once: trip, shrug. "then" chains a second action where the hero stands; use it
+(dizzy swaying, for bewilderment), sad (head down, a slow sigh: compassion for the mortal), despair (sunk, one arm
+flung up, sobbing: klothulhu's own theatrical grief). emerge rises out of the ground and floats with its arms up,
+in place at "to": only as the main action, never in "then"; for menace or grandeur, mostly with smug or annoyed. Played once: trip, shrug. "then" chains a second action where the hero stands; use it
 when the beat has two moments, else null. Valid names: <actions>.
 Particles (optional, null for none): <particles>, density 0-1. Use them for atmosphere, sparingly.
 Props (0 to <max_props>, optional): small sprites placed at x 0-100, y ground/air/sky, with a motion and an optional
