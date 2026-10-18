@@ -58,7 +58,7 @@
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
-const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
+const { sceneFor, bootScenes, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
 
@@ -331,7 +331,7 @@ kl.init().then((cfg) => {
   historyPanel.style.width = `${cfg.panelW * cfg.scale}px`;
   stage.style.width = w; stage.style.height = h;
   sceneImg.style.width = w; sceneImg.style.height = h;
-  enqueue([{ kind: 'happy', caption: LINES.boot(cfg.hotkey) }]);
+  enqueue(bootScenes(cfg.hotkey));
 });
 </script>
 </body>

@@ -34,7 +34,7 @@
 
   // Textos fijos, todos <= CAPTION_MAX.
   const LINES = Object.freeze({
-    boot: (hotkey) => `klothulhu despierta. Pulsa ${String(hotkey).replace(/Control/, 'Ctrl')} o haz clic para hablar.`
+    boot: (hotkey) => `klothulhu escucha, mortal. Pulsa ${String(hotkey).replace(/Control/, 'Ctrl')} o haz clic para hablar.`
       .slice(0, CAPTION_MAX),
     thinking: 'Consultando a los astros…',
     idle: 'Los astros duermen. Zzz…',
@@ -180,6 +180,29 @@
     return scene;
   }
 
+  // D29: saludo de arranque, tres escenas: dormido, despierta enfadado, la ayuda (sin cambiar de fondo).
+  // `kind` es la escena fija de reserva si el motor rechaza la escena (D21.2). Objetos nuevos en cada llamada.
+  const BOOT_PALETTE = Object.freeze({ sky: '#2a0608', ground: '#140405', accent: '#ff3b1f' });
+
+  function bootScenes(hotkey) {
+    const help = LINES.boot(hotkey);
+    const mk = (kind, caption, scene) => ({ kind, caption, scene: { props: [], ...scene, caption } });
+    return [
+      mk('sleepy', 'Algo se agita bajo tu escritorio…', {
+        backdrop: 'night', palette: {}, hero: hero('sleep', 50, 50),
+        particles: { kind: 'stars', density: 0.2 }, tone: 'work',
+      }),
+      mk('annoyed', '¡¡KLOTHULHU DESPIERTA!!', {
+        backdrop: 'volcano', palette: { ...BOOT_PALETTE }, hero: hero('approach', 30, 50, 'angry'),
+        particles: { kind: 'sparks', density: 0.8 }, tone: 'trouble',
+      }),
+      mk('smug', help, {
+        backdrop: 'volcano', palette: { ...BOOT_PALETTE }, hero: hero('angry', 50, 50, 'point'),
+        particles: { kind: 'sparks', density: 0.3 }, tone: 'work',
+      }),
+    ];
+  }
+
   // readMs de upstream (hooks/narrator.ts) más la espera de la burbuja (speaksAfter) y el fundido.
   // D22: en un golpe cortado (D18) la frase sigue en el siguiente, así que no se suman los 2 s
   // de pausa y la lectura es la mitad; `speed` (config readSpeed) multiplica solo la lectura.
@@ -211,7 +234,7 @@
   }
 
   return {
-    EMOTIONS, CAPTION_MAX, TRAMO_MAX, BUBBLE_LINES, STAGING, LINES, beats, tramos, sceneFor, readMs, isCut,
+    EMOTIONS, CAPTION_MAX, TRAMO_MAX, BUBBLE_LINES, STAGING, LINES, beats, tramos, sceneFor, bootScenes, readMs, isCut,
     holdMs, secondsPerChar,
   };
 });
