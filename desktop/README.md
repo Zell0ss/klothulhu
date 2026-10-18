@@ -18,6 +18,10 @@ solo se enciende con `true` sin comillas.
 El botón 📜 de la franja abre y cierra, a la derecha, un panel con la conversación de esta sesión; la ventana se
 ensancha para hacerle sitio. Vive en memoria: «Forget conversation» del tray lo vacía, y al cerrar klothulhu se pierde.
 
+## Emoción `sad` y motor v3 (fase 6, H2)
+
+El motor vendorizado es el v3 (`SCHEMA_VERSION` 3, D33): trae las acciones `sad`, `despair` y `emerge`. La emoción `sad` (D28) se pinta en el desierto con lluvia; el saludo se alza del suelo con `emerge` (D29).
+
 ## Tamaños (⤡, D31, D32)
 
 El botón ⤡ de la franja alterna entre `normal` y `narrow` (escenario de 320; D32 quitó `half`, que no se leía); las
