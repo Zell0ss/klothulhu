@@ -18,6 +18,14 @@ solo se enciende con `true` sin comillas.
 El botón 📜 de la franja abre y cierra, a la derecha, un panel con la conversación de esta sesión; la ventana se
 ensancha para hacerle sitio. Vive en memoria: «Forget conversation» del tray lo vacía, y al cerrar klothulhu se pierde.
 
+## Tamaños (⤡, D31)
+
+El botón ⤡ de la franja pasa por `normal` → `half` (zoom a la mitad) → `narrow` (escenario de 320) → `normal`; las
+entradas `Size:` del tray hacen lo mismo. Solo cambia con klothulhu parado y el panel 📜 cerrado, y la esquina de abajo
+a la derecha se queda donde está. El tamaño y la posición se guardan en `estado.json`
+(`%APPDATA%\klothulhu\estado.json` en Windows); borrarlo devuelve klothulhu a `normal` y abajo a la derecha.
+`config.json` no se escribe nunca.
+
 ## Escenas del servidor (fase 3, D21)
 
 Cada evento `scene` entra en la cola en cuanto llega (`renderer/feed.js`, lógica pura con pruebas en

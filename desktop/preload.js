@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('kl', {
   ask: (text) => ipcRenderer.invoke('ask', text),
   forget: () => ipcRenderer.invoke('forget'),
   panel: (open) => ipcRenderer.invoke('panel', Boolean(open)),
+  size: (name) => ipcRenderer.invoke('size', String(name)),
   copy: (text) => ipcRenderer.invoke('copy', text),
   debug: (line) => ipcRenderer.send('debug', String(line)),
   quit: () => ipcRenderer.send('quit'),
@@ -14,5 +15,6 @@ contextBridge.exposeInMainWorld('kl', {
   dragEnd: () => ipcRenderer.send('drag-end'),
   onEvent: (cb) => ipcRenderer.on('kl-event', (_e, msg) => cb(msg)),
   onForgotten: (cb) => ipcRenderer.on('forgotten', () => cb()),
+  onSizeRequest: (cb) => ipcRenderer.on('size-request', (_e, n) => cb(String(n))),
   onSummon: (cb) => ipcRenderer.on('summon', () => cb()),
 });

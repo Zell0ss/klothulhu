@@ -7,12 +7,10 @@ const path = require('path');
 const { streamChat, forget } = require('./sse-client');
 const { appendLog } = require('./debug-log');
 const { normalizeConfig } = require('./config');
-const { PANEL_W, openBounds, closeBounds } = require('./layout');
-
-// The engine draws a 640x128 strip (D12); the input box sits below it.
-const STAGE_W = 640;
-const STAGE_H = 128;
-const INPUT_H = 44;
+const {
+  PANEL_W, SIZE_ORDER, openBounds, closeBounds, sizeGeometry, resizeBounds, startBounds,
+} = require('./layout');
+const { readState, writeState } = require('./state');
 
 const LOG_FILE = path.join(__dirname, 'klothulhu-debug.log');   // ruta fija: el renderer no elige nada
 
@@ -22,6 +20,8 @@ let cfg = null;
 let inflight = null;   // AbortController of the current /chat request
 let panelShift = null; // null = panel de historial cerrado; si no, lo que la ventana se movió a la izquierda al abrirlo (D27)
 let drag = null;       // { timer, dx, dy }
+let state = null;      // { size, x, y } de estado.json (D31)
+let stateFile = null;
 
 function loadConfig() {
   const file = path.join(__dirname, 'config.json');
@@ -37,14 +37,31 @@ function loadConfig() {
   return normalized;
 }
 
+// Un fallo al guardar no rompe nada: se avisa y se sigue.
+function saveState() {
+  if (!win || win.isDestroyed()) return;
+  const b = win.getBounds();
+  state = { size: state.size, x: b.x + (panelShift ?? 0), y: b.y };   // la posición con el panel cerrado
+  try {
+    writeState(stateFile, state);
+  } catch (err) {
+    console.warn(`No se pudo guardar ${stateFile}: ${err.message}`);
+    if (cfg.debug) appendLog(LOG_FILE, `warning estado.json: ${err.message}`);
+  }
+}
+
+// Windows: con resizable:false, setBounds puede no cambiar el tamaño.
+function setBounds(b) {
+  win.setResizable(true);
+  win.setBounds(b);
+  win.setResizable(false);
+}
+
 function createWindow() {
-  const width = Math.round(STAGE_W * cfg.scale);
-  const height = Math.round(STAGE_H * cfg.scale) + INPUT_H;
-  const { workArea } = screen.getPrimaryDisplay();
+  const geom = sizeGeometry(state.size, cfg.scale);
+  const areas = screen.getAllDisplays().map((d) => d.workArea);
   win = new BrowserWindow({
-    width, height,
-    x: workArea.x + workArea.width - width - 24,
-    y: workArea.y + workArea.height - height - 8,
+    ...startBounds(state, geom, areas, screen.getPrimaryDisplay().workArea),
     transparent: true,
     backgroundColor: '#00000000',
     frame: false,
@@ -79,6 +96,10 @@ function createTray() {
       label: 'Forget conversation',
       click: () => forget(cfg).catch(() => {}).finally(() => { if (win) win.webContents.send('forgotten'); }),
     },
+    ...SIZE_ORDER.map((name) => ({
+      label: `Size: ${name}`,
+      click: () => { if (win) win.webContents.send('size-request', name); },
+    })),
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() },
   ]));
@@ -95,17 +116,11 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed, panelW: PANEL_W }));
+ipcMain.handle('init', () => ({ geom: sizeGeometry(state.size, cfg.scale), sizes: SIZE_ORDER, scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed, panelW: PANEL_W }));
 
 // D27: abrir y cerrar el panel de historial ensancha la ventana. Abrir dos veces o cerrar sin abrir no hace nada.
 ipcMain.handle('panel', (_e, open) => {
   const add = Math.round(PANEL_W * cfg.scale);
-  const setBounds = (b) => {
-    // Windows: con resizable:false, setBounds puede no cambiar el tamaño.
-    win.setResizable(true);
-    win.setBounds(b);
-    win.setResizable(false);
-  };
   if (open) {
     if (panelShift !== null) return false;
     const area = screen.getDisplayMatching(win.getBounds()).workArea;
@@ -118,6 +133,17 @@ ipcMain.handle('panel', (_e, open) => {
   setBounds(closeBounds(win.getBounds(), add, panelShift));
   panelShift = null;
   return true;
+});
+
+// D31: cambia de tamaño con el panel cerrado; la esquina de abajo a la derecha se queda donde está.
+ipcMain.handle('size', (_e, name) => {
+  if (panelShift !== null) return null;
+  const geom = sizeGeometry(name, cfg.scale);
+  const area = screen.getDisplayMatching(win.getBounds()).workArea;
+  setBounds(resizeBounds(win.getBounds(), area, geom.width, geom.height));
+  state.size = geom.size;
+  saveState();
+  return geom;
 });
 
 ipcMain.on('debug', (_e, line) => { if (cfg.debug) appendLog(LOG_FILE, line); });
@@ -144,6 +170,7 @@ ipcMain.on('drag-end', () => {
   if (!drag) return;
   clearInterval(drag.timer);
   drag = null;
+  saveState();
 });
 
 ipcMain.handle('ask', async (_e, text) => {
@@ -174,6 +201,8 @@ if (!app.requestSingleInstanceLock()) {
   app.on('second-instance', summon);
   app.whenReady().then(() => {
     cfg = loadConfig();
+    stateFile = path.join(app.getPath('userData'), 'estado.json');
+    state = readState(stateFile);
     createWindow();
     createTray();
     if (!globalShortcut.register(cfg.hotkey, summon)) {

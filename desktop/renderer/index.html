@@ -12,11 +12,13 @@
   #col { display: flex; flex-direction: column; align-items: center; flex: none; }
   #stage { position: relative; flex: none; }
   #scene { display: block; }
-  #copyBtn, #closeBtn, #histBtn {
+  #copyBtn, #closeBtn, #histBtn, #sizeBtn {
     position: absolute; top: 4px; width: 18px; height: 18px; padding: 0;
     border: none; border-radius: 4px; background: rgba(26, 20, 18, 0.7); color: var(--ink);
     font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0.7;
   }
+  #sizeBtn { right: 70px; }
+  #sizeBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #histBtn { right: 48px; }
   #histBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #copyBtn { right: 26px; display: none; }
@@ -44,6 +46,7 @@
 <div id="col">
 <div id="stage">
   <img id="scene" alt="" draggable="false">
+  <button id="sizeBtn" type="button" title="Tamaño" aria-label="Tamaño">⤡</button>
   <button id="histBtn" type="button" title="Historial" aria-label="Historial">📜</button>
   <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
   <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
@@ -62,7 +65,7 @@ const { sceneFor, bootScenes, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTI
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
 
-const STAGE_W = 640, STAGE_H = 128;   // lo que devuelve el motor (D12)
+const STAGE_H = 128;                  // alto de la franja del motor (D12); el ancho depende del tamaño (D31)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
 
 const stage = document.getElementById('stage');
@@ -70,6 +73,7 @@ const sceneImg = document.getElementById('scene');
 const input = document.getElementById('ask');
 const col = document.getElementById('col');
 const historyPanel = document.getElementById('history');
+const sizeBtn = document.getElementById('sizeBtn');
 const histBtn = document.getElementById('histBtn');
 const copyBtn = document.getElementById('copyBtn');
 const closeBtn = document.getElementById('closeBtn');
@@ -78,6 +82,9 @@ const warnedNow = new Set();   // se vacía en cada ask()
 let look = VOCAB.defaults.look;
 let lookWarned = false;
 let readSpeed = 1;  // config.json "readSpeed": mueve la escritura y el scroll del bocadillo (D25)
+let geom = null;     // { size, zoom, stageW, ... } del tamaño actual (D31)
+let sizes = [];
+let lastScene = null;   // la última escena pintada, para repintarla al cambiar de tamaño
 let debug = false;   // config.json "debug": true -> las medidas también van a un fichero de log (D20)
 
 // Siempre a la consola; con debug, también al log del proceso principal.
@@ -91,7 +98,7 @@ function note(line) {
 // Devuelve { speaksAfter, typedAfter, spc } o null si no se pudo pintar (entonces se queda la escena anterior).
 function paint(scene, fadeIn) {
   const spc = secondsPerChar(readSpeed, VOCAB.defaults.secondsPerChar);
-  const opts = () => ({ look, fadeIn, bubble: { lines: BUBBLE_LINES }, secondsPerChar: spc });   // D25
+  const opts = () => ({ look, fadeIn, width: geom.stageW, height: STAGE_H, bubble: { lines: BUBBLE_LINES }, secondsPerChar: spc });   // D25
   let r = renderScene(scene, opts());
   if (!r.ok && look !== VOCAB.defaults.look) {
     if (!lookWarned) { console.warn(`look "${look}" no válido (${r.error}); uso "${VOCAB.defaults.look}"`); lookWarned = true; }
@@ -133,6 +140,7 @@ function play(item) {
   }
   if (!shown) return false;
   lastBackdrop = scene.backdrop;
+  lastScene = scene;
   return { hold: holdMs(shown.typedAfter, shown.spc), source };
 }
 
@@ -261,6 +269,30 @@ copyBtn.addEventListener('click', (e) => {
   copyBtn._resetT = setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = '📋'; }, 1200);
 });
 
+// D31: solo se cambia de tamaño con klothulhu parado y el panel cerrado.
+function applyGeom(g) {
+  geom = g;
+  const w = `${g.stageW * g.zoom}px`, h = `${STAGE_H * g.zoom}px`;
+  col.style.width = w;
+  stage.style.width = w; stage.style.height = h;
+  sceneImg.style.width = w; sceneImg.style.height = h;
+}
+
+async function requestSize(name) {
+  if (awaiting || historyOpen || (phase !== 'idle' && phase !== 'lingering')) return;
+  const g = await kl.size(name);
+  if (!g) return;
+  applyGeom(g);
+  if (lastScene) paint(lastScene, false);   // sin fundido; el temporizador de la espera sigue como estaba
+}
+
+sizeBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  requestSize(sizes[(sizes.indexOf(geom.size) + 1) % sizes.length]);
+});
+
+kl.onSizeRequest(requestSize);
+
 histBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   toggleHistory();
@@ -282,7 +314,7 @@ function setInteractive(on) {
 }
 
 const onStrip = (t) => stage.contains(t) || historyPanel.contains(t);   // el panel de historial también (D27)
-const onButton = (t) => t === copyBtn || t === closeBtn || t === histBtn;
+const onButton = (t) => t === copyBtn || t === closeBtn || t === histBtn || t === sizeBtn;
 
 window.addEventListener('mousemove', (e) => {
   if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
@@ -326,11 +358,9 @@ kl.init().then((cfg) => {
   look = cfg.look || VOCAB.defaults.look;
   debug = Boolean(cfg.debug);
   readSpeed = cfg.readSpeed;
-  const w = `${STAGE_W * cfg.scale}px`, h = `${STAGE_H * cfg.scale}px`;
-  col.style.width = w;
+  sizes = cfg.sizes;
+  applyGeom(cfg.geom);
   historyPanel.style.width = `${cfg.panelW * cfg.scale}px`;
-  stage.style.width = w; stage.style.height = h;
-  sceneImg.style.width = w; sceneImg.style.height = h;
   enqueue(bootScenes(cfg.hotkey));
 });
 </script>
