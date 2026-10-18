@@ -1,4 +1,5 @@
-"""Prueba de humo con la API real [API] (fase 2; D23 en la fase 4; D24-D26 en la fase 5). No es de pytest.
+"""Prueba de humo con la API real [API] (fase 2; D23 fase 4; D24-D26 fase 5; D28-D33 fase 6).
+No es de pytest.
 
 Ejecuta ``app._reply`` (narrador + director) para una lista fija de preguntas, sin pasar por HTTP, y
 escribe un JSON con respuestas, tramos, escenas, latencias, tokens y coste.
@@ -7,10 +8,10 @@ escribe un JSON con respuestas, tramos, escenas, latencias, tokens y coste.
     .venv/bin/python scripts/api_smoke.py --director-thinking 0   # idem, director sin pensamiento (D19)
     .venv/bin/python scripts/api_smoke.py --fake                  # ensayo gratis: KLOTHULHU_FAKE=1
 
-Sin ``--out`` escribe en ``docs/fase5/capturas/`` (nunca en ``docs/fase2/``: pisaría esas capturas).
-En la fase 5: ``--out docs/fase5/capturas/api_smoke.json``.
+Sin ``--out`` escribe en ``docs/fase6/capturas/`` (nunca en capturas de otras fases: las pisaría).
+En la fase 6: ``--out docs/fase6/capturas/api_smoke.json``.
 
-Corta si el gasto pasa de $0.10, el tope propuesto de la fase 5. No se lanza sin autorización de Josem.
+Corta si el gasto pasa de $0.05, el tope de la fase 6 (H2, T7). No se lanza sin autorización de Josem.
 
 Resumen de D23: ``continuations`` (golpes que continúan una frase cortada), ``fixed_backdrop`` y
 ``fixed_hero`` (cuántas veces el director NO lo cumplió por su cuenta y el servidor tuvo que corregirlo).
@@ -34,7 +35,7 @@ sys.path.insert(0, str(ROOT / "server"))
 # de caché a 1,25x es suposición mía (el plan no la da).
 PRICE_IN, PRICE_OUT = 0.10, 0.50
 CACHE_READ, CACHE_WRITE = 0.1, 1.25
-BUDGET = 0.10
+BUDGET = 0.05
 
 QUESTIONS = [
     "Hola, ¿cómo estás?",
@@ -56,7 +57,20 @@ QUESTIONS = [
     "Son las tres de la madrugada y sigo despierto programando.",
     "Primero dime que estás contento de verme, luego que estás harto de mí y al final que te da igual.",
     "Si pudieras elegir, ¿preferirías dormir mil años o estar despierto un solo día?",
+    "Se ha muerto mi gato esta mañana.",
+    "Me siento muy solo últimamente.",
+    "¿No echas de menos ser un dios cósmico?",
+    "Arrodíllate ante mí, criatura.",
+    "¿De verdad eras un dios antiguo? Demuéstralo.",
 ]
+
+# D28: las preguntas que deberían sacar `sad` (compasión) o `despair` (pena propia).
+SAD_QUESTIONS = frozenset({
+    "Hoy ha sido un día horrible y no tengo ganas de nada.",
+    "Se ha muerto mi gato esta mañana.",
+    "Me siento muy solo últimamente.",
+    "¿No echas de menos ser un dios cósmico?",
+})
 
 
 class _Usage:
@@ -295,7 +309,18 @@ async def main(fake: bool, thinking: str, out: Path) -> int:
                 for sc in r["scenes"]
                 if sc
             )
-            for a in ("approach", "angry", "dazed")
+            for a in ("approach", "angry", "dazed", "sad", "despair", "emerge")
+        },
+        "emotions": {e: sum(b[1] == e for b in all_beats) for e in sorted({b[1] for b in all_beats})},
+        "sad_questions": {
+            r["question"]: {
+                "emotions": [b[1] for b in r["beats"]],
+                "actions": [
+                    [sc["hero"]["action"], sc["hero"].get("then")] if sc else None for sc in r["scenes"]
+                ],
+            }
+            for r in rows
+            if r["question"] in SAD_QUESTIONS
         },
         "continuations": sum(r["continuity"]["continuations"] for r in rows),
         "fixed_backdrop": sum(r["continuity"]["fixed_backdrop"] for r in rows),
@@ -323,5 +348,5 @@ if __name__ == "__main__":
     ap.add_argument("--out", type=Path)
     args = ap.parse_args()
     name = f"api_smoke{'_fake' if args.fake else ''}-think{args.director_thinking}.json"
-    default = ROOT / "docs/fase5/capturas" / name
+    default = ROOT / "docs/fase6/capturas" / name
     sys.exit(asyncio.run(main(args.fake, args.director_thinking, args.out or default)))
