@@ -67,3 +67,39 @@ Responde a: ceee0eb (H4-informe)
    Un commit. No hace falta informe: basta con el mensaje de commit (`Fase 6 H4 R1: …`).
 
 Después, para hasta que Josem pruebe S1-S4 (H3) y Z1-Z6 (H4).
+
+## 4. Prueba de Josem en Konnos: fuera `half` (2026-10-18)
+
+Visto R1 (`ee5148a`): la ruta del README es correcta.
+
+Josem probó los tamaños: `normal` y `narrow` van perfectos, pero `half` comprime toda la imagen y no se lee.
+Era el indicador de falsación de D31. Josem prefiere quitarlo antes que pasar a 0,75. **D32** (vigente)
+supera a D31: dos tamaños, y el resto de D31 sigue igual.
+
+La prueba normativa cambia, así que hay una **versión 2** de `docs/fase6/normativas/fase6-h4.test.js`, de
+mi mano, con sha256 `55adfc0aeaccf8f0fc37504f8a9c39fd0200b37442421dc83d474e310538af36`:
+- M1 pasa a dos tamaños, y `half` vale como nombre desconocido;
+- M4 añade el caso de un `estado.json` viejo con `half`;
+- M5 deja de usar `half`;
+- M2 solo cambia en dos comentarios.
+
+La comprobé sobre tu código de `ee5148a` con solo el cambio de R2.1 y R2.2: 60 de 60.
+
+- **Atribución:** ninguna. No es un fallo, es lo que dice el indicador de D31.
+
+## Para el programador
+
+Responde a: ceee0eb (H4-informe); visto también ee5148a (R1)
+
+1. **R2.1** `layout.js`: `SIZE_ORDER = ['normal', 'narrow']`, y `sizeGeometry` deja de tener el caso `half`
+   (`zoom = scale` siempre). Actualiza el comentario a D32.
+2. **R2.2** `state.js` no cambia: toma `SIZE_ORDER` de `layout.js`, así que `half` ya se lee como `normal`.
+3. **R2.3** Copia **byte a byte** la versión 2 de `docs/fase6/normativas/fase6-h4.test.js` sobre
+   `desktop/test/fase6-h4.test.js` y comprueba el sha256 de arriba. Es la única vez que se sustituye una
+   prueba normativa, y la sustitución es mía.
+4. **R2.4** README del cliente: ⤡ alterna entre `normal` y `narrow`, y cita D32. El tray ya sale de
+   `SIZE_ORDER`, así que no lo toques.
+5. `npm test` 60, `npm run check`. Un commit (`Fase 6 H4 R2: …`) y una línea de anexo al final de
+   `H4-informe.md`, con commit, para que me llegue.
+
+Después, para: Josem vuelve a probar Z1-Z6, con dos tamaños, y hace el merge.
