@@ -341,7 +341,10 @@ var FablesMotor = (() => {
     "shrug",
     "approach",
     "angry",
-    "dazed"
+    "dazed",
+    "sad",
+    "despair",
+    "emerge"
   ];
   var MOTIONS = [
     "none",
@@ -363,6 +366,8 @@ var FablesMotor = (() => {
   ];
   var APPROACH_SECONDS = 2.4;
   var APPROACH_SCALE = 2.5;
+  var EMERGE_SECONDS = 2;
+  var EMERGE_LIFT = 20;
   var MAX_PROPS = 8;
   var MAX_CAPTION = 80;
   var MAX_LONG_CAPTION = 500;
@@ -454,8 +459,8 @@ var FablesMotor = (() => {
         from: Math.round(clampNumber(hero11.from, 0, 100, 10)),
         to: Math.round(clampNumber(hero11.to, 0, 100, 60)),
         // What comes next is played where Claude stands, so a second journey is just its moves in place.
-        // `approach` only opens a scene: it is never the second move.
-        ...typeof hero11.then === "string" && hero11.then !== "approach" && HERO_ACTIONS.includes(hero11.then) ? { then: hero11.then } : {}
+        // `approach` and `emerge` only open a scene: they are never the second move.
+        ...typeof hero11.then === "string" && hero11.then !== "approach" && hero11.then !== "emerge" && HERO_ACTIONS.includes(hero11.then) ? { then: hero11.then } : {}
       },
       props: (Array.isArray(raw.props) ? raw.props : []).map(parseProp).filter((p) => p !== void 0).slice(0, MAX_PROPS),
       caption: caption2
@@ -723,7 +728,10 @@ var FablesMotor = (() => {
     trip: { frames: 14, dur: 2.6, kind: "once" },
     shrug: { frames: 10, dur: 1.8, kind: "once" },
     angry: { frames: 8, dur: 0.8, kind: "loop" },
-    dazed: { frames: 12, dur: 2.4, kind: "loop" }
+    dazed: { frames: 12, dur: 2.4, kind: "loop" },
+    sad: { frames: 8, dur: 3.2, kind: "loop" },
+    despair: { frames: 10, dur: 2, kind: "loop" },
+    emerge: { frames: 8, dur: 2.4, kind: "loop" }
   };
   var ease = (t, a, b) => {
     const x = Math.max(0, Math.min(1, (t - a) / (b - a)));
@@ -835,6 +843,17 @@ var FablesMotor = (() => {
       // Swaying slowly round in a circle, arms hanging loose, eyes spinning.
       case "dazed":
         return { yaw: yaw * 0.5, dx: 0.9 * Math.cos(a), roll: 0.12 * Math.sin(a), pitch: 0.06 * Math.cos(a), armL: 0.2 + 0.25 * Math.sin(a - 0.8), armR: 0.2 + 0.25 * Math.sin(a - 2.4), sq: 1 + 0.01 * Math.sin(2 * a), eyes: "spiral" };
+      // Head bowed, sunk a little, arms hanging: a slow sigh each loop, the body dropping and the gaze with it.
+      case "sad": {
+        const sigh = 0.5 - 0.5 * Math.cos(a);
+        return { yaw: yaw * 0.3, pitch: 0.3 + 0.08 * sigh, crouch: 0.2 + 0.1 * sigh, roll: 0.03 * sin, armL: -0.1, armR: -0.1, sq: 1 - 0.03 * sigh, eyeY: -0.3 - 0.5 * sigh, eyes: "sad" };
+      }
+      // The lament: sunk low, one arm flung up and out past the outline, the whole body swaying slowly side to side, sobbing in big quick hops.
+      case "despair":
+        return { yaw: yaw * 0.3, crouch: 0.5, pitch: -0.15 + 0.08 * sin, roll: 0.1 * sin, armL: 1.2 + 0.3 * sin, armR: -0.1, liftL: 4.6, hop: Math.abs(Math.sin(4 * a)) * 0.5, dx: 0.5 * Math.sin(8 * a) + 0.4 * sin, sq: 1 + 0.04 * Math.sin(8 * a), eyeY: 0.3, eyes: "sad" };
+      // Risen and hovering: both arms high and open as if summoning, a slow sway, the body leaning back, the legs hanging.
+      case "emerge":
+        return { yaw: yaw * 0.3, pitch: -0.2, armL: 1.45 + 0.2 * sin, armR: 1.45 - 0.2 * sin, liftL: 3.6, liftR: 3.6, sq: 1 + 0.015 * sin, roll: 0.03 * sin, eyes: "angry" };
     }
   }
   function outlinedOrder(m) {
@@ -2796,7 +2815,7 @@ var FablesMotor = (() => {
   };
   var poly2 = (pts, dx, dy) => `M${pts.map(([x, y]) => `${n1(x + dx)} ${n1(y + dy)}`).join("L")}Z`;
   function modelSvg(m, cx, floor) {
-    const shadow = `<path fill="#1f1e1d" opacity=".22" d="${poly2(m.shadow, cx, floor)}"/>`;
+    const shadow = m.shadow.length ? `<path fill="#1f1e1d" opacity=".22" d="${poly2(m.shadow, cx, floor)}"/>` : "";
     const runs = [];
     for (const f3 of m.faces) {
       const fill = shadeOf(f3.part, f3.light);
@@ -2817,13 +2836,15 @@ var FablesMotor = (() => {
     const s = o.height / MODEL_H;
     const timing = o.until !== void 0 ? `repeatDur="${n1(o.until)}s"` : o.from !== void 0 ? `begin="${n1(o.from)}s" repeatCount="indefinite"` : 'repeatCount="indefinite"';
     const groups = Array.from({ length: frames }, (_, k) => {
-      const model = build(poseAt(motion, k / frames, o.yaw), s);
+      const posed = build(poseAt(motion, k / frames, o.yaw), s);
+      const model = o.noShadow ? { ...posed, shadow: [] } : posed;
       const at = (v) => (Math.round(v / frames * 1e4) / 1e4).toString();
       const anim = k === 0 ? `<animate attributeName="visibility" values="visible;hidden" keyTimes="0;${at(1)}" calcMode="discrete" dur="${dur}s" ${timing}/>` : `<animate attributeName="visibility" values="hidden;visible;hidden" keyTimes="0;${at(k)};${at(k + 1)}" calcMode="discrete" dur="${dur}s" ${timing}/>`;
       return `<g visibility="hidden">${(o.hero ?? modelSvg)(model, o.cx, o.floor)}${anim}</g>`;
     });
     return { svg: groups.join(""), frames };
   }
+  var shadowPath = (height) => poly2(build({}, height / MODEL_H).shadow, 0, 0);
 
   // ../hooks/monocraft.ts
   var MONOCRAFT = "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";
@@ -4109,6 +4130,8 @@ var FablesMotor = (() => {
   var HERO_H = 9 * U;
   var heroColor = (k) => PALETTE[k];
   var isApproach = (scene) => scene.hero.action === "approach";
+  var isEmerge = (scene) => scene.hero.action === "emerge";
+  var EMERGE_DEPTH = 64;
   var MODEL_STAGE_H = 40;
   var APPROACH_MARGIN = 4;
   var APPROACH_YAW = 0;
@@ -4136,22 +4159,26 @@ var FablesMotor = (() => {
     shrug: "think",
     approach: "walk",
     angry: "inspect",
-    dazed: "think"
+    dazed: "think",
+    sad: "think",
+    despair: "think",
+    emerge: "fly"
   };
   var SPEED = { run: 110, fly: 80, tumble: 90, jump: 60, carry: 30, sneak: 25 };
-  var heroReach = (action) => action === "celebrate" ? 16 : action === "jump" ? 18 : action === "dance" ? 6 : action === "fly" || action === "panic" || action === "angry" ? 2 : 0;
+  var heroReach = (action) => action === "celebrate" ? 16 : action === "jump" ? 18 : action === "dance" ? 6 : action === "fly" || action === "panic" || action === "angry" ? 2 : action === "emerge" ? 6 : 0;
   var LOOP_FIRST = (motion) => Math.max(2.4, 2 * MOTION_TIMING[motion].dur);
-  function hero10(scene, floor, sw, figure, tint = (svg) => svg) {
+  function hero10(scene, floor, sw, figure, idPrefix, tint = (svg) => svg) {
     const cell = figure.kind === "pixel" ? figure.cell : "solid";
     const approach = isApproach(scene);
+    const emerge = isEmerge(scene);
     const action = asMotion(figure.kind === "pixel" ? SPRITE_ACTION[scene.hero.action] : scene.hero.action);
     const then = figure.kind === "pixel" || !scene.hero.then ? void 0 : asMotion(scene.hero.then);
     const kind = MOTION_TIMING[action].kind;
-    const isMoving = kind === "travel";
+    const isMoving = kind === "travel" && !emerge;
     const span = sw - HERO_W;
-    const fromX = Math.round(span * scene.hero.from / 100);
+    const fromX = emerge ? Math.round(span * scene.hero.to / 100) : Math.round(span * scene.hero.from / 100);
     const toX = Math.round(span * scene.hero.to / 100);
-    const baseY = action === "fly" ? 34 : floor - HERO_H;
+    const baseY = action === "fly" && !emerge ? 34 : floor - HERO_H;
     const speed = SPEED[action] ?? 45;
     const moveDur = approach ? APPROACH_SECONDS : isMoving ? Math.max(0.6, Math.abs(toX - fromX) / speed) : 0;
     const step2 = action === "run" ? 0.18 : 0.32;
@@ -4161,12 +4188,12 @@ var FablesMotor = (() => {
     const second = figure.kind === "pixel" ? void 0 : then ?? (kind === "once" || isMoving && action !== "fly" ? "idle" : void 0);
     const handover = second === void 0 ? void 0 : isMoving ? moveDur : kind === "once" ? MOTION_TIMING[action].dur : LOOP_FIRST(action);
     const legs = (frame, values) => `<g opacity="${frame === 0 ? 1 : 0}" transform="scale(${U})">${pixelPaths(HERO_FRAMES[frame] ?? [], heroColor, cell)}` + (steps ? `<animate attributeName="opacity" values="${values}" dur="${step2 * 2}s" calcMode="discrete" repeatCount="${steps / 2}"/>` : "") + `</g>`;
-    const model = (motion, when = {}) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw, hero: figure.hero, ...when }).svg : "";
+    const model = (motion, when = {}) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw, hero: figure.hero, noShadow: emerge && figure.kind === "3d", ...when }).svg : "";
     const frames = figure.kind === "pixel" ? legs(0, "1;0") + legs(1, "0;1") : second === void 0 || handover === void 0 ? model(action) : model(action, { until: handover }) + model(second, { from: handover, maxFrames: figure.kind === "3d" ? figure.lean ? 2 : figure.second : void 0 });
     const until = handover === void 0 ? 'repeatCount="indefinite"' : `repeatDur="${n2(handover)}s"`;
     let inner = "";
     const baked = figure.kind === "3d";
-    switch (baked && action !== "fly" && action !== "inspect" ? "baked" : action) {
+    switch (emerge || baked && action !== "fly" && action !== "inspect" ? "baked" : action) {
       case "fly":
         inner = `<animateTransform attributeName="transform" type="translate" values="0 0;0 -${U};0 0" dur="1.2s" ${until} additive="sum"/>`;
         break;
@@ -4190,7 +4217,11 @@ var FablesMotor = (() => {
     const at = isMoving ? fromX : toX;
     const body = `<g>${inner}<g transform="${flip.trim() || "translate(0 0)"}">${frames}</g>${tint(extras)}</g>`;
     const grow = `begin="0s" dur="${n2(APPROACH_SECONDS)}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .6 1"`;
-    const svg = approach ? `<g transform="translate(${fromX + HERO_W / 2} ${floor})"><animateTransform attributeName="transform" type="translate" values="${fromX + HERO_W / 2} ${floor};${toX + HERO_W / 2} ${H2 - APPROACH_MARGIN}" ${grow}/><g transform="scale(1)"><animateTransform attributeName="transform" type="scale" values="1;${APPROACH_SCALE}" ${grow}/><g transform="translate(${-HERO_W / 2} ${-HERO_H})">${body}</g></g></g>` : `<g transform="translate(${at} ${baseY})">${travel}${body}</g>`;
+    const rise = `begin="0s" dur="${n2(EMERGE_SECONDS)}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .6 1"`;
+    const svg = emerge ? (
+      // The hovering model has no shadow of its own: one lies on the ground below it, fading in as it rises and shrinking as it bobs up.
+      (figure.kind === "3d" ? `<g transform="translate(${at + HERO_W / 2} ${floor})"><g><animateTransform attributeName="transform" type="scale" values="1;.88;1" dur="2.4s" begin="${n2(EMERGE_SECONDS)}s" repeatCount="indefinite"/><path fill="#1f1e1d" opacity="0" d="${shadowPath(MODEL_STAGE_H)}"><animate attributeName="opacity" values="0;.4" ${rise}/></path></g></g>` : "") + `<clipPath id="${idPrefix}ground"><rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 4 + floor}"/></clipPath><g clip-path="url(#${idPrefix}ground)"><g transform="translate(${at} ${baseY + EMERGE_DEPTH})"><animateTransform attributeName="transform" type="translate" values="${at} ${baseY + EMERGE_DEPTH};${at} ${baseY - EMERGE_LIFT}" ${rise}/><g><animateTransform attributeName="transform" type="translate" values="0 0;0 -${U};0 0" dur="2.4s" begin="${n2(EMERGE_SECONDS)}s" repeatCount="indefinite"/>${body}</g></g></g>`
+    ) : approach ? `<g transform="translate(${fromX + HERO_W / 2} ${floor})"><animateTransform attributeName="transform" type="translate" values="${fromX + HERO_W / 2} ${floor};${toX + HERO_W / 2} ${H2 - APPROACH_MARGIN}" ${grow}/><g transform="scale(1)"><animateTransform attributeName="transform" type="scale" values="1;${APPROACH_SCALE}" ${grow}/><g transform="translate(${-HERO_W / 2} ${-HERO_H})">${body}</g></g></g>` : `<g transform="translate(${at} ${baseY})">${travel}${body}</g>`;
     return { svg, startX: isMoving ? fromX : toX, endX: toX, endY: baseY, arrive: isMoving ? moveDur : 0 };
   }
   function flourish(action, figure) {
@@ -4465,9 +4496,9 @@ var FablesMotor = (() => {
     const dust = painter2 ? painter2.el("particles", particles(scene, rand, sw)) : particles(scene, rand, sw);
     const props = rich ? [] : scene.props.map((p, i) => propSvg(p, stage.floor, i, sw, look.cell));
     const tint = painter2 ? (svg2) => painter2.el("particles", svg2) : void 0;
-    let plan = hero10(scene, stage.floor, sw, figure, tint);
-    const accent = scene.palette.accent ?? "#d9d4c7";
     const idPrefix = `fable${Math.floor(rand() * 2 ** 31).toString(36)}-`;
+    let plan = hero10(scene, stage.floor, sw, figure, idPrefix, tint);
+    const accent = scene.palette.accent ?? "#d9d4c7";
     const entrance = scene.enter === "fade" ? ENTRANCE_SECONDS : 0;
     const sky3 = art?.sky ?? stage.sky;
     const ground = art?.ground ?? stage.ground;
@@ -4482,11 +4513,11 @@ var FablesMotor = (() => {
     ];
     const approach = isApproach(scene);
     const grown = HERO_W * APPROACH_SCALE;
-    const claudeBox = approach ? { x: Math.min(plan.startX, plan.endX) + HERO_W / 2 - grown / 2 - 30, y: 0, w: Math.abs(plan.endX - plan.startX) + grown + 60, h: H2 } : { x: Math.min(plan.startX, plan.endX) - 30, y: plan.endY - 40, w: Math.abs(plan.endX - plan.startX) + HERO_W + 60, h: HERO_H + 56 };
+    const claudeBox = approach ? { x: Math.min(plan.startX, plan.endX) + HERO_W / 2 - grown / 2 - 30, y: 0, w: Math.abs(plan.endX - plan.startX) + grown + 60, h: H2 } : isEmerge(scene) ? { x: plan.endX - 30, y: plan.endY - 40 - EMERGE_LIFT - U, w: HERO_W + 60, h: HERO_H + 56 + EMERGE_LIFT + U } : { x: Math.min(plan.startX, plan.endX) - 30, y: plan.endY - 40, w: Math.abs(plan.endX - plan.startX) + HERO_W + 60, h: HERO_H + 56 };
     const reach = Math.max(heroReach(scene.hero.action), scene.hero.then ? heroReach(scene.hero.then) : 0);
     const sway = scene.hero.action === "inspect" ? 2 * U : 0;
     const bigX = plan.endX + HERO_W / 2 - grown / 2;
-    const speaker = approach ? { startX: bigX, x: bigX, y: H2 - APPROACH_MARGIN - HERO_H * APPROACH_SCALE, arrive: 0, jump: reach * APPROACH_SCALE, sway: sway * APPROACH_SCALE, scale: APPROACH_SCALE, wait: APPROACH_SECONDS } : { startX: plan.startX, x: plan.endX, y: plan.endY, arrive: plan.arrive, jump: reach, sway };
+    const speaker = approach ? { startX: bigX, x: bigX, y: H2 - APPROACH_MARGIN - HERO_H * APPROACH_SCALE, arrive: 0, jump: reach * APPROACH_SCALE, sway: sway * APPROACH_SCALE, scale: APPROACH_SCALE, wait: APPROACH_SECONDS } : isEmerge(scene) ? { startX: plan.endX, x: plan.endX, y: plan.endY - EMERGE_LIFT, arrive: 0, jump: reach, sway, wait: EMERGE_SECONDS } : { startX: plan.startX, x: plan.endX, y: plan.endY, arrive: plan.arrive, jump: reach, sway };
     const fore = (withDust, propCount) => (withDust ? dust : "") + props.slice(0, propCount).join("") + (pixelArt ? `<g filter="url(#sc-pixelize-claude)">${plan.svg}</g>` : plan.svg);
     const build2 = (withDust, propCount) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sw} ${H2}" width="${width}" height="${height}" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet" style="display:block;background:${look.grade ? edge : ground}"${look.grade || art ? ` data-look="${look.name}"` : ""}>` + grade + `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 4 + GROUND_Y}" fill="${look.grade ? edge : sky3}"/>` + (art?.defs ? `<defs>${art.defs(sw, H2)}</defs>` : "") + (pixelArt ? `<defs>${PIXELIZE(sw, claudeBox, gradeBody)}</defs><g filter="url(#sc-pixelize)">` : "") + (grade ? `<g filter="url(#lk-grade)">` : "") + // The graded stage carries its own sky, so the grade sees the whole picture.
     (look.grade ? `<rect width="${sw}" height="${H2}" fill="${sky3}"/>` : "") + (art?.under?.(sw, H2) ?? "") + stage.back + `<rect x="${-sw * 4}" y="${stage.groundTop}" width="${sw * 9}" height="${H2 * 4}" fill="${ground}"/>` + // Ground-level scenery goes down before anything that stands on it.
@@ -4495,7 +4526,7 @@ var FablesMotor = (() => {
     const propsShown = props.length;
     let svg = build2(true, propsShown);
     if (svg.length > BUDGET && figure.kind === "3d") {
-      plan = hero10(scene, stage.floor, sw, { ...figure, second: 6 }, tint);
+      plan = hero10(scene, stage.floor, sw, { ...figure, second: 6 }, idPrefix, tint);
       svg = build2(true, propsShown);
     }
     if (svg.length > BUDGET && rich) {
@@ -4504,7 +4535,7 @@ var FablesMotor = (() => {
     }
     if (svg.length > BUDGET) svg = build2(false, propsShown);
     if (svg.length > BUDGET && figure.kind === "3d") {
-      plan = hero10(scene, stage.floor, sw, { ...figure, lean: true }, tint);
+      plan = hero10(scene, stage.floor, sw, { ...figure, lean: true }, idPrefix, tint);
       svg = build2(false, propsShown);
     }
     if (svg.length > BUDGET && rich) {
@@ -4523,7 +4554,7 @@ var FablesMotor = (() => {
   }
 
   // index.ts
-  var SCHEMA_VERSION = 2;
+  var SCHEMA_VERSION = 3;
   var BUBBLE_LINES = [1, 4];
   var SECONDS_PER_CHAR = [0.01, 0.2];
   function renderScene(input, options = {}) {

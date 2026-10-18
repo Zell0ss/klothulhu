@@ -67,7 +67,7 @@ def test_h1_tramos_cases():
 
 # H2 — el vocabulario es el del motor de la fase 2 de claude-fables (D25, D26)
 def test_h2_vocab():
-    assert VOCAB["schemaVersion"] == 2
+    assert VOCAB["schemaVersion"] == 3  # D33: motor v3
     assert TRAMO_MAX == VOCAB["limits"]["maxLongCaption"] == 500
     assert {"approach", "angry", "dazed"} <= set(VOCAB["actions"])
 

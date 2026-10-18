@@ -26,7 +26,7 @@ test('I1 tramos_cases.json con scenes.js', () => {
 
 // I2 — motor de la fase 2 de claude-fables (D25)
 test('I2 motor v2 y TRAMO_MAX', () => {
-  assert.equal(M.SCHEMA_VERSION, 2);
+  assert.equal(M.SCHEMA_VERSION, 3);  // D33: motor v3
   assert.equal(K.TRAMO_MAX, M.VOCAB.limits.maxLongCaption);
   assert.equal(K.BUBBLE_LINES, 2);
 });
