@@ -24,20 +24,29 @@ import logging
 import os
 import random
 from collections.abc import AsyncIterator
-from contextlib import aclosing
+from contextlib import aclosing, asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+import cierre
 import director
+import escritor
+import gasto
 from beats import is_cut, tramos
 from emotion_parser import EMOTIONS, EmotionStreamParser
 from history import HistoryStore
+from sesiones import Sesiones
 
 log = logging.getLogger("klothulhu")
-logging.basicConfig(level=os.getenv("KLOTHULHU_LOG_LEVEL", "INFO"))
+if os.getenv("LOGCENTRAL_LOG_DIR"):
+    import registro
+
+    registro.configurar(os.environ["LOGCENTRAL_LOG_DIR"])  # D42
+else:
+    logging.basicConfig(level=os.getenv("KLOTHULHU_LOG_LEVEL", "INFO"))
 
 # --- settings -------------------------------------------------------------
 
@@ -52,6 +61,19 @@ DIRECTOR_TIMEOUT = float(os.getenv("KLOTHULHU_DIRECTOR_TIMEOUT", "10"))
 HISTORY_TURNS = int(os.getenv("KLOTHULHU_HISTORY_TURNS", "6"))
 HISTORY_TTL_MIN = float(os.getenv("KLOTHULHU_HISTORY_TTL_MIN", "30"))
 FAKE = os.getenv("KLOTHULHU_FAKE", "0") == "1"
+MEMORIA = os.getenv("KLOTHULHU_MEMORIA", "0") == "1"  # memoria larga (fase 7): apagada por defecto
+MEMORIA_TOPE = float(os.getenv("KLOTHULHU_MEMORIA_TOPE", "1.0"))
+DB_CONFIG = {
+    "host": os.getenv("KLOTHULHU_DB_HOST", "localhost"),
+    "port": int(os.getenv("KLOTHULHU_DB_PORT", "3306")),
+    "user": os.getenv("KLOTHULHU_DB_USER", "klothulhu_dev"),
+    "password": os.getenv("KLOTHULHU_DB_PASSWORD", ""),
+    "database": os.getenv("KLOTHULHU_DB_NAME", "klothulhu_dev"),
+}
+QDRANT_URL = os.getenv("KLOTHULHU_QDRANT_URL", "http://localhost:6333")
+QDRANT_COLECCION = os.getenv("KLOTHULHU_QDRANT_COLECCION", "klothulhu_memoria_dev")
+BARRIDO_S = 60  # cada cuánto se miran las sesiones caducadas (D41)
+APAGADO_S = 20  # lo que se concede a cerrar todas al parar (D41)
 PROMPT_PATH = Path(os.getenv("KLOTHULHU_PROMPT", Path(__file__).with_name("prompt.md")))
 
 
@@ -74,6 +96,9 @@ if not TOKENS:
 SYSTEM_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
 VOCAB = director.load_vocab()
 history = HistoryStore(HISTORY_TURNS, HISTORY_TTL_MIN * 60)
+sesiones = Sesiones(HISTORY_TTL_MIN * 60)  # siempre existe; solo se llena con MEMORIA (D41)
+_almacen = None  # se abre en lifespan, con MEMORIA
+_freno: gasto.Freno | None = None
 _locks: dict[str, asyncio.Lock] = {}
 
 _anthropic = None
@@ -82,7 +107,53 @@ if not FAKE:
 
     _anthropic = AsyncAnthropic()  # reads ANTHROPIC_API_KEY
 
-app = FastAPI(title="klothulhu-api", docs_url=None, redoc_url=None)
+
+
+async def _cerrar_sesion(sesion, motivo: str) -> None:
+    escribir, embeber = (escritor.escribir_falso, escritor.embeber_falso) if FAKE else (
+        escritor.escribir, escritor.embeber)
+    await cierre.cerrar(sesion, almacen=_almacen, escritor=escribir, embedder=embeber, freno=_freno,
+                        motivo=motivo)
+
+
+async def _barrido() -> None:
+    while True:
+        await asyncio.sleep(BARRIDO_S)
+        for s in sesiones.vencidas():
+            await _cerrar_sesion(s, "ttl")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    global MEMORIA, _almacen, _freno
+    tarea = None
+    if MEMORIA:
+        try:
+            from memoria_bd import AlmacenMariaQdrant
+
+            _almacen = await asyncio.to_thread(AlmacenMariaQdrant, DB_CONFIG, QDRANT_URL, QDRANT_COLECCION)
+            await asyncio.to_thread(_almacen.gasto_total)  # falla pronto si la BD está caída
+            _freno = gasto.Freno(MEMORIA_TOPE, _almacen)
+            tarea = asyncio.create_task(_barrido())
+        except Exception as e:  # BD caída: klothulhu sigue contestando, sin memoria en este proceso
+            log.error("memoria apagada: no abre el almacén (%s)", type(e).__name__)
+            MEMORIA = False
+    try:
+        yield
+    finally:
+        if tarea is not None:
+            tarea.cancel()
+            try:
+                async def todas():
+                    for s in sesiones.todas():
+                        await _cerrar_sesion(s, "apagado")
+
+                await asyncio.wait_for(todas(), APAGADO_S)
+            except TimeoutError:
+                log.warning("apagado: no dio tiempo a cerrar todas las sesiones")
+
+
+app = FastAPI(title="klothulhu-api", docs_url=None, redoc_url=None, lifespan=lifespan)
 
 # --- auth -----------------------------------------------------------------
 
@@ -111,12 +182,14 @@ async def health() -> dict:
         "model": MODEL,
         "emotions": EMOTIONS,
         "director": {"enabled": DIRECTOR_ENABLED, "model": DIRECTOR_MODEL},
+        "memoria": {"enabled": MEMORIA, "frenada": MEMORIA and _freno is not None and not _freno.permitido()},
     }
 
 
 @app.delete("/history")
 async def forget(cid: str = Depends(client_id)) -> dict:
     history.clear(cid)
+    sesiones.olvidar(cid)  # D37: Forget tira la sesión sin escribir recuerdos
     return {"cleared": cid}
 
 
@@ -175,6 +248,8 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         # Only complete replies enter history; tags are kept so the model
         # keeps seeing the format it is expected to follow.
         history.append(cid, text, "".join(raw))
+        if MEMORIA:
+            sesiones.anotar(cid, text, "".join(raw))
         bs = tramos(shown, marks)  # D24: una escena por tramo, no por golpe de 70
         sent = 0
         last = None  # la última escena emitida, ya corregida (D23)
