@@ -68,3 +68,39 @@ def test_r3_apagado_no_pierde_sesiones(monkeypatch):
 
     asyncio.run(escena())
     assert sorted(cerradas) == ["apagado", "ttl"]
+
+
+# --- H2 T7: registro quita el manejador por defecto de loguru; T4: el repaso traduce ids -----------
+
+
+def test_registro_una_sola_linea(tmp_path, capsys):
+    import logging
+
+    from loguru import logger
+
+    import registro
+
+    registro.configurar(tmp_path)
+    registro.configurar(tmp_path)                         # idempotente
+    assert 0 not in logger._core.handlers                 # el manejador por defecto ya no está
+    logging.getLogger("klothulhu").warning("linea unica %d", 1)
+    assert capsys.readouterr().err.count("linea unica 1") == 1
+
+
+def test_repasar_traduce_ids_cortos(monkeypatch):
+    import escritor
+
+    visto = {}
+
+    async def falsa(sistema, mensaje, esquema, **kw):
+        visto["mensaje"] = mensaje
+        return {"usados": ["r2", "r9"], "fallos": [{"tipo": "F3", "recuerdo": "r1"},
+                                                    {"tipo": "F4", "recuerdo": None}]}, ("m", 1, 1)
+
+    monkeypatch.setattr(escritor, "_estructurada", falsa)
+    ctx = [{"id": "uuid-a", "texto": "Uno."}, {"id": "uuid-b", "texto": "Dos."}]
+    salida, _ = asyncio.run(escritor.repasar("Mortal: hola", ctx))
+    m = visto["mensaje"]
+    assert "r1: Uno." in m and "r2: Dos." in m and "uuid" not in m
+    assert salida == {"usados": ["uuid-b", "r9"],          # un id corto desconocido se devuelve tal cual
+                      "fallos": [{"tipo": "F3", "recuerdo": "uuid-a"}, {"tipo": "F4", "recuerdo": None}]}

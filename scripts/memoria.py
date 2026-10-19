@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Herramienta de la memoria larga: crear el esquema, ver los recuerdos y el gasto, reindexar.
 
-    .venv/bin/python scripts/memoria.py [--env-file RUTA] {crear,listar,gasto,reindexar}
+    .venv/bin/python scripts/memoria.py [--env-file RUTA] {crear,listar,gasto,reindexar,eventos} [--detalle]
 
 La primera línea de la salida dice siempre qué BD y qué colección usa.
 """
@@ -72,6 +72,32 @@ def _gasto(alm: AlmacenMariaQdrant) -> None:
               f"in={g['tokens_in']} out={g['tokens_out']}  ${float(g['coste']):.6f}")
 
 
+def _eventos(alm: AlmacenMariaQdrant, detalle: bool) -> None:
+    """Resumen de memoria_eventos para H3. F1 = candidato juzgado pertinente; F2 = candidato por debajo del
+    umbral pero a menos de 0,05 (D44)."""
+    umbral = float(os.getenv("KLOTHULHU_MEMORIA_UMBRAL", memoria.UMBRAL))
+    evs = alm.eventos()
+    texto = {r["id"]: r["texto"] for r in alm.recuerdos()}
+    cand = [e for e in evs if e["tipo"] == "candidato"]
+    f1 = [e for e in cand if e["pertinente"] is True]
+    f2 = [e for e in cand if e["pertinente"] is None and umbral - 0.05 <= (e["similitud"] or 0) < umbral]
+    no_pert = [e for e in cand if e["pertinente"] is False]
+    fallos = {t: [e for e in evs if e["tipo"] == t] for t in ("F3", "F4", "F5")}
+    print(f"umbral {umbral}")
+    print(f"candidatos {len(cand)} · F1 (pertinentes) {len(f1)} · F2 (cerca del umbral) {len(f2)} · "
+          f"juzgados no pertinentes {len(no_pert)}")
+    print(f"F3 {len(fallos['F3'])} · F4 {len(fallos['F4'])} · F5 {len(fallos['F5'])}")
+    if not detalle:
+        return
+    for nombre, lista in (("F1", f1), ("F2", f2), ("F4", fallos["F4"])):
+        for e in lista:
+            sim = f"{e['similitud']:.2f}" if e["similitud"] is not None else "-"
+            print(f"{nombre} [{e['cuando']:%Y-%m-%d %H:%M}] sim {sim}")
+            if e.get("mensaje"):
+                print(f"    mensaje:  {e['mensaje']}")
+            print(f"    recuerdo: {texto.get(e['recuerdo_id'], '(podado o sin recuerdo)')}")
+
+
 def _reindexar(alm: AlmacenMariaQdrant) -> None:
     pendientes = alm.sin_indexar()
     print(f"{len(pendientes)} recuerdos sin indexar")
@@ -101,13 +127,15 @@ def _coste(uso) -> float:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--env-file", type=Path, default=RAIZ / ".env")
-    ap.add_argument("orden", choices=["crear", "listar", "gasto", "reindexar"])
+    ap.add_argument("orden", choices=["crear", "listar", "gasto", "reindexar", "eventos"])
+    ap.add_argument("--detalle", action="store_true", help="con eventos: mensaje y recuerdo de F1, F2 y F4")
     args = ap.parse_args()
     if args.env_file.exists():
         _cargar_env(args.env_file)
     alm = _almacen()
     {"crear": lambda a: (a.crear(), print("esquema y colección listos")), "listar": _listar,
-     "gasto": _gasto, "reindexar": _reindexar}[args.orden](alm)
+     "gasto": _gasto, "reindexar": _reindexar,
+     "eventos": lambda a: _eventos(a, args.detalle)}[args.orden](alm)
 
 
 if __name__ == "__main__":
