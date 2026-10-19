@@ -1,5 +1,5 @@
 src = ["server", "tests"]
-extend-exclude = ["docs/fase5/normativas"]  # copias byte a byte de las normativas; la prueba viva está en tests/
+extend-exclude = ["docs/fase5/normativas", "docs/fase7/normativas"]  # copias byte a byte de las normativas; la prueba viva está en tests/
 line-length = 110
 target-version = "py312"
 
@@ -12,3 +12,4 @@ select = ["E", "F", "I", "UP", "B"]
 "tests/test_fase2_plazo.py" = ["E501"]
 "tests/test_fase4.py" = ["E501", "B905"]
 "tests/test_fase5.py" = ["E501", "B905"]
+"tests/test_fase7_h1.py" = ["E501", "B905"]
