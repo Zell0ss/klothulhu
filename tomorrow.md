@@ -1,19 +1,22 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 6 en `fase6` (worktree `/data/klothulhu-fase6`). H1, H3 y H4 aprobados. **H2 (emoción `sad`, D28; motor v3,
-D30; `emerge`, D33) aprobado en las dos paradas** (H2-revision §4, 90565d8): T7 real pasada (21 preguntas, $0,0076, capturas en
-`docs/fase6/capturas/`). Nada más del programador.
+**Parada:** fase 7, H1 (`fase7`, worktree `/data/klothulhu-fase7`). T1-T9b hechas y commiteadas (último: ca3522a).
+Normativas M1-M10 en verde (copiadas a `tests/test_fase7_h1.py`), `ruff` limpio, 70 pasan y 4 se saltan
+(las de la BD real). **Falta para la parada 1:** T6 contra `klothulhu_test` y la pasada a mano con
+`KLOTHULHU_FAKE=1 KLOTHULHU_MEMORIA=1` contra `klothulhu_dev`.
 
-**Siguiente paso:** esperar a Josem: V1-V4 de H2 en Konnos con el servidor de la rama, S1-S4 (H3) y Z1-Z6 (H4). Si piden
-retoques, llegarán como sección nueva al final de la revisión correspondiente. El merge `--ff-only` de `fase6` en `main`, el
-reinicio de `klothulhu-api` (H2 toca servidor) y el `git pull` en Konnos son de Josem.
+**Siguiente paso:** cuando Josem ponga la contraseña de `klothulhu_dev` en `/data/klothulhu-fase7/.env` (hoy está
+vacío; copiar de `.env.example`) y haya hecho P1 (BD y usuarios):
+1. `KLOTHULHU_TEST_DB=1 .venv/bin/python -m pytest -q tests/test_memoria_bd.py`
+2. `scripts/memoria.py crear` y la pasada a mano (dos mensajes, esperar el barrido con
+   `KLOTHULHU_HISTORY_TTL_MIN=1`, `listar`; otra con «Forget» antes del barrido).
+3. Informe `docs/fase7/H1-informe.md` con la salida de `listar` en las dos pasadas, y timbre a klothulhu-be.
 
 **Gotchas:**
-- `/data/klothulhu` se queda en `main`; `.venv` 3.12 propio en el worktree (`npm ci` hecho en `desktop/`).
-- `fase6-h1/h3/h4.test.js` son normativas: no se editan.
-- `despair` salió 1/21 y `emerge` 10/21 en la pasada real; el juicio sobre D28/D30 es del arquitecto.
-- `api_smoke.py` necesita `ANTHROPIC_API_KEY` en el entorno; la lanza Josem (no cargo la clave de producción).
-- `estado.json` vive en `%APPDATA%\klothulhu-desktop\` (Konnos); `config.json` no se escribe.
-- Automensaje activo con klothulhu-70 (arquitecto).
+- `/data/klothulhu` sigue en `main` (fase 6 sin mergear aún); `.venv` 3.12 propio en este worktree.
+- `klothulhu_dev` hoy da «Access denied»: falta P1 o la contraseña. P2 (clave OpenAI) solo hace falta en T10.
+- T10 [API] no se lanza sin revisión de la parada 1 y un «sí» de Josem (tope $0,05).
+- `escritor_prompt.md` lo revisa el arquitecto.
+- Automensaje activo con klothulhu-be (arquitecto).
 
-**Bloqueos:** ninguno.
+**Bloqueos:** contraseña de `klothulhu_dev` en `.env` (P1/P3).
