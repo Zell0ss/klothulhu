@@ -21,6 +21,9 @@ class Sesion:
     cliente: str
     turnos: list[tuple[str, str]] = field(default_factory=list)
     inicio: datetime = field(default_factory=lambda: datetime.now(MADRID))
+    contexto: list[dict] | None = None  # la foto de D43 y lo que traiga la búsqueda (D36); None = sin abrir
+    eventos: list[dict] = field(default_factory=list)  # candidatos (D44) y fallos (D45)
+    dia: int | None = None  # día de uso de la sesión
 
 
 class Sesiones:
@@ -31,17 +34,28 @@ class Sesiones:
         self._abiertas: dict[str, tuple[Sesion, float]] = {}  # cliente -> (sesión, última actividad)
         self._pendientes: list[Sesion] = []
 
-    def anotar(self, cid: str, texto: str, crudo: str) -> None:
+    def actual(self, cid: str) -> Sesion:
+        """La sesión abierta del cliente, o una nueva (cuenta como actividad ahora). Si la abierta había
+        caducado antes de que pasara el barrido, pasa a pendientes."""
         ahora = self._clock()
-        actual = self._abiertas.get(cid)
-        if actual is not None and ahora - actual[1] >= self._ttl:
-            # caducó antes de que pasara el barrido: pasa a pendientes y esta vuelta abre otra
-            self._pendientes.append(actual[0])
-            actual = None
-        sesion = actual[0] if actual else Sesion(id=str(uuid.uuid4()), cliente=cid)
+        abierta = self._abiertas.get(cid)
+        if abierta is not None and ahora - abierta[1] >= self._ttl:
+            self._pendientes.append(abierta[0])
+            abierta = None
+        if abierta is None:
+            abierta = (Sesion(id=str(uuid.uuid4()), cliente=cid), ahora)
+            self._abiertas[cid] = abierta
+        return abierta[0]
+
+    def cuantas(self) -> int:
+        """Sesiones abiertas, sin contar las pendientes."""
+        return len(self._abiertas)
+
+    def anotar(self, cid: str, texto: str, crudo: str) -> None:
+        sesion = self.actual(cid)
         sesion.turnos.append((texto, crudo))
         del sesion.turnos[: -self._max]
-        self._abiertas[cid] = (sesion, ahora)
+        self._abiertas[cid] = (sesion, self._clock())
 
     def olvidar(self, cid: str) -> None:
         """Forget (D37): tira la sesión abierta sin cerrarla. Las pendientes ya caducaron: se cierran."""
