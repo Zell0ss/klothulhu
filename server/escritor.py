@@ -10,6 +10,7 @@ import logging
 from datetime import date
 from pathlib import Path
 
+import memoria
 from emotion_parser import EMOTIONS
 
 log = logging.getLogger("klothulhu")
@@ -18,8 +19,6 @@ MODELO = "claude-haiku-5-5"
 MODELO_EMBEDDING = "text-embedding-3-small"
 DIMENSION = 1536
 PROMPT = Path(__file__).with_name("escritor_prompt.md").read_text(encoding="utf-8")
-
-_DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
 # Longitud, número de recuerdos y formato de fecha los comprueba memoria.validar(): no se confía en el
 # esquema para eso.
@@ -51,7 +50,7 @@ ultimo: dict = {}  # última respuesta cruda (stop_reason y texto), para memoria
 
 
 def _mensaje(transcripcion: str, previos: list[str], hoy: date) -> str:
-    fecha = f"{_DIAS[hoy.weekday()]} {hoy.isoformat()}"  # sin `locale`: el servidor no lo tiene fiable
+    fecha = memoria.dia_semana(hoy)
     ya = "\n".join(f"- {p}" for p in previos) if previos else "(ninguno todavía)"
     return f"Hoy es {fecha}.\n\nRecuerdos que ya tienes:\n{ya}\n\nLa charla:\n{transcripcion}"
 

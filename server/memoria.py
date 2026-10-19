@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
+from pathlib import Path
 
 from emotion_parser import EMOTIONS
 
@@ -14,6 +15,11 @@ MAX_RECUERDOS = 3
 MAX_TEXTO = 400
 VIDA_BASE = 7  # días de uso en que un recuerdo sin usos pierde la mitad de su fuerza (D34)
 PESO_EMOCION = 1.25  # lo que no es neutral pesa más (D34)
+FUERZA_MINIMA = 0.05  # por debajo, el recuerdo se poda (D46)
+CONTEXTO_N = 15  # recuerdos que entran en el prompt al abrir la sesión (D43)
+UMBRAL = 0.45  # similitud a partir de la cual el juez mira un candidato; tentativo hasta la calibración (D44)
+PROMPT_BLOQUE = Path(__file__).with_name("memoria_prompt.md")
+DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
 
 @dataclass(frozen=True)
@@ -73,14 +79,49 @@ def fuerza(importancia: int, emocion: str, dias_sin_uso: float, usos: int) -> fl
     return importancia / 5 * peso * 0.5 ** (dias_sin_uso / (VIDA_BASE * (1 + usos)))
 
 
+def _fuerza_hoy(r: dict, dia_actual: int) -> float:
+    ultimo = r["ultimo_uso_dia"] if r.get("ultimo_uso_dia") is not None else r["creado_dia"]
+    return fuerza(r["importancia"], r["emocion"], dia_actual - ultimo, r.get("usos", 0))
+
+
 def mas_fuertes(recuerdos: list[dict], dia_actual: int, n: int = 15) -> list[dict]:
     """Los `n` recuerdos de más fuerza hoy, de mayor a menor."""
+    return sorted(recuerdos, key=lambda r: _fuerza_hoy(r, dia_actual), reverse=True)[:n]
 
-    def f(r: dict) -> float:
-        ultimo = r["ultimo_uso_dia"] if r.get("ultimo_uso_dia") is not None else r["creado_dia"]
-        return fuerza(r["importancia"], r["emocion"], dia_actual - ultimo, r.get("usos", 0))
 
-    return sorted(recuerdos, key=f, reverse=True)[:n]
+def dia_semana(dia: date) -> str:
+    """«lunes 2026-10-20». Sin `locale`: el servidor no lo tiene fiable."""
+    return f"{DIAS[dia.weekday()]} {dia.isoformat()}"
+
+
+def contexto_inicial(recuerdos: list[dict], dia_actual: int, hoy: date, n: int = CONTEXTO_N) -> list[dict]:
+    """D43: los `n` más fuertes y, detrás, los que se refieren a hoy y no estaban ya."""
+    fuertes = mas_fuertes(recuerdos, dia_actual, n)
+    ya = {r["id"] for r in fuertes}
+    return fuertes + [r for r in recuerdos if r.get("fecha") == hoy and r["id"] not in ya]
+
+
+def _antiguedad(r: dict, dia_actual: int) -> str:
+    d = dia_actual - r["creado_dia"]
+    return "de hoy" if d <= 0 else "de hace 1 día de uso" if d == 1 else f"de hace {d} días de uso"
+
+
+def bloque(contexto: list[dict], dia_actual: int, hoy: date) -> str:
+    """D43: el bloque del prompt con los recuerdos. Sin corchetes: el narrador escribe sus emociones
+    entre corchetes y no debe ver otros. Vacío si no hay recuerdos."""
+    if not contexto:
+        return ""
+    lineas = [f"Hoy es {dia_semana(hoy)}.", PROMPT_BLOQUE.read_text(encoding="utf-8").strip(), ""]
+    for r in contexto:
+        extra = r.get("fecha")
+        sobre = f" (sobre el {extra.isoformat() if hasattr(extra, 'isoformat') else extra})" if extra else ""
+        lineas.append(f"- {r['texto']} ({_antiguedad(r, dia_actual)}){sobre}")
+    return "\n".join(lineas).replace("[", "").replace("]", "")
+
+
+def podables(recuerdos: list[dict], dia_actual: int, minimo: float = FUERZA_MINIMA) -> list[str]:
+    """D46: los ids cuya fuerza de hoy queda por debajo de `minimo`."""
+    return [r["id"] for r in recuerdos if _fuerza_hoy(r, dia_actual) < minimo]
 
 
 def transcripcion(turnos: list[tuple[str, str]]) -> str:
