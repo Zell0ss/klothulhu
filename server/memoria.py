@@ -106,16 +106,17 @@ def _antiguedad(r: dict, dia_actual: int) -> str:
     return "de hoy" if d <= 0 else "de hace 1 día de uso" if d == 1 else f"de hace {d} días de uso"
 
 
-def bloque(contexto: list[dict], dia_actual: int, hoy: date) -> str:
+def bloque(contexto: list[dict], dia_actual: int | None, hoy: date) -> str:
     """D43: el bloque del prompt con los recuerdos. Sin corchetes: el narrador escribe sus emociones
-    entre corchetes y no debe ver otros. Vacío si no hay recuerdos."""
+    entre corchetes y no debe ver otros. Vacío si no hay recuerdos. Sin `dia_actual` no pone la antigüedad."""
     if not contexto:
         return ""
     lineas = [f"Hoy es {dia_semana(hoy)}.", PROMPT_BLOQUE.read_text(encoding="utf-8").strip(), ""]
     for r in contexto:
         extra = r.get("fecha")
         sobre = f" (sobre el {extra.isoformat() if hasattr(extra, 'isoformat') else extra})" if extra else ""
-        lineas.append(f"- {r['texto']} ({_antiguedad(r, dia_actual)}){sobre}")
+        edad = f" ({_antiguedad(r, dia_actual)})" if dia_actual is not None else ""
+        lineas.append(f"- {r['texto']}{edad}{sobre}")
     return "\n".join(lineas).replace("[", "").replace("]", "")
 
 

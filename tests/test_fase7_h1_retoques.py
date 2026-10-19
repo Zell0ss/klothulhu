@@ -104,3 +104,36 @@ def test_repasar_traduce_ids_cortos(monkeypatch):
     assert "r1: Uno." in m and "r2: Dos." in m and "uuid" not in m
     assert salida == {"usados": ["uuid-b", "r9"],          # un id corto desconocido se devuelve tal cual
                       "fallos": [{"tipo": "F3", "recuerdo": "uuid-a"}, {"tipo": "F4", "recuerdo": None}]}
+
+
+# --- H2 R2: la memoria nunca tumba la respuesta ------------------------------------------------------
+
+
+def test_bloque_sin_dia_actual():
+    from datetime import date
+
+    import memoria
+
+    ctx = [{"id": "a", "texto": "Va a pilates.", "creado_dia": 1, "fecha": date(2026, 10, 22)}]
+    b = memoria.bloque(ctx, None, date(2026, 10, 20))
+    assert "Va a pilates." in b and "(sobre el 2026-10-22)" in b
+    assert "de hoy" not in b and "días de uso" not in b
+
+
+def test_reply_sobrevive_a_un_system_que_lanza(monkeypatch):
+    async def stream():
+        yield "[happy] Hola, mortal."
+
+    def roto(sesion):
+        raise RuntimeError("fallo del bloque")
+
+    monkeypatch.setattr(app, "_fake_stream", stream)
+    monkeypatch.setattr(app, "DIRECTOR_ENABLED", False)
+    monkeypatch.setattr(app, "MEMORIA", True)
+    monkeypatch.setattr(app, "_system", roto)
+
+    async def consumir():
+        return "".join([x async for x in app._reply("fase7-r2", "Hola", asyncio.Lock())])
+
+    salida = asyncio.run(consumir())
+    assert "event: done" in salida and "event: error" not in salida

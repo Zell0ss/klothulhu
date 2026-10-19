@@ -296,7 +296,11 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
 
         try:
             sesion = await _preparar_memoria(cid, text) if MEMORIA else None
-            system = _system(sesion)  # también con FAKE: así se puede ver lo que vería el narrador
+            try:
+                system = _system(sesion)  # también con FAKE: así se puede ver lo que vería el narrador
+            except Exception as e:  # la memoria nunca tumba la respuesta
+                log.warning("memoria: sin bloque de recuerdos (%s)", type(e).__name__)
+                system = SYSTEM_PROMPT
             source = _fake_stream() if FAKE else _model_stream(cid, text, system)
             async for chunk in source:
                 raw.append(chunk)
