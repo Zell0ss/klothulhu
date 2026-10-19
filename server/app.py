@@ -116,11 +116,35 @@ async def _cerrar_sesion(sesion, motivo: str) -> None:
                         motivo=motivo)
 
 
-async def _barrido() -> None:
-    while True:
-        await asyncio.sleep(BARRIDO_S)
+async def _barrido(parar: asyncio.Event) -> None:
+    """Cierra las sesiones caducadas cada BARRIDO_S. Nunca se cancela a mitad de un cierre: la parada
+    se pide con el evento y se mira entre sesión y sesión (R3)."""
+    while not parar.is_set():
+        try:
+            await asyncio.wait_for(parar.wait(), BARRIDO_S)
+        except TimeoutError:
+            pass
         for s in sesiones.vencidas():
-            await _cerrar_sesion(s, "ttl")
+            await _cerrar_sesion(s, "ttl")  # las que saca las cierra todas, aunque llegue la parada
+
+
+async def _apagar(tarea: asyncio.Task, parar: asyncio.Event) -> None:
+    """D41: acaba el cierre en curso y cierra las abiertas, todo dentro de APAGADO_S."""
+
+    abiertas: list = []
+
+    async def cerrar_todo():
+        parar.set()
+        await tarea
+        abiertas.extend(sesiones.todas())
+        while abiertas:
+            await _cerrar_sesion(abiertas[0], "apagado")
+            abiertas.pop(0)
+
+    try:
+        await asyncio.wait_for(cerrar_todo(), APAGADO_S)
+    except TimeoutError:
+        log.warning("apagado: no dio tiempo; %d sesiones sin cerrar", len(abiertas) + len(sesiones.todas()))
 
 
 @asynccontextmanager
@@ -134,7 +158,8 @@ async def lifespan(_app: FastAPI):
             _almacen = await asyncio.to_thread(AlmacenMariaQdrant, DB_CONFIG, QDRANT_URL, QDRANT_COLECCION)
             await asyncio.to_thread(_almacen.gasto_total)  # falla pronto si la BD está caída
             _freno = gasto.Freno(MEMORIA_TOPE, _almacen)
-            tarea = asyncio.create_task(_barrido())
+            parar = asyncio.Event()
+            tarea = asyncio.create_task(_barrido(parar))
         except Exception as e:  # BD caída: klothulhu sigue contestando, sin memoria en este proceso
             log.error("memoria apagada: no abre el almacén (%s)", type(e).__name__)
             MEMORIA = False
@@ -142,15 +167,7 @@ async def lifespan(_app: FastAPI):
         yield
     finally:
         if tarea is not None:
-            tarea.cancel()
-            try:
-                async def todas():
-                    for s in sesiones.todas():
-                        await _cerrar_sesion(s, "apagado")
-
-                await asyncio.wait_for(todas(), APAGADO_S)
-            except TimeoutError:
-                log.warning("apagado: no dio tiempo a cerrar todas las sesiones")
+            await _apagar(tarea, parar)
 
 
 app = FastAPI(title="klothulhu-api", docs_url=None, redoc_url=None, lifespan=lifespan)
@@ -182,7 +199,7 @@ async def health() -> dict:
         "model": MODEL,
         "emotions": EMOTIONS,
         "director": {"enabled": DIRECTOR_ENABLED, "model": DIRECTOR_MODEL},
-        "memoria": {"enabled": MEMORIA, "frenada": MEMORIA and _freno is not None and not _freno.permitido()},
+        "memoria": {"enabled": MEMORIA, "frenada": MEMORIA and _freno is not None and _freno.frenado},
     }
 
 
@@ -267,8 +284,8 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
                         last = fixed
                         yield _scene_event(bs, sent, fixed)
                         sent += 1
-            except Exception:  # noqa: BLE001 - un director caído nunca estropea la respuesta
-                log.warning("director failed; sending the missing scenes as null", exc_info=True)
+            except Exception as exc:  # noqa: BLE001 - un director caído nunca estropea la respuesta
+                log.warning("director failed (%s); sending the missing scenes as null", type(exc).__name__)
         while sent < len(bs):
             yield _scene_event(bs, sent, None)
             sent += 1

@@ -327,7 +327,7 @@ async def direct(
                 "director: end_turn con %d escenas para %d golpes; faltan %d", emitted, total, total - emitted
             )
     except Exception as exc:  # noqa: BLE001 - el director nunca rompe la respuesta
-        log.warning("director: fallo (%s: %s)", type(exc).__name__, exc or "sin detalle")
+        log.warning("director: fallo (%s)", type(exc).__name__)
     nulls_late = total - emitted
     log.info(
         "director: model=%s thinking=%s first_ms=%s ms=%d in=%s out=%s cache_read=%s missing=%d/%d",
