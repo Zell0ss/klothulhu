@@ -1,6 +1,6 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H1 aprobado en las dos paradas y los retoques R1-R5 (H1-revision §5, 22fbf5f). Código y pruebas
+**Parada:** fase 7, H2: parada 1 entregada (H2-informe.md), T1-T7 hechas. T8 no se lanza: espera revisión y autorización.
 cerrados en `fase7` (último código: bb4cb04; anexo y captura de T10: 6495a4c). 79 pruebas pasan con
 `KLOTHULHU_TEST_DB=1`; 74 pasan y 5 se saltan sin ella. T10 real hecha por Josem ($0,00077). Nada más del programador.
 
