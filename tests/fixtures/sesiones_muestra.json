@@ -1,0 +1,41 @@
+[
+  {
+    "nombre": "1 · dato personal con fecha relativa",
+    "cliente": "konnos",
+    "inicio": "2026-10-19T20:00:00+02:00",
+    "turnos": [
+      ["Hola, estoy un poco nervioso", "[neutral] Eso se nota desde el abismo, mortal. ¿Qué te ronda?"],
+      ["El jueves tengo el examen de conducir", "[smug] Un rito de paso sobre cuatro ruedas. [happy] Lo aprobarás, o al menos lo intentarás con dignidad."],
+      ["Ojalá. Llevo tres meses practicando con mi padre", "[happy] Tres meses de sufrimiento compartido: ya es una victoria. Descansa antes del jueves."]
+    ]
+  },
+  {
+    "nombre": "2 · trámite técnico, debería dar 0 recuerdos",
+    "cliente": "konnos",
+    "inicio": "2026-10-19T21:30:00+02:00",
+    "turnos": [
+      ["¿Cuál es la diferencia entre una lista y una tupla en Python?", "[smug] La lista se deja cambiar; la tupla no. [neutral] Usa tupla cuando el contenido no deba mutar."],
+      ["¿Y cuál es más rápida?", "[neutral] La tupla, por poco. Rara vez importa más que la claridad."],
+      ["Vale, gracias", "[neutral] De nada, mortal."]
+    ]
+  },
+  {
+    "nombre": "3 · triste, se le ha muerto el gato",
+    "cliente": "konnos",
+    "inicio": "2026-10-19T23:10:00+02:00",
+    "turnos": [
+      ["Hoy ha sido un día horrible", "[sad] Lo siento, mortal. Estoy aquí. ¿Quieres contármelo?"],
+      ["Se ha muerto mi gato, Tofu. Tenía 14 años", "[sad] Catorce años a tu lado es una vida entera. Lo lamento de verdad."],
+      ["Dormía siempre en mi escritorio, justo donde estás tú", "[sad] Entonces ocupo un sitio muy importante. Cuídalo en tu memoria, yo también lo haré."]
+    ]
+  },
+  {
+    "nombre": "4 · repite el dato de la 1, para ver si respeta los previos",
+    "cliente": "konnos",
+    "inicio": "2026-10-20T19:00:00+02:00",
+    "turnos": [
+      ["Mañana por fin es mi examen de conducir, ya te lo conté", "[smug] Lo recuerdo: el jueves, tres meses con tu padre. [happy] Estás más preparado de lo que crees."],
+      ["Sí, el jueves. Pues estoy repasando las señales", "[happy] Repasa las de prioridad, que son las que más caen. Buena suerte, mortal."]
+    ]
+  }
+]

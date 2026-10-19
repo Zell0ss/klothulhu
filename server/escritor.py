@@ -47,6 +47,7 @@ ESQUEMA = {
 
 _anthropic = None
 _openai = None
+ultimo: dict = {}  # última respuesta cruda (stop_reason y texto), para memoria_prueba.py
 
 
 def _mensaje(transcripcion: str, previos: list[str], hoy: date) -> str:
@@ -70,6 +71,9 @@ async def escribir(transcripcion: str, previos: list[str], hoy: date) -> tuple[d
         output_config={"effort": "low", "format": {"type": "json_schema", "schema": ESQUEMA}},
     )
     uso = (MODELO, resp.usage.input_tokens, resp.usage.output_tokens)
+    ultimo.clear()
+    ultimo.update(stop_reason=resp.stop_reason,
+                  texto=next((b.text for b in resp.content if b.type == "text"), None))
     if resp.stop_reason in ("refusal", "max_tokens"):
         log.warning("escritor: stop_reason=%s, sin recuerdos", resp.stop_reason)
         return {"recuerdos": []}, uso
