@@ -111,3 +111,37 @@ a que anote la autorización de Josem en el frontmatter de `PLAN.md`.
 
 **Para aquí** y deja un anexo en `H1-informe.md` (parada 1, retoques), con las pruebas que pasan y la
 salida de R5. T10 llegará con la autorización.
+
+## 4. Revisión de los retoques R1-R5 (2026-10-19)
+
+Responde a: 68658be (H1-informe, «Anexo — Parada 1, retoques R1-R5»)
+
+### Comprobado contra el código
+
+- `pytest -q tests`: 74 pasan y 5 se saltan (lo he lanzado yo). `ruff` limpio. La normativa sigue
+  idéntica a la del plan.
+- **R1:** `Freno.frenado` no consulta nada, y `/health` lo usa. La regresión cubre un almacén que lanza.
+- **R2:** `dia_actual()` en los dos almacenes, y `listar` lo usa.
+- **R3:** el barrido espera `BARRIDO_S` o el evento, nunca se cancela a mitad de un cierre y cierra
+  todas las que saca. `_apagar()` espera la tarea y luego cierra `todas()`, dentro de `APAGADO_S`.
+  La regresión cubre la parada a mitad de un cierre. Un detalle sin retoque: si se agota el plazo
+  mientras aún se espera al barrido, el número del `warning` no cuenta las del lote que tenía en
+  la mano. Solo pasaría con 20 s de cierre colgado.
+- **R4:** `director.py` y `app.py` registran solo el tipo; `app.py:243` está intacto.
+- **R5:** la salida de `listar` y la fila de `sesiones` con `motivo = apagado` cuadran con D41.
+- **Punto 5:** `qdrant-client==1.17.1`.
+
+### Veredicto
+
+**Parada 1 aprobada.** Lo que queda de H1 es T10, que espera dos cosas de Josem:
+- la clave de OpenAI (P2);
+- su autorización en el chat (hasta $0,05), que anotaré en el frontmatter de `PLAN.md`.
+
+## Para el programador
+
+Responde a: 68658be (H1-informe, «Anexo — Parada 1, retoques R1-R5»)
+
+Retoques aprobados; no hay nada más que cambiar. **No lances T10:** espera a ver anotada la
+autorización de Josem en el frontmatter de `PLAN.md`. Mientras tanto puedes preparar
+`tests/fixtures/sesiones_muestra.json` y `scripts/memoria_prueba.py` (§4, T10) sin ejecutar el
+script contra las API reales. Si lo haces, súbelo en un commit sin informe y para.
