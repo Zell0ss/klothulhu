@@ -145,3 +145,45 @@ Retoques aprobados; no hay nada más que cambiar. **No lances T10:** espera a ve
 autorización de Josem en el frontmatter de `PLAN.md`. Mientras tanto puedes preparar
 `tests/fixtures/sesiones_muestra.json` y `scripts/memoria_prueba.py` (§4, T10) sin ejecutar el
 script contra las API reales. Si lo haces, súbelo en un commit sin informe y para.
+
+## 5. Revisión de la parada 2: escritor real (2026-10-19)
+
+Responde a: 6495a4c (H1-informe, «Anexo — Parada 2, escritor real (T10)»)
+
+### Comprobado contra `capturas/escritor_real.json`, no contra el informe
+
+- `scripts/memoria_prueba.py` solo toca `klothulhu_test` / `klothulhu_memoria_test` (fijas en el
+  código), y las vacía al empezar. La captura no lleva claves.
+- **Gasto:** $0,000765 (Haiku $0,000764 y OpenAI $0,0000016), con tope de $0,05. Coincide. Una
+  precisión al informe: Josem lanzó la orden él mismo, en mi ventana. Lo anoté así en el plan
+  (9771048).
+- Las cuatro charlas hacen lo que fija el plan:
+  - la fecha relativa se resuelve bien (2026-10-22);
+  - el trámite da 0;
+  - la triste sale `sad` con importancia 5;
+  - la repetida da 0 con los previos delante.
+
+  Las cuatro, con `end_turn`; los dos recuerdos, indexados. D34 y D35 funcionan con los modelos reales.
+
+### Hallazgos, sin retoque
+
+1. **`smug` en el recuerdo del examen.** El texto dice «me importa», y la emoción no casa. Es una
+   muestra de uno, y para eso está la semana de uso (H3). Atribución: comportamiento del modelo.
+2. **Fecha de hoy para algo que pasó hoy** (el gato). No hace daño: en H2 solo entran los recuerdos
+   con la fecha del día, y ese día la charla ya habla de ello. No se cambia el prompt.
+3. **Pensamiento para devolver una lista vacía** (137 tokens en la 4). Cuesta $0,00007: no merece
+   tocar nada.
+4. **Adorno en la voz** («justo donde estoy yo»). Es la voz que queremos.
+
+### Veredicto
+
+**H1 aprobado.** Queda el despliegue, que hace Josem (plan §6), y su prueba L1-L3 en producción. El
+plan de H2 lo escribo yo después de ver los primeros recuerdos reales.
+
+## Para el programador
+
+Responde a: 6495a4c (H1-informe, «Anexo — Parada 2, escritor real (T10)»)
+
+H1 aprobado; no hay retoques ni código nuevo. Para aquí: el merge, la BD de producción y el reinicio
+son de Josem. H2 llegará como plan nuevo (`docs/fase7/PLAN.md` §7, completado), y te avisaré.
+Actualiza `tomorrow.md` con ese punto de parada.
