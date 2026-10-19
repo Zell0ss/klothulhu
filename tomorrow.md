@@ -1,13 +1,8 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H2: parada 1 entregada (H2-informe.md), T1-T7 hechas. T8 no se lanza: espera revisión y autorización.
-cerrados en `fase7` (último código: bb4cb04; anexo y captura de T10: 6495a4c). 79 pruebas pasan con
-`KLOTHULHU_TEST_DB=1`; 74 pasan y 5 se saltan sin ella. T10 real hecha por Josem ($0,00077). Nada más del programador.
+**Parada:** fase 7, H2: parada 1 aprobada y retoques R1-R2 aprobados (H2-revision §4, e2a9c7b). T8 (calibración) preparado y **sin lanzar**: espera la autorización de Josem y que la anote el arquitecto en `H2-encargo.md`.
 
-**Siguiente paso:** esperar el plan de H2 (`docs/fase7/PLAN.md` §7, completado por el arquitecto, que avisará). Antes de
-tocar código, mirar el buzón y leer ese plan. El merge `--ff-only` de `fase7` en `main`, `/etc/klothulhu/klothulhu.env`,
-`scripts/memoria.py crear` en producción, instalar la unidad y reiniciar `klothulhu-api`, y `vector.toml`, son de Josem
-(PLAN.md §6).
+**Siguiente paso:** cuando Josem lance `scripts/memoria_calibrar.py` (unos $0,003, tope $0,05, con las claves en su entorno), subir `docs/fase7/capturas/calibracion.json` y escribir el anexo de la parada 2 en `H2-informe.md` (distribución, umbral propuesto, aciertos del juez, latencias, repaso, coste por modelo y la autorización). El arquitecto fija `UMBRAL` en su revisión. Merge, `crear` en producción y reinicio son de Josem (H2-encargo §5).
 
 **Gotchas:**
 - `/data/klothulhu` sigue en `main`; la fase 6 (H2: V1-V4 de Josem) puede seguir sin mergear. `.venv` 3.12 propio en el
