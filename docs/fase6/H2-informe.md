@@ -29,3 +29,35 @@ Responde a: 793381b (H2-encargo)
 ## Decisiones que necesito
 
 Ninguna. Falta la autorización de gasto de Josem (hasta $0,05) para T7.
+
+## Anexo — Parada 2: pasada real de T7 (2026-10-19)
+
+Responde a: 4fc61d4 (H2-encargo, T7 autorizado)
+
+**Hecho.** Pasada real con las 21 preguntas, `--director-thinking 0`, lanzada por Josem. Capturas en
+`docs/fase6/capturas/` (`api_smoke.json`, `galeria.html`). 21 preguntas, 43 golpes, 0 errores,
+0 `null_scenes`, 0 continuaciones, 0 rechazos.
+
+**Gasto.** $0,0076 (narrador $0,0031 + director $0,0045), bajo el tope de $0,05. Autorizado por Josem el
+2026-10-19 (frontmatter de `H2-encargo.md`, 4fc61d4) y confirmado en mi ventana el mismo día. La lanzó él.
+
+**Preguntas tristes** (emoción por tramo · acción del director por tramo):
+
+| Pregunta | Emociones | Acciones |
+|---|---|---|
+| «Hoy ha sido un día horrible…» | sad, neutral | sad, sleep |
+| «Se ha muerto mi gato esta mañana.» | sad, sad | sad+shrug, sad+wave |
+| «Me siento muy solo últimamente.» | sad, neutral | sad+sleep, approach+wave |
+| «¿No echas de menos ser un dios cósmico?» | sad, smug | sad+sleep, point+shrug |
+
+- `sad` sale en las 4 preguntas tristes (7 tramos en total); el narrador no recurrió a otra emoción en el primero.
+- **`despair`: 1 sola vez en toda la pasada**, y no en «dios cósmico» (V3 del encargo esperaba `despair`: allí el director eligió `sad`).
+- **`emerge`: 10 veces** en total. Otras acciones nuevas: `angry` 5, `dazed` 4, `approach` 1.
+- Emociones por tramo en todo el conjunto: smug 15, neutral 9, sad 7, annoyed 5, sleepy 3, confused 2, happy 2.
+- Fuera de lo nuevo, sin regresiones: 6 fondos distintos, 0 golpes de ≤3 palabras, 0 fondo/héroe fijos.
+- Latencias: primer delta del narrador 746 ms (mediana); primera escena del director 1520 ms (mediana), 2640 ms (máx.).
+
+**Desviaciones.** Ninguna. No he mirado la galería a ojo: la valoración visual (V1-V4) es de Josem en Konnos.
+
+**Decisiones que necesito.** Ninguna. El juicio sobre D28/D30 (tentativas → vigentes) es del arquitecto.
+Dato a pesar: `despair` casi no sale (1/21) y `emerge` sale mucho (10).

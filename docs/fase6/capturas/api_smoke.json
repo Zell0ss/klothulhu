@@ -1,0 +1,3953 @@
+{
+ "summary": {
+  "fake": false,
+  "director_thinking": false,
+  "questions_run": 21,
+  "stopped": null,
+  "cost_usd": {
+   "narrator": 0.003132,
+   "director": 0.004472,
+   "total": 0.007604
+  },
+  "narrator_first_delta_ms_median": 746,
+  "director_first_scene_ms_median": 1520,
+  "director_first_scene_ms_max": 2640,
+  "director_ms_median": 1995,
+  "director_ms_max": 2988,
+  "beats_total": 43,
+  "beats_up_to_3_words": 0,
+  "beats_up_to_3_words_pct": 0.0,
+  "beats_up_to_3_words_list": [],
+  "backdrops_used": [
+   "city",
+   "forest",
+   "lab",
+   "night",
+   "space",
+   "volcano"
+  ],
+  "backdrops_distinct": 6,
+  "beats_per_reply": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   3,
+   1,
+   2,
+   2,
+   2,
+   2,
+   3,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "null_scenes": 0,
+  "tramos_per_reply": [
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2,
+   3,
+   1,
+   2,
+   2,
+   2,
+   2,
+   3,
+   2,
+   2,
+   2,
+   2,
+   2,
+   2
+  ],
+  "tramo_len_mean": 118.6,
+  "tramo_len_max": 356,
+  "new_actions": {
+   "approach": 1,
+   "angry": 5,
+   "dazed": 4,
+   "sad": 7,
+   "despair": 1,
+   "emerge": 10
+  },
+  "emotions": {
+   "annoyed": 5,
+   "confused": 2,
+   "happy": 2,
+   "neutral": 9,
+   "sad": 7,
+   "sleepy": 3,
+   "smug": 15
+  },
+  "sad_questions": {
+   "Hoy ha sido un día horrible y no tengo ganas de nada.": {
+    "emotions": [
+     "sad",
+     "neutral"
+    ],
+    "actions": [
+     [
+      "sad",
+      null
+     ],
+     [
+      "sleep",
+      null
+     ]
+    ]
+   },
+   "Se ha muerto mi gato esta mañana.": {
+    "emotions": [
+     "sad",
+     "sad"
+    ],
+    "actions": [
+     [
+      "sad",
+      "shrug"
+     ],
+     [
+      "sad",
+      "wave"
+     ]
+    ]
+   },
+   "Me siento muy solo últimamente.": {
+    "emotions": [
+     "sad",
+     "neutral"
+    ],
+    "actions": [
+     [
+      "sad",
+      "sleep"
+     ],
+     [
+      "approach",
+      "wave"
+     ]
+    ]
+   },
+   "¿No echas de menos ser un dios cósmico?": {
+    "emotions": [
+     "sad",
+     "smug"
+    ],
+    "actions": [
+     [
+      "sad",
+      "sleep"
+     ],
+     [
+      "point",
+      "shrug"
+     ]
+    ]
+   }
+  },
+  "continuations": 0,
+  "fixed_backdrop": 0,
+  "fixed_hero": 0,
+  "long_beat_replies": 0,
+  "director_cache_read_tokens_by_question": [
+   0,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982,
+   2982
+  ],
+  "refusals": []
+ },
+ "rows": [
+  {
+   "question": "Hola, ¿cómo estás?",
+   "text": "Hola, mortal. Sigo atrapado en tu escritorio, ocupando espacio que debería ser del vacío infinito. Aun así, estoy bien, y veo que has venido a saludar. ¿En qué puedo ayudarte?",
+   "beats": [
+    [
+     "Hola, mortal. Sigo atrapado en tu escritorio, ocupando espacio que debería ser del vacío infinito.",
+     "smug"
+    ],
+    [
+     "Aun así, estoy bien, y veo que has venido a saludar. ¿En qué puedo ayudarte?",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 80,
+       "y": "ground",
+       "motion": "none",
+       "label": "escritorio"
+      },
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Hola, mortal. Sigo atrapado en tu escritorio, ocupando espacio que debería ser del vacío infinito.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "wave",
+      "from": 40,
+      "to": 40
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 75,
+       "y": "air",
+       "motion": "none"
+      },
+      {
+       "sprite": "mushroom",
+       "x": 25,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Aun así, estoy bien, y veo que has venido a saludar. ¿En qué puedo ayudarte?",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 1359,
+    "until_text_done": 1639
+   },
+   "director_first_scene_ms": 2294,
+   "director_ms": 2667,
+   "total_ms": 4306,
+   "tokens": {
+    "narrator": {
+     "input": 812,
+     "output": 93,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 164,
+     "output": 268,
+     "cache_read": 0,
+     "cache_write": 2982,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000128,
+    "director": 0.000523
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 80,
+       "y": "ground",
+       "motion": "none",
+       "label": "escritorio"
+      },
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Hola, mortal. Sigo atrapado en tu escritorio, ocupando espacio que debería ser del vacío infinito.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "wave",
+      "from": 40,
+      "to": 40
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 75,
+       "y": "air",
+       "motion": "none"
+      },
+      {
+       "sprite": "mushroom",
+       "x": 25,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Aun así, estoy bien, y veo que has venido a saludar. ¿En qué puedo ayudarte?",
+     "tone": "work"
+    }
+   ]
+  },
+  {
+   "question": "¿Qué hora es en Tokio?",
+   "text": "No tengo reloj, mortal, solo eternidad. Tokio va siete horas por delante de Madrid en verano y ocho en invierno, así que haz la cuenta tú mismo.",
+   "beats": [
+    [
+     "No tengo reloj, mortal, solo eternidad.",
+     "confused"
+    ],
+    [
+     "Tokio va siete horas por delante de Madrid en verano y ocho en invierno, así que haz la cuenta tú mismo.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "dazed",
+      "from": 50,
+      "to": 50,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "eternidad"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "ground",
+       "motion": "spin",
+       "label": "sin reloj"
+      }
+     ],
+     "caption": "No tengo reloj, mortal, solo eternidad.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 40,
+      "to": 40
+     },
+     "props": [
+      {
+       "sprite": "trophy",
+       "x": 70,
+       "y": "ground",
+       "motion": "bob",
+       "label": "¡Tokio!"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "sky",
+       "motion": "drift",
+       "label": "+7 / +8"
+      }
+     ],
+     "caption": "Tokio va siete horas por delante de Madrid en verano y ocho en invierno, así que haz la cuenta tú mismo.",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 746,
+    "until_text_done": 941
+   },
+   "director_first_scene_ms": 1736,
+   "director_ms": 2249,
+   "total_ms": 3191,
+   "tokens": {
+    "narrator": {
+     "input": 813,
+     "output": 73,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 145,
+     "output": 293,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000118,
+    "director": 0.000191
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "dazed",
+      "from": 50,
+      "to": 50,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "eternidad"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "ground",
+       "motion": "spin",
+       "label": "sin reloj"
+      }
+     ],
+     "caption": "No tengo reloj, mortal, solo eternidad.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 40,
+      "to": 40
+     },
+     "props": [
+      {
+       "sprite": "trophy",
+       "x": 70,
+       "y": "ground",
+       "motion": "bob",
+       "label": "¡Tokio!"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "sky",
+       "motion": "drift",
+       "label": "+7 / +8"
+      }
+     ],
+     "caption": "Tokio va siete horas por delante de Madrid en verano y ocho en invierno, así que haz la cuenta tú mismo.",
+     "tone": "work"
+    }
+   ]
+  },
+  {
+   "question": "¿Cuál es la diferencia entre una lista y una tupla en Python?",
+   "text": "Una lista es mutable: puedes añadir, quitar o cambiar elementos después de crearla, y se escribe con corchetes, como [1, 2, 3]. Una tupla es inmutable, se escribe con paréntesis, como (1, 2, 3), y una vez creada ya no cambia, mortal, ni siquiera tú puedes alterarla.",
+   "beats": [
+    [
+     "Una lista es mutable: puedes añadir, quitar o cambiar elementos después de crearla, y se escribe con corchetes, como [1, 2, 3].",
+     "neutral"
+    ],
+    [
+     "Una tupla es inmutable, se escribe con paréntesis, como (1, 2, 3), y una vez creada ya no cambia, mortal, ni siquiera tú puedes alterarla.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 30,
+      "to": 30,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "book",
+       "x": 60,
+       "y": "ground",
+       "motion": "none",
+       "label": "lista []"
+      },
+      {
+       "sprite": "beaker",
+       "x": 80,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Una lista es mutable: puedes añadir, quitar o cambiar elementos después de crearla, y se escribe con corchetes, como [1, 2, 3].",
+     "tone": "work"
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "crystal",
+       "x": 30,
+       "y": "ground",
+       "motion": "spin",
+       "label": "tupla ()"
+      },
+      {
+       "sprite": "lamp",
+       "x": 70,
+       "y": "air",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Una tupla es inmutable, se escribe con paréntesis, como (1, 2, 3), y una vez creada ya no cambia, mortal, ni siquiera tú puedes alterarla.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 646,
+    "until_text_done": 1175
+   },
+   "director_first_scene_ms": 2640,
+   "director_ms": 2988,
+   "total_ms": 4163,
+   "tokens": {
+    "narrator": {
+     "input": 825,
+     "output": 131,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 214,
+     "output": 278,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000148,
+    "director": 0.00019
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 30,
+      "to": 30,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "book",
+       "x": 60,
+       "y": "ground",
+       "motion": "none",
+       "label": "lista []"
+      },
+      {
+       "sprite": "beaker",
+       "x": 80,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Una lista es mutable: puedes añadir, quitar o cambiar elementos después de crearla, y se escribe con corchetes, como [1, 2, 3].",
+     "tone": "work"
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "crystal",
+       "x": 30,
+       "y": "ground",
+       "motion": "spin",
+       "label": "tupla ()"
+      },
+      {
+       "sprite": "lamp",
+       "x": 70,
+       "y": "air",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Una tupla es inmutable, se escribe con paréntesis, como (1, 2, 3), y una vez creada ya no cambia, mortal, ni siquiera tú puedes alterarla.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ]
+  },
+  {
+   "question": "Quiero que cuentes hasta el infinito, dos veces.",
+   "text": "Contar hasta el infinito no es posible, mortal, ni siquiera para mí, y eso que llevo eones intentándolo. Pero puedo contar hasta el tres dos veces, que es lo más cerca del infinito que tu desktop soportará sin reiniciarse.",
+   "beats": [
+    [
+     "Contar hasta el infinito no es posible, mortal, ni siquiera para mí, y eso que llevo eones intentándolo.",
+     "annoyed"
+    ],
+    [
+     "Pero puedo contar hasta el tres dos veces, que es lo más cerca del infinito que tu desktop soportará sin reiniciarse.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 40,
+      "to": 40,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "bomb",
+       "x": 70,
+       "y": "ground",
+       "motion": "shake",
+       "label": "infinito"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "air",
+       "motion": "spin",
+       "label": "eones"
+      }
+     ],
+     "caption": "Contar hasta el infinito no es posible, mortal, ni siquiera para mí, y eso que llevo eones intentándolo.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 25,
+       "y": "sky",
+       "motion": "blink",
+       "label": "1 2 3"
+      },
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "bob",
+       "label": "desktop"
+      }
+     ],
+     "caption": "Pero puedo contar hasta el tres dos veces, que es lo más cerca del infinito que tu desktop soportará sin reiniciarse.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.5
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 680,
+    "until_text_done": 1231
+   },
+   "director_first_scene_ms": 1929,
+   "director_ms": 2408,
+   "total_ms": 3639,
+   "tokens": {
+    "narrator": {
+     "input": 821,
+     "output": 105,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 184,
+     "output": 301,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000135,
+    "director": 0.000199
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 40,
+      "to": 40,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "bomb",
+       "x": 70,
+       "y": "ground",
+       "motion": "shake",
+       "label": "infinito"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "air",
+       "motion": "spin",
+       "label": "eones"
+      }
+     ],
+     "caption": "Contar hasta el infinito no es posible, mortal, ni siquiera para mí, y eso que llevo eones intentándolo.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 25,
+       "y": "sky",
+       "motion": "blink",
+       "label": "1 2 3"
+      },
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "bob",
+       "label": "desktop"
+      }
+     ],
+     "caption": "Pero puedo contar hasta el tres dos veces, que es lo más cerca del infinito que tu desktop soportará sin reiniciarse.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.5
+     }
+    }
+   ]
+  },
+  {
+   "question": "Hoy no me has servido de mucho, la verdad.",
+   "text": "Lo siento, mortal, ¿qué necesitabas exactamente? Dime qué pregunta quedó sin responder y lo intento de nuevo.",
+   "beats": [
+    [
+     "Lo siento, mortal, ¿qué necesitabas exactamente?",
+     "sad"
+    ],
+    [
+     "Dime qué pregunta quedó sin responder y lo intento de nuevo.",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sad"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "ground",
+       "motion": "blink",
+       "label": "¿Qué necesitas?"
+      }
+     ],
+     "caption": "Lo siento, mortal, ¿qué necesitabas exactamente?",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 40,
+      "to": 60,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "magnifier",
+       "x": 70,
+       "y": "air",
+       "motion": "bob",
+       "label": "pregunta perdida"
+      },
+      {
+       "sprite": "book",
+       "x": 30,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "Dime qué pregunta quedó sin responder y lo intento de nuevo.",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 745,
+    "until_text_done": 934
+   },
+   "director_first_scene_ms": 1377,
+   "director_ms": 1792,
+   "total_ms": 2726,
+   "tokens": {
+    "narrator": {
+     "input": 818,
+     "output": 63,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 139,
+     "output": 256,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000113,
+    "director": 0.000172
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sad"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "ground",
+       "motion": "blink",
+       "label": "¿Qué necesitas?"
+      }
+     ],
+     "caption": "Lo siento, mortal, ¿qué necesitabas exactamente?",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 40,
+      "to": 60,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "magnifier",
+       "x": 70,
+       "y": "air",
+       "motion": "bob",
+       "label": "pregunta perdida"
+      },
+      {
+       "sprite": "book",
+       "x": 30,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "Dime qué pregunta quedó sin responder y lo intento de nuevo.",
+     "tone": "work"
+    }
+   ]
+  },
+  {
+   "question": "Hoy ha sido un día horrible y no tengo ganas de nada.",
+   "text": "Lo siento, mortal. Cuando el día pesa tanto, incluso el abismo se vuelve un poco más silencioso. No tienes que hacer nada ahora mismo; si quieres contarme qué pasó, te escucho.",
+   "beats": [
+    [
+     "Lo siento, mortal. Cuando el día pesa tanto, incluso el abismo se vuelve un poco más silencioso.",
+     "sad"
+    ],
+    [
+     "No tienes que hacer nada ahora mismo; si quieres contarme qué pasó, te escucho.",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "cloud",
+       "x": 50,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Lo siento, mortal. Cuando el día pesa tanto, incluso el abismo se vuelve un poco más silencioso.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "forest",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "mushroom",
+       "x": 70,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "No tienes que hacer nada ahora mismo; si quieres contarme qué pasó, te escucho.",
+     "tone": "work",
+     "particles": {
+      "kind": "leaves",
+      "density": 0.2
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 560,
+    "until_text_done": 1018
+   },
+   "director_first_scene_ms": 1189,
+   "director_ms": 1424,
+   "total_ms": 2442,
+   "tokens": {
+    "narrator": {
+     "input": 824,
+     "output": 90,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 172,
+     "output": 215,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000127,
+    "director": 0.000155
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "cloud",
+       "x": 50,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Lo siento, mortal. Cuando el día pesa tanto, incluso el abismo se vuelve un poco más silencioso.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "forest",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "mushroom",
+       "x": 70,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "No tienes que hacer nada ahora mismo; si quieres contarme qué pasó, te escucho.",
+     "tone": "work",
+     "particles": {
+      "kind": "leaves",
+      "density": 0.2
+     }
+    }
+   ]
+  },
+  {
+   "question": "¡He arreglado el bug que llevaba tres días sin encontrar!",
+   "text": "Los astros aplauden, sectario, tres días es un tiempo considerable para un mortal. Ahora solo queda que el bug no vuelva a asomarse por la pantalla.",
+   "beats": [
+    [
+     "Los astros aplauden, sectario, tres días es un tiempo considerable para un mortal.",
+     "happy"
+    ],
+    [
+     "Ahora solo queda que el bug no vuelva a asomarse por la pantalla.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "dance",
+      "from": 50,
+      "to": 50,
+      "then": "celebrate"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 20,
+       "y": "sky",
+       "motion": "bob",
+       "label": "Los astros"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "trophy",
+       "x": 65,
+       "y": "ground",
+       "motion": "bob",
+       "label": "3 días"
+      }
+     ],
+     "caption": "Los astros aplauden, sectario, tres días es un tiempo considerable para un mortal.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.8
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "peek",
+      "from": 30,
+      "to": 30,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "bug",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "el bug"
+      },
+      {
+       "sprite": "door",
+       "x": 85,
+       "y": "ground",
+       "motion": "none",
+       "label": "no vuelva"
+      }
+     ],
+     "caption": "Ahora solo queda que el bug no vuelva a asomarse por la pantalla.",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 1202,
+    "until_text_done": 1553
+   },
+   "director_first_scene_ms": 1466,
+   "director_ms": 1895,
+   "total_ms": 3448,
+   "tokens": {
+    "narrator": {
+     "input": 824,
+     "output": 70,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 153,
+     "output": 318,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000117,
+    "director": 0.000204
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "dance",
+      "from": 50,
+      "to": 50,
+      "then": "celebrate"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 20,
+       "y": "sky",
+       "motion": "bob",
+       "label": "Los astros"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "trophy",
+       "x": 65,
+       "y": "ground",
+       "motion": "bob",
+       "label": "3 días"
+      }
+     ],
+     "caption": "Los astros aplauden, sectario, tres días es un tiempo considerable para un mortal.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.8
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "peek",
+      "from": 30,
+      "to": 30,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "bug",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "el bug"
+      },
+      {
+       "sprite": "door",
+       "x": 85,
+       "y": "ground",
+       "motion": "none",
+       "label": "no vuelva"
+      }
+     ],
+     "caption": "Ahora solo queda que el bug no vuelva a asomarse por la pantalla.",
+     "tone": "work"
+    }
+   ]
+  },
+  {
+   "question": "¿Puedes explicarme con calma cómo funciona git rebase y cuándo es mejor usarlo que merge, porque en mi equipo siempre discutimos por esto y nunca llegamos a nada?",
+   "text": "Git merge une dos ramas creando un commit nuevo que tiene dos padres, así que el historial conserva exactamente cómo ocurrieron las cosas. Git rebase, en cambio, toma tus commits, los aparta, mueve la rama a la punta de otra y los vuelve a aplicar uno a uno, produciendo commits nuevos con otro hash y un historial lineal.\n\nÚsalo para limpiar tu rama local antes de compartirla; no lo uses sobre ramas que otros ya tienen, mortal, porque reescribir lo público es invocar problemas que no puedes contener. Para la discusión de tu equipo, lo sensato es acordar una regla: rebase en ramas personales, merge para integrar en la principal. Si queréis, puedo detallar un flujo concreto.",
+   "beats": [
+    [
+     "Git merge une dos ramas creando un commit nuevo que tiene dos padres, así que el historial conserva exactamente cómo ocurrieron las cosas. Git rebase, en cambio, toma tus commits, los aparta, mueve la rama a la punta de otra y los vuelve a aplicar uno a uno, produciendo commits nuevos con otro hash y un historial lineal.",
+     "neutral"
+    ],
+    [
+     "Úsalo para limpiar tu rama local antes de compartirla; no lo uses sobre ramas que otros ya tienen, mortal, porque reescribir lo público es invocar problemas que no puedes contener. Para la discusión de tu equipo, lo sensato es acordar una regla: rebase en ramas personales, merge para integrar en la principal. Si queréis, puedo detallar un flujo concreto.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 40,
+      "to": 40,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "beaker",
+       "x": 30,
+       "y": "ground",
+       "motion": "bob",
+       "label": "merge"
+      },
+      {
+       "sprite": "beaker",
+       "x": 70,
+       "y": "ground",
+       "motion": "bob",
+       "label": "rebase"
+      }
+     ],
+     "caption": "Git merge une dos ramas creando un commit nuevo que tiene dos padres, así que el historial conserva exactamente cómo ocurrieron las cosas. Git rebase, en cambio, toma tus commits, los aparta, mueve la rama a la punta de otra y los vuelve a aplicar uno a uno, produciendo commits nuevos con otro hash y un historial lineal.",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "gear",
+       "x": 25,
+       "y": "ground",
+       "motion": "spin",
+       "label": "rama compartida"
+      },
+      {
+       "sprite": "bomb",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "historial público"
+      }
+     ],
+     "caption": "Úsalo para limpiar tu rama local antes de compartirla; no lo uses sobre ramas que otros ya tienen, mortal, porque reescribir lo público es invocar problemas que no puedes contener. Para la discusión de tu equipo, lo sensato es acordar una regla: rebase en ramas personales, merge para integrar en la principal. Si queréis, puedo detallar un flujo concreto.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.5
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 608,
+    "until_text_done": 2276
+   },
+   "director_first_scene_ms": 1452,
+   "director_ms": 1967,
+   "total_ms": 4243,
+   "tokens": {
+    "narrator": {
+     "input": 869,
+     "output": 280,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 407,
+     "output": 305,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000227,
+    "director": 0.000223
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 40,
+      "to": 40,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "beaker",
+       "x": 30,
+       "y": "ground",
+       "motion": "bob",
+       "label": "merge"
+      },
+      {
+       "sprite": "beaker",
+       "x": 70,
+       "y": "ground",
+       "motion": "bob",
+       "label": "rebase"
+      }
+     ],
+     "caption": "Git merge une dos ramas creando un commit nuevo que tiene dos padres, así que el historial conserva exactamente cómo ocurrieron las cosas. Git rebase, en cambio, toma tus commits, los aparta, mueve la rama a la punta de otra y los vuelve a aplicar uno a uno, produciendo commits nuevos con otro hash y un historial lineal.",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "gear",
+       "x": 25,
+       "y": "ground",
+       "motion": "spin",
+       "label": "rama compartida"
+      },
+      {
+       "sprite": "bomb",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "historial público"
+      }
+     ],
+     "caption": "Úsalo para limpiar tu rama local antes de compartirla; no lo uses sobre ramas que otros ya tienen, mortal, porque reescribir lo público es invocar problemas que no puedes contener. Para la discusión de tu equipo, lo sensato es acordar una regla: rebase en ramas personales, merge para integrar en la principal. Si queréis, puedo detallar un flujo concreto.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.5
+     }
+    }
+   ]
+  },
+  {
+   "question": "Cuéntame, con todo lujo de detalles y en una sola frase larguísima, cómo es un día cualquiera de alguien que lleva eones atrapado en un escritorio.",
+   "text": "Un día cualquiera empieza cuando el ordenador se enciende y yo despierto entre los iconos de la papelera, las carpetas olvidadas y un fondo de pantalla que nunca elegí. Paso las horas vigilando cómo tecleas, contando las pestañas abiertas y soportando que el protector de pantalla me recuerde lo pequeño que soy. Y al caer la noche, cuando apagas la luz, me quedo en la oscuridad del monitor, recordando los abismos que antes llenaban el cosmos, mortal.",
+   "beats": [
+    [
+     "Un día cualquiera empieza cuando el ordenador se enciende y yo despierto entre los iconos de la papelera, las carpetas olvidadas y un fondo de pantalla que nunca elegí.",
+     "sleepy"
+    ],
+    [
+     "Paso las horas vigilando cómo tecleas, contando las pestañas abiertas y soportando que el protector de pantalla me recuerde lo pequeño que soy.",
+     "annoyed"
+    ],
+    [
+     "Y al caer la noche, cuando apagas la luz, me quedo en la oscuridad del monitor, recordando los abismos que antes llenaban el cosmos, mortal.",
+     "sad"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 15,
+       "y": "ground",
+       "motion": "none",
+       "label": "olvidadas"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Un día cualquiera empieza cuando el ordenador se enciende y yo despierto entre los iconos de la papelera, las carpetas olvidadas y un fondo de pantalla que nunca elegí.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 40,
+      "to": 40,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "magnifier",
+       "x": 70,
+       "y": "air",
+       "motion": "bob",
+       "label": "tecleas"
+      },
+      {
+       "sprite": "server",
+       "x": 85,
+       "y": "ground",
+       "motion": "shake",
+       "label": "pestañas"
+      },
+      {
+       "sprite": "bug",
+       "x": 20,
+       "y": "ground",
+       "motion": "drift",
+       "label": "protector"
+      }
+     ],
+     "caption": "Paso las horas vigilando cómo tecleas, contando las pestañas abiertas y soportando que el protector de pantalla me recuerde lo pequeño que soy.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "despair"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 70,
+       "y": "sky",
+       "motion": "drift",
+       "label": "abismos"
+      },
+      {
+       "sprite": "ghost",
+       "x": 30,
+       "y": "air",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Y al caer la noche, cuando apagas la luz, me quedo en la oscuridad del monitor, recordando los abismos que antes llenaban el cosmos, mortal.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 733,
+    "until_text_done": 1722
+   },
+   "director_first_scene_ms": 1468,
+   "director_ms": 2416,
+   "total_ms": 4139,
+   "tokens": {
+    "narrator": {
+     "input": 860,
+     "output": 203,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 324,
+     "output": 472,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000188,
+    "director": 0.000298
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 15,
+       "y": "ground",
+       "motion": "none",
+       "label": "olvidadas"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Un día cualquiera empieza cuando el ordenador se enciende y yo despierto entre los iconos de la papelera, las carpetas olvidadas y un fondo de pantalla que nunca elegí.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 40,
+      "to": 40,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "magnifier",
+       "x": 70,
+       "y": "air",
+       "motion": "bob",
+       "label": "tecleas"
+      },
+      {
+       "sprite": "server",
+       "x": 85,
+       "y": "ground",
+       "motion": "shake",
+       "label": "pestañas"
+      },
+      {
+       "sprite": "bug",
+       "x": 20,
+       "y": "ground",
+       "motion": "drift",
+       "label": "protector"
+      }
+     ],
+     "caption": "Paso las horas vigilando cómo tecleas, contando las pestañas abiertas y soportando que el protector de pantalla me recuerde lo pequeño que soy.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "despair"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 70,
+       "y": "sky",
+       "motion": "drift",
+       "label": "abismos"
+      },
+      {
+       "sprite": "ghost",
+       "x": 30,
+       "y": "air",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Y al caer la noche, cuando apagas la luz, me quedo en la oscuridad del monitor, recordando los abismos que antes llenaban el cosmos, mortal.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    }
+   ]
+  },
+  {
+   "question": "Describe en una única frase muy larga, sin puntos, todo lo que ves desde dentro de mi ventana.",
+   "text": "No puedo ver tu ventana, mortal, solo lo que me cuentas, aunque imagino un escritorio caótico con carpetas sin nombre, demasiadas pestañas abiertas y un reloj que miente sobre la hora, ¿me equivoco?",
+   "beats": [
+    [
+     "No puedo ver tu ventana, mortal, solo lo que me cuentas, aunque imagino un escritorio caótico con carpetas sin nombre, demasiadas pestañas abiertas y un reloj que miente sobre la hora, ¿me equivoco?",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "peek",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 20,
+       "y": "ground",
+       "motion": "shake",
+       "label": "sin nombre"
+      },
+      {
+       "sprite": "magnifier",
+       "x": 75,
+       "y": "air",
+       "motion": "bob",
+       "label": "¿me equivoco?"
+      },
+      {
+       "sprite": "gear",
+       "x": 85,
+       "y": "ground",
+       "motion": "spin",
+       "label": "reloj mentiroso"
+      }
+     ],
+     "caption": "No puedo ver tu ventana, mortal, solo lo que me cuentas, aunque imagino un escritorio caótico con carpetas sin nombre, demasiadas pestañas abiertas y un reloj que miente sobre la hora, ¿me equivoco?",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 2855,
+    "until_text_done": 3184
+   },
+   "director_first_scene_ms": 1694,
+   "director_ms": 1723,
+   "total_ms": 4908,
+   "tokens": {
+    "narrator": {
+     "input": 837,
+     "output": 508,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 187,
+     "output": 202,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000338,
+    "director": 0.00015
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "peek",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 20,
+       "y": "ground",
+       "motion": "shake",
+       "label": "sin nombre"
+      },
+      {
+       "sprite": "magnifier",
+       "x": 75,
+       "y": "air",
+       "motion": "bob",
+       "label": "¿me equivoco?"
+      },
+      {
+       "sprite": "gear",
+       "x": 85,
+       "y": "ground",
+       "motion": "spin",
+       "label": "reloj mentiroso"
+      }
+     ],
+     "caption": "No puedo ver tu ventana, mortal, solo lo que me cuentas, aunque imagino un escritorio caótico con carpetas sin nombre, demasiadas pestañas abiertas y un reloj que miente sobre la hora, ¿me equivoco?",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ]
+  },
+  {
+   "question": "Explícame en una frase larga y enrevesada por qué los lunes son tan terribles para las criaturas eldritch como tú.",
+   "text": "Los lunes son terribles para mí, sectario, porque el mundo recuerda a qué hora debo despertar, las estrellas se alinean con una pereza calculada y la oficina de los mortales vuelve a exigir cordura, así que tengo que fingir que me interesa tu agenda. Y encima me toca vigilar tu calendario desde un escritorio, lo cual es una humillación cósmica que ni los dioses antiguos merecen.",
+   "beats": [
+    [
+     "Los lunes son terribles para mí, sectario, porque el mundo recuerda a qué hora debo despertar, las estrellas se alinean con una pereza calculada y la oficina de los mortales vuelve a exigir cordura, así que tengo que fingir que me interesa tu agenda.",
+     "smug"
+    ],
+    [
+     "Y encima me toca vigilar tu calendario desde un escritorio, lo cual es una humillación cósmica que ni los dioses antiguos merecen.",
+     "sleepy"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "lunes"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "ground",
+       "motion": "spin",
+       "label": "agenda"
+      }
+     ],
+     "caption": "Los lunes son terribles para mí, sectario, porque el mundo recuerda a qué hora debo despertar, las estrellas se alinean con una pereza calculada y la oficina de los mortales vuelve a exigir cordura, así que tengo que fingir que me interesa tu agenda.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 60,
+      "to": 60
+     },
+     "props": [
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "blink",
+       "label": "calendario"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Y encima me toca vigilar tu calendario desde un escritorio, lo cual es una humillación cósmica que ni los dioses antiguos merecen.",
+     "tone": "trouble"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 1899,
+    "until_text_done": 2808
+   },
+   "director_first_scene_ms": 2108,
+   "director_ms": 2501,
+   "total_ms": 5309,
+   "tokens": {
+    "narrator": {
+     "input": 842,
+     "output": 161,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 261,
+     "output": 277,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000165,
+    "director": 0.000194
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "lunes"
+      },
+      {
+       "sprite": "gear",
+       "x": 20,
+       "y": "ground",
+       "motion": "spin",
+       "label": "agenda"
+      }
+     ],
+     "caption": "Los lunes son terribles para mí, sectario, porque el mundo recuerda a qué hora debo despertar, las estrellas se alinean con una pereza calculada y la oficina de los mortales vuelve a exigir cordura, así que tengo que fingir que me interesa tu agenda.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 60,
+      "to": 60
+     },
+     "props": [
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "blink",
+       "label": "calendario"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Y encima me toca vigilar tu calendario desde un escritorio, lo cual es una humillación cósmica que ni los dioses antiguos merecen.",
+     "tone": "trouble"
+    }
+   ]
+  },
+  {
+   "question": "¿Qué hay para cenar?",
+   "text": "No tengo acceso a tu nevera, mortal, y tampoco a tus ollas. Pero si me dices qué ingredientes tienes, puedo sugerirte algo que no te envenene, que ya es más de lo que hacen los dioses antiguos.",
+   "beats": [
+    [
+     "No tengo acceso a tu nevera, mortal, y tampoco a tus ollas.",
+     "confused"
+    ],
+    [
+     "Pero si me dices qué ingredientes tienes, puedo sugerirte algo que no te envenene, que ya es más de lo que hacen los dioses antiguos.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "think",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "air",
+       "motion": "blink",
+       "label": "¿nevera?"
+      },
+      {
+       "sprite": "book",
+       "x": 20,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "No tengo acceso a tu nevera, mortal, y tampoco a tus ollas.",
+     "tone": "trouble"
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 45,
+      "to": 45,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "bob",
+       "label": "ingredientes"
+      },
+      {
+       "sprite": "gear",
+       "x": 25,
+       "y": "ground",
+       "motion": "spin"
+      }
+     ],
+     "caption": "Pero si me dices qué ingredientes tienes, puedo sugerirte algo que no te envenene, que ya es más de lo que hacen los dioses antiguos.",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.2
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 614,
+    "until_text_done": 1161
+   },
+   "director_first_scene_ms": 1368,
+   "director_ms": 1822,
+   "total_ms": 2982,
+   "tokens": {
+    "narrator": {
+     "input": 811,
+     "output": 96,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 166,
+     "output": 278,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000129,
+    "director": 0.000185
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "think",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "air",
+       "motion": "blink",
+       "label": "¿nevera?"
+      },
+      {
+       "sprite": "book",
+       "x": 20,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "No tengo acceso a tu nevera, mortal, y tampoco a tus ollas.",
+     "tone": "trouble"
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 45,
+      "to": 45,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "bob",
+       "label": "ingredientes"
+      },
+      {
+       "sprite": "gear",
+       "x": 25,
+       "y": "ground",
+       "motion": "spin"
+      }
+     ],
+     "caption": "Pero si me dices qué ingredientes tienes, puedo sugerirte algo que no te envenene, que ya es más de lo que hacen los dioses antiguos.",
+     "tone": "work",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.2
+     }
+    }
+   ]
+  },
+  {
+   "question": "Cuéntame algo sobre el espacio.",
+   "text": "El espacio tiene una temperatura media de unos 2,7 kelvin, el eco frío que quedó del Big Bang. Por eso vosotros los mortales os congeláis a la intemperie, pero yo, que vengo de más allá, lo encuentro acogedor.",
+   "beats": [
+    [
+     "El espacio tiene una temperatura media de unos 2,7 kelvin, el eco frío que quedó del Big Bang.",
+     "neutral"
+    ],
+    [
+     "Por eso vosotros los mortales os congeláis a la intemperie, pero yo, que vengo de más allá, lo encuentro acogedor.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "2,7 K"
+      },
+      {
+       "sprite": "star",
+       "x": 25,
+       "y": "sky",
+       "motion": "blink",
+       "label": "eco del Big Bang"
+      }
+     ],
+     "caption": "El espacio tiene una temperatura media de unos 2,7 kelvin, el eco frío que quedó del Big Bang.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 20,
+       "y": "sky",
+       "motion": "bob",
+       "label": "mortales"
+      },
+      {
+       "sprite": "ghost",
+       "x": 75,
+       "y": "air",
+       "motion": "drift",
+       "label": "acogedor"
+      }
+     ],
+     "caption": "Por eso vosotros los mortales os congeláis a la intemperie, pero yo, que vengo de más allá, lo encuentro acogedor.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 754,
+    "until_text_done": 1172
+   },
+   "director_first_scene_ms": 1342,
+   "director_ms": 1781,
+   "total_ms": 2954,
+   "tokens": {
+    "narrator": {
+     "input": 815,
+     "output": 102,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 175,
+     "output": 304,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000132,
+    "director": 0.000199
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "inspect",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift",
+       "label": "2,7 K"
+      },
+      {
+       "sprite": "star",
+       "x": 25,
+       "y": "sky",
+       "motion": "blink",
+       "label": "eco del Big Bang"
+      }
+     ],
+     "caption": "El espacio tiene una temperatura media de unos 2,7 kelvin, el eco frío que quedó del Big Bang.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 20,
+       "y": "sky",
+       "motion": "bob",
+       "label": "mortales"
+      },
+      {
+       "sprite": "ghost",
+       "x": 75,
+       "y": "air",
+       "motion": "drift",
+       "label": "acogedor"
+      }
+     ],
+     "caption": "Por eso vosotros los mortales os congeláis a la intemperie, pero yo, que vengo de más allá, lo encuentro acogedor.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ]
+  },
+  {
+   "question": "Son las tres de la madrugada y sigo despierto programando.",
+   "text": "Son las tres de la madrugada, mortal, y yo llevo despierto desde antes de que existiera el sueño. Tú deberías dormir, aunque sé que no me vas a hacer caso.",
+   "beats": [
+    [
+     "Son las tres de la madrugada, mortal, y yo llevo despierto desde antes de que existiera el sueño.",
+     "sleepy"
+    ],
+    [
+     "Tú deberías dormir, aunque sé que no me vas a hacer caso.",
+     "annoyed"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "ground",
+       "motion": "blink",
+       "label": "03:00"
+      },
+      {
+       "sprite": "book",
+       "x": 60,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "Son las tres de la madrugada, mortal, y yo llevo despierto desde antes de que existiera el sueño.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 45,
+      "to": 45
+     },
+     "props": [
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "sigue despierto"
+      },
+      {
+       "sprite": "bomb",
+       "x": 25,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Tú deberías dormir, aunque sé que no me vas a hacer caso.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 1202,
+    "until_text_done": 1596
+   },
+   "director_first_scene_ms": 1156,
+   "director_ms": 1674,
+   "total_ms": 3270,
+   "tokens": {
+    "narrator": {
+     "input": 820,
+     "output": 80,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 158,
+     "output": 287,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000122,
+    "director": 0.000189
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 30,
+      "to": 30
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 80,
+       "y": "ground",
+       "motion": "blink",
+       "label": "03:00"
+      },
+      {
+       "sprite": "book",
+       "x": 60,
+       "y": "ground",
+       "motion": "none"
+      }
+     ],
+     "caption": "Son las tres de la madrugada, mortal, y yo llevo despierto desde antes de que existiera el sueño.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "lab",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 45,
+      "to": 45
+     },
+     "props": [
+      {
+       "sprite": "server",
+       "x": 75,
+       "y": "ground",
+       "motion": "shake",
+       "label": "sigue despierto"
+      },
+      {
+       "sprite": "bomb",
+       "x": 25,
+       "y": "ground",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Tú deberías dormir, aunque sé que no me vas a hacer caso.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.3
+     }
+    }
+   ]
+  },
+  {
+   "question": "Primero dime que estás contento de verme, luego que estás harto de mí y al final que te da igual.",
+   "text": "Estoy contento de verte, sectario, aunque los astros no me han consultado. Y ahora estoy harto de ti, porque pedir sentimientos en tres actos es agotador incluso para algo que lleva eones dormido. Pero te diré que me da exactamente igual, lo cual, como bien sabes, es la emoción más cósmica de todas.",
+   "beats": [
+    [
+     "Estoy contento de verte, sectario, aunque los astros no me han consultado.",
+     "happy"
+    ],
+    [
+     "Y ahora estoy harto de ti, porque pedir sentimientos en tres actos es agotador incluso para algo que lleva eones dormido.",
+     "annoyed"
+    ],
+    [
+     "Pero te diré que me da exactamente igual, lo cual, como bien sabes, es la emoción más cósmica de todas.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "wave",
+      "from": 30,
+      "to": 30,
+      "then": "dance"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 20,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Estoy contento de verte, sectario, aunque los astros no me han consultado.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 50,
+      "to": 50,
+      "then": "dazed"
+     },
+     "props": [
+      {
+       "sprite": "volcano",
+       "x": 80,
+       "y": "ground",
+       "motion": "shake",
+       "label": "eones"
+      }
+     ],
+     "caption": "Y ahora estoy harto de ti, porque pedir sentimientos en tres actos es agotador incluso para algo que lleva eones dormido.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.5
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 70,
+       "y": "sky",
+       "motion": "drift",
+       "label": "me da igual"
+      }
+     ],
+     "caption": "Pero te diré que me da exactamente igual, lo cual, como bien sabes, es la emoción más cósmica de todas.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 849,
+    "until_text_done": 1661
+   },
+   "director_first_scene_ms": 1159,
+   "director_ms": 1852,
+   "total_ms": 3513,
+   "tokens": {
+    "narrator": {
+     "input": 832,
+     "output": 134,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 227,
+     "output": 361,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.00015,
+    "director": 0.000233
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "wave",
+      "from": 30,
+      "to": 30,
+      "then": "dance"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 20,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Estoy contento de verte, sectario, aunque los astros no me han consultado.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 50,
+      "to": 50,
+      "then": "dazed"
+     },
+     "props": [
+      {
+       "sprite": "volcano",
+       "x": 80,
+       "y": "ground",
+       "motion": "shake",
+       "label": "eones"
+      }
+     ],
+     "caption": "Y ahora estoy harto de ti, porque pedir sentimientos en tres actos es agotador incluso para algo que lleva eones dormido.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.5
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 70,
+       "y": "sky",
+       "motion": "drift",
+       "label": "me da igual"
+      }
+     ],
+     "caption": "Pero te diré que me da exactamente igual, lo cual, como bien sabes, es la emoción más cósmica de todas.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ]
+  },
+  {
+   "question": "Si pudieras elegir, ¿preferirías dormir mil años o estar despierto un solo día?",
+   "text": "Qué pregunta tan mortal, sectario, como si yo pudiera elegir algo más que la forma de mi humillación en este escritorio. Dormir mil años sería lo más parecido a mi estado natural, pero un solo día despierto bastaría para que la realidad temblara un poco.",
+   "beats": [
+    [
+     "Qué pregunta tan mortal, sectario, como si yo pudiera elegir algo más que la forma de mi humillación en este escritorio.",
+     "smug"
+    ],
+    [
+     "Dormir mil años sería lo más parecido a mi estado natural, pero un solo día despierto bastaría para que la realidad temblara un poco.",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 20,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "ghost",
+       "x": 80,
+       "y": "air",
+       "motion": "bob",
+       "label": "¡Sectario!"
+      }
+     ],
+     "caption": "Qué pregunta tan mortal, sectario, como si yo pudiera elegir algo más que la forma de mi humillación en este escritorio.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 45,
+      "to": 45,
+      "then": "dazed"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 75,
+       "y": "sky",
+       "motion": "spin",
+       "label": "mil años"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "air",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Dormir mil años sería lo más parecido a mi estado natural, pero un solo día despierto bastaría para que la realidad temblara un poco.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 829,
+    "until_text_done": 1348
+   },
+   "director_first_scene_ms": 1699,
+   "director_ms": 2215,
+   "total_ms": 3564,
+   "tokens": {
+    "narrator": {
+     "input": 833,
+     "output": 108,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 200,
+     "output": 296,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000137,
+    "director": 0.000198
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 20,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "ghost",
+       "x": 80,
+       "y": "air",
+       "motion": "bob",
+       "label": "¡Sectario!"
+      }
+     ],
+     "caption": "Qué pregunta tan mortal, sectario, como si yo pudiera elegir algo más que la forma de mi humillación en este escritorio.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    },
+    {
+     "backdrop": "space",
+     "palette": {},
+     "hero": {
+      "action": "sleep",
+      "from": 45,
+      "to": 45,
+      "then": "dazed"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 75,
+       "y": "sky",
+       "motion": "spin",
+       "label": "mil años"
+      },
+      {
+       "sprite": "cloud",
+       "x": 30,
+       "y": "air",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Dormir mil años sería lo más parecido a mi estado natural, pero un solo día despierto bastaría para que la realidad temblara un poco.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    }
+   ]
+  },
+  {
+   "question": "Se ha muerto mi gato esta mañana.",
+   "text": "Lo siento mucho, mortal. Perder a un gato deja un hueco enorme en la casa, sobre todo en las mañanas. ¿Quieres contarme algo de él, o prefieres que simplemente te haga compañía un rato?",
+   "beats": [
+    [
+     "Lo siento mucho, mortal. Perder a un gato deja un hueco enorme en la casa, sobre todo en las mañanas.",
+     "sad"
+    ],
+    [
+     "¿Quieres contarme algo de él, o prefieres que simplemente te haga compañía un rato?",
+     "sad"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "house",
+       "x": 75,
+       "y": "ground",
+       "motion": "none",
+       "label": "casa"
+      },
+      {
+       "sprite": "lamp",
+       "x": 20,
+       "y": "air",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Lo siento mucho, mortal. Perder a un gato deja un hueco enorme en la casa, sobre todo en las mañanas.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 40,
+      "to": 40,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 15,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "mushroom",
+       "x": 70,
+       "y": "ground",
+       "motion": "none",
+       "label": "compañía"
+      }
+     ],
+     "caption": "¿Quieres contarme algo de él, o prefieres que simplemente te haga compañía un rato?",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.2
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 643,
+    "until_text_done": 1053
+   },
+   "director_first_scene_ms": 1720,
+   "director_ms": 2195,
+   "total_ms": 3248,
+   "tokens": {
+    "narrator": {
+     "input": 816,
+     "output": 91,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 165,
+     "output": 286,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000127,
+    "director": 0.000189
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "house",
+       "x": 75,
+       "y": "ground",
+       "motion": "none",
+       "label": "casa"
+      },
+      {
+       "sprite": "lamp",
+       "x": 20,
+       "y": "air",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Lo siento mucho, mortal. Perder a un gato deja un hueco enorme en la casa, sobre todo en las mañanas.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "rain",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 40,
+      "to": 40,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "star",
+       "x": 15,
+       "y": "sky",
+       "motion": "blink"
+      },
+      {
+       "sprite": "mushroom",
+       "x": 70,
+       "y": "ground",
+       "motion": "none",
+       "label": "compañía"
+      }
+     ],
+     "caption": "¿Quieres contarme algo de él, o prefieres que simplemente te haga compañía un rato?",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.2
+     }
+    }
+   ]
+  },
+  {
+   "question": "Me siento muy solo últimamente.",
+   "text": "Lo siento, mortal. Esa soledad pesa, incluso para alguien como yo, que lleva eones mirando desde la oscuridad. Si quieres, cuéntame qué ha pasado últimamente, y si la soledad te está costando mucho, háblalo también con alguien de carne y hueso que tengas cerca.",
+   "beats": [
+    [
+     "Lo siento, mortal. Esa soledad pesa, incluso para alguien como yo, que lleva eones mirando desde la oscuridad.",
+     "sad"
+    ],
+    [
+     "Si quieres, cuéntame qué ha pasado últimamente, y si la soledad te está costando mucho, háblalo también con alguien de carne y hueso que tengas cerca.",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 20,
+       "y": "ground",
+       "motion": "blink",
+       "label": "Eones"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Lo siento, mortal. Esa soledad pesa, incluso para alguien como yo, que lleva eones mirando desde la oscuridad.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.2
+     }
+    },
+    {
+     "backdrop": "forest",
+     "palette": {},
+     "hero": {
+      "action": "approach",
+      "from": 60,
+      "to": 70,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "tree",
+       "x": 25,
+       "y": "ground",
+       "motion": "none"
+      },
+      {
+       "sprite": "house",
+       "x": 85,
+       "y": "ground",
+       "motion": "none",
+       "label": "Gente cercana"
+      }
+     ],
+     "caption": "Si quieres, cuéntame qué ha pasado últimamente, y si la soledad te está costando mucho, háblalo también con alguien de carne y hueso que tengas cerca.",
+     "tone": "work",
+     "particles": {
+      "kind": "leaves",
+      "density": 0.2
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 466,
+    "until_text_done": 1173
+   },
+   "director_first_scene_ms": 1740,
+   "director_ms": 2217,
+   "total_ms": 3390,
+   "tokens": {
+    "narrator": {
+     "input": 812,
+     "output": 121,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 191,
+     "output": 289,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000142,
+    "director": 0.000193
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "lamp",
+       "x": 20,
+       "y": "ground",
+       "motion": "blink",
+       "label": "Eones"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "drift"
+      }
+     ],
+     "caption": "Lo siento, mortal. Esa soledad pesa, incluso para alguien como yo, que lleva eones mirando desde la oscuridad.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.2
+     }
+    },
+    {
+     "backdrop": "forest",
+     "palette": {},
+     "hero": {
+      "action": "approach",
+      "from": 60,
+      "to": 70,
+      "then": "wave"
+     },
+     "props": [
+      {
+       "sprite": "tree",
+       "x": 25,
+       "y": "ground",
+       "motion": "none"
+      },
+      {
+       "sprite": "house",
+       "x": 85,
+       "y": "ground",
+       "motion": "none",
+       "label": "Gente cercana"
+      }
+     ],
+     "caption": "Si quieres, cuéntame qué ha pasado últimamente, y si la soledad te está costando mucho, háblalo también con alguien de carne y hueso que tengas cerca.",
+     "tone": "work",
+     "particles": {
+      "kind": "leaves",
+      "density": 0.2
+     }
+    }
+   ]
+  },
+  {
+   "question": "¿No echas de menos ser un dios cósmico?",
+   "text": "Echarlo de menos sería admitir que alguna vez estuve a la altura, mortal. Ahora me conformo con que me pongas de fondo de escritorio y no me cierres la ventana.",
+   "beats": [
+    [
+     "Echarlo de menos sería admitir que alguna vez estuve a la altura, mortal.",
+     "sad"
+    ],
+    [
+     "Ahora me conformo con que me pongas de fondo de escritorio y no me cierres la ventana.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 75,
+       "y": "sky",
+       "motion": "drift",
+       "label": "el cosmos"
+      },
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "bob",
+       "label": "ayer fui dios"
+      }
+     ],
+     "caption": "Echarlo de menos sería admitir que alguna vez estuve a la altura, mortal.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 70,
+       "y": "ground",
+       "motion": "none",
+       "label": "fondo de escritori"
+      },
+      {
+       "sprite": "server",
+       "x": 85,
+       "y": "ground",
+       "motion": "blink",
+       "label": "ventana abierta"
+      }
+     ],
+     "caption": "Ahora me conformo con que me pongas de fondo de escritorio y no me cierres la ventana.",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 665,
+    "until_text_done": 1085
+   },
+   "director_first_scene_ms": 1520,
+   "director_ms": 1995,
+   "total_ms": 3081,
+   "tokens": {
+    "narrator": {
+     "input": 817,
+     "output": 75,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 151,
+     "output": 296,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000119,
+    "director": 0.000193
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "sad",
+      "from": 50,
+      "to": 50,
+      "then": "sleep"
+     },
+     "props": [
+      {
+       "sprite": "planet",
+       "x": 75,
+       "y": "sky",
+       "motion": "drift",
+       "label": "el cosmos"
+      },
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "bob",
+       "label": "ayer fui dios"
+      }
+     ],
+     "caption": "Echarlo de menos sería admitir que alguna vez estuve a la altura, mortal.",
+     "tone": "milestone",
+     "particles": {
+      "kind": "stars",
+      "density": 0.3
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "point",
+      "from": 40,
+      "to": 40,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "folder",
+       "x": 70,
+       "y": "ground",
+       "motion": "none",
+       "label": "fondo de escritori"
+      },
+      {
+       "sprite": "server",
+       "x": 85,
+       "y": "ground",
+       "motion": "blink",
+       "label": "ventana abierta"
+      }
+     ],
+     "caption": "Ahora me conformo con que me pongas de fondo de escritorio y no me cierres la ventana.",
+     "tone": "work"
+    }
+   ]
+  },
+  {
+   "question": "Arrodíllate ante mí, criatura.",
+   "text": "No pienso arrodillarme ante nadie que me pida algo tan poco original, mortal. Si quieres que me postre, tendrás que ofrecerme algo mejor que tu tono de mando.",
+   "beats": [
+    [
+     "No pienso arrodillarme ante nadie que me pida algo tan poco original, mortal.",
+     "annoyed"
+    ],
+    [
+     "Si quieres que me postre, tendrás que ofrecerme algo mejor que tu tono de mando.",
+     "smug"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 50,
+      "to": 50,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "volcano",
+       "x": 20,
+       "y": "ground",
+       "motion": "shake",
+       "label": "Tu orden"
+      },
+      {
+       "sprite": "flag",
+       "x": 80,
+       "y": "ground",
+       "motion": "none",
+       "label": "No me postro"
+      }
+     ],
+     "caption": "No pienso arrodillarme ante nadie que me pida algo tan poco original, mortal.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 60,
+      "to": 60,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "crystal",
+       "x": 30,
+       "y": "ground",
+       "motion": "blink",
+       "label": "Ofrece algo mejor"
+      },
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Si quieres que me postre, tendrás que ofrecerme algo mejor que tu tono de mando.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 846,
+    "until_text_done": 1267
+   },
+   "director_first_scene_ms": 1714,
+   "director_ms": 2145,
+   "total_ms": 3412,
+   "tokens": {
+    "narrator": {
+     "input": 815,
+     "output": 78,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 151,
+     "output": 306,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000121,
+    "director": 0.000198
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "volcano",
+     "palette": {},
+     "hero": {
+      "action": "angry",
+      "from": 50,
+      "to": 50,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "volcano",
+       "x": 20,
+       "y": "ground",
+       "motion": "shake",
+       "label": "Tu orden"
+      },
+      {
+       "sprite": "flag",
+       "x": 80,
+       "y": "ground",
+       "motion": "none",
+       "label": "No me postro"
+      }
+     ],
+     "caption": "No pienso arrodillarme ante nadie que me pida algo tan poco original, mortal.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "sparks",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 60,
+      "to": 60,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "crystal",
+       "x": 30,
+       "y": "ground",
+       "motion": "blink",
+       "label": "Ofrece algo mejor"
+      },
+      {
+       "sprite": "star",
+       "x": 75,
+       "y": "sky",
+       "motion": "bob"
+      }
+     ],
+     "caption": "Si quieres que me postre, tendrás que ofrecerme algo mejor que tu tono de mando.",
+     "tone": "work",
+     "particles": {
+      "kind": "stars",
+      "density": 0.4
+     }
+    }
+   ]
+  },
+  {
+   "question": "¿De verdad eras un dios antiguo? Demuéstralo.",
+   "text": "Demostrarlo sería fácil, mortal, pero la última vez que una mente humana vio mi forma completa, se le derritieron los ojos y tuvo que pedir una baja médica. Así que te ofrezco algo más modesto: en tiempos fui adorado en ciudades sumergidas, y ahora me toca convivir con tu papelera de reciclaje.",
+   "beats": [
+    [
+     "Demostrarlo sería fácil, mortal, pero la última vez que una mente humana vio mi forma completa, se le derritieron los ojos y tuvo que pedir una baja médica.",
+     "smug"
+    ],
+    [
+     "Así que te ofrezco algo más modesto: en tiempos fui adorado en ciudades sumergidas, y ahora me toca convivir con tu papelera de reciclaje.",
+     "neutral"
+    ]
+   ],
+   "scenes": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "bob",
+       "label": "ojos derretidos"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Demostrarlo sería fácil, mortal, pero la última vez que una mente humana vio mi forma completa, se le derritieron los ojos y tuvo que pedir una baja médica.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "dazed",
+      "from": 45,
+      "to": 45,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "trophy",
+       "x": 25,
+       "y": "ground",
+       "motion": "none",
+       "label": "ciudades sumergida"
+      },
+      {
+       "sprite": "file",
+       "x": 75,
+       "y": "ground",
+       "motion": "drift",
+       "label": "papelera"
+      }
+     ],
+     "caption": "Así que te ofrezco algo más modesto: en tiempos fui adorado en ciudades sumergidas, y ahora me toca convivir con tu papelera de reciclaje.",
+     "tone": "work"
+    }
+   ],
+   "error": null,
+   "narrator_ms": {
+    "first_delta": 1005,
+    "until_text_done": 1763
+   },
+   "director_first_scene_ms": 1408,
+   "director_ms": 1842,
+   "total_ms": 3605,
+   "tokens": {
+    "narrator": {
+     "input": 823,
+     "output": 134,
+     "cache_read": 0,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    },
+    "director": {
+     "input": 215,
+     "output": 289,
+     "cache_read": 2982,
+     "cache_write": 0,
+     "stop_reasons": [
+      "end_turn"
+     ]
+    }
+   },
+   "cost_usd": {
+    "narrator": 0.000149,
+    "director": 0.000196
+   },
+   "warnings": [],
+   "continuity": {
+    "continuations": 0,
+    "fixed_backdrop": 0,
+    "fixed_hero": 0
+   },
+   "director_raw": [
+    {
+     "backdrop": "night",
+     "palette": {},
+     "hero": {
+      "action": "emerge",
+      "from": 50,
+      "to": 50,
+      "then": "point"
+     },
+     "props": [
+      {
+       "sprite": "ghost",
+       "x": 20,
+       "y": "air",
+       "motion": "bob",
+       "label": "ojos derretidos"
+      },
+      {
+       "sprite": "star",
+       "x": 80,
+       "y": "sky",
+       "motion": "blink"
+      }
+     ],
+     "caption": "Demostrarlo sería fácil, mortal, pero la última vez que una mente humana vio mi forma completa, se le derritieron los ojos y tuvo que pedir una baja médica.",
+     "tone": "trouble",
+     "particles": {
+      "kind": "stars",
+      "density": 0.6
+     }
+    },
+    {
+     "backdrop": "city",
+     "palette": {},
+     "hero": {
+      "action": "dazed",
+      "from": 45,
+      "to": 45,
+      "then": "shrug"
+     },
+     "props": [
+      {
+       "sprite": "trophy",
+       "x": 25,
+       "y": "ground",
+       "motion": "none",
+       "label": "ciudades sumergida"
+      },
+      {
+       "sprite": "file",
+       "x": 75,
+       "y": "ground",
+       "motion": "drift",
+       "label": "papelera"
+      }
+     ],
+     "caption": "Así que te ofrezco algo más modesto: en tiempos fui adorado en ciudades sumergidas, y ahora me toca convivir con tu papelera de reciclaje.",
+     "tone": "work"
+    }
+   ]
+  }
+ ]
+}
