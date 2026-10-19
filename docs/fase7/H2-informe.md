@@ -54,3 +54,18 @@ T1-T7, un commit por tarea (60c40b4, 18cd79d, 5f25c6c, d342a6f, 7b89edb, d4025be
 ## Decisiones que necesito
 
 Ninguna.
+
+## Anexo — Parada 1, retoques R1-R2 y T8 preparado (2026-10-20)
+
+Responde a: 5d2135b (H2-revision, «Para el programador»)
+
+**Hecho** (c6b419a R1, d45df1d R2, y el commit de T8 sobre ellos):
+- **R1:** `memoria_prompt.md` acota la última frase: «Si el mortal te pregunta por algo de otra charla que no está ni aquí ni en esta conversación, reconoce que no lo recuerdas; no lo inventes». El resto, igual.
+- **R2:** `bloque(ctx, None, hoy)` no pone la antigüedad y el resto sigue igual. En `_reply`, si `_system()` lanza, se usa `SYSTEM_PROMPT` y queda un `warning` con el tipo de la excepción. Regresiones en `tests/test_fase7_h1_retoques.py`: `bloque` con `dia_actual=None` lleva los textos y la fecha; con un `_system` que lanza (por `monkeypatch`), `_reply` acaba en `done` y sin `error`.
+- **T8 preparado, no lanzado:**
+  - `tests/fixtures/calibracion.json`: 12 recuerdos míos (nada de producción), 32 mensajes (24 con algún recuerdo pertinente y 8 sin ninguno; paráfrasis como «las seis cuerdas» por la guitarra o «la pata» por el perro cojo, y temas vecinos sin pertinencia como Nueva York, la película de terror o «miedo al médico») y 2 charlas de repaso con lo que espero que salga.
+  - `scripts/memoria_calibrar.py`, sin BD: embebe todo, calcula las 384 similitudes, da la distribución de pertinentes y no pertinentes, propone **el umbral más alto que deja pasar al menos el 90 % de las pertinentes** (se pierden como mucho las `floor(10 %)` más bajas), pasa por el juez las parejas que lo superan, pasa el repaso por las 2 charlas y mide la latencia (p50, p95 y máximo) del embedding (44 llamadas) y del juez. Para cada pareja guarda la similitud, la etiqueta y el veredicto del juez (`null` si no superó el umbral); todas las parejas van ordenadas por similitud en la captura, para ver los fallos uno a uno. Corta si el gasto pasa de $0,05.
+  - Salida: `docs/fase7/capturas/calibracion.json`. Orden de Josem: `ANTHROPIC_API_KEY=… OPENAI_API_KEY=… .venv/bin/python scripts/memoria_calibrar.py`. Coste esperado: unos $0,003.
+  - Pruebas (`tests/test_calibrar.py`, sin API): el umbral deja pasar el 90 %, percentil y coseno, el fixture es coherente y una pasada completa con falsos escribe la captura. Sin claves en el entorno, el script sale sin gastar.
+
+**Pruebas:** 98 pasan y 8 se saltan (sin `KLOTHULHU_TEST_DB`); `ruff` limpio. **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí; T8 espera la autorización de Josem.
