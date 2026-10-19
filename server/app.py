@@ -296,7 +296,8 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
 
         try:
             sesion = await _preparar_memoria(cid, text) if MEMORIA else None
-            source = _fake_stream() if FAKE else _model_stream(cid, text, _system(sesion))
+            system = _system(sesion)  # también con FAKE: así se puede ver lo que vería el narrador
+            source = _fake_stream() if FAKE else _model_stream(cid, text, system)
             async for chunk in source:
                 raw.append(chunk)
                 for line in emit(parser.feed(chunk)):
