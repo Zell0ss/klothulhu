@@ -31,14 +31,16 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+import busqueda
 import cierre
 import director
 import escritor
 import gasto
+import memoria
 from beats import is_cut, tramos
 from emotion_parser import EMOTIONS, EmotionStreamParser
 from history import HistoryStore
-from sesiones import Sesiones
+from sesiones import Sesion, Sesiones
 
 log = logging.getLogger("klothulhu")
 if os.getenv("LOGCENTRAL_LOG_DIR"):
@@ -63,6 +65,7 @@ HISTORY_TTL_MIN = float(os.getenv("KLOTHULHU_HISTORY_TTL_MIN", "30"))
 FAKE = os.getenv("KLOTHULHU_FAKE", "0") == "1"
 MEMORIA = os.getenv("KLOTHULHU_MEMORIA", "0") == "1"  # memoria larga (fase 7): apagada por defecto
 MEMORIA_TOPE = float(os.getenv("KLOTHULHU_MEMORIA_TOPE", "1.0"))
+UMBRAL = float(os.getenv("KLOTHULHU_MEMORIA_UMBRAL", str(memoria.UMBRAL)))  # D44
 DB_CONFIG = {
     "host": os.getenv("KLOTHULHU_DB_HOST", "localhost"),
     "port": int(os.getenv("KLOTHULHU_DB_PORT", "3306")),
@@ -99,6 +102,7 @@ history = HistoryStore(HISTORY_TURNS, HISTORY_TTL_MIN * 60)
 sesiones = Sesiones(HISTORY_TTL_MIN * 60)  # siempre existe; solo se llena con MEMORIA (D41)
 _almacen = None  # se abre en lifespan, con MEMORIA
 _freno: gasto.Freno | None = None
+_busquedas: set[asyncio.Task] = set()  # las búsquedas en curso (D36), para esperarlas al parar
 _locks: dict[str, asyncio.Lock] = {}
 
 _anthropic = None
@@ -112,8 +116,44 @@ if not FAKE:
 async def _cerrar_sesion(sesion, motivo: str) -> None:
     escribir, embeber = (escritor.escribir_falso, escritor.embeber_falso) if FAKE else (
         escritor.escribir, escritor.embeber)
+    repasar = escritor.repasar_falso if FAKE else escritor.repasar
     await cierre.cerrar(sesion, almacen=_almacen, escritor=escribir, embedder=embeber, freno=_freno,
-                        motivo=motivo)
+                        motivo=motivo, repasador=repasar)
+
+
+def _system(sesion: Sesion | None):
+    """El prompt del narrador. Con recuerdos en el contexto de la sesión, un bloque más (D43)."""
+    if sesion is None or not sesion.contexto:
+        return SYSTEM_PROMPT
+    return [
+        {"type": "text", "text": SYSTEM_PROMPT},
+        {"type": "text", "text": memoria.bloque(sesion.contexto, sesion.dia, sesion.inicio.date())},
+    ]
+
+
+async def _preparar_memoria(cid: str, text: str) -> Sesion:
+    """Con MEMORIA: la sesión del cliente, su foto de recuerdos si es nueva (D43) y la búsqueda en
+    paralelo para el mensaje siguiente (D36). Nunca lanza."""
+    sesion = sesiones.actual(cid)
+    if sesion.contexto is None:
+        hoy = sesion.inicio.date()
+        try:
+            if _almacen is None:
+                raise RuntimeError("sin almacén")
+            sesion.dia = await asyncio.to_thread(_almacen.anotar_dia_uso, hoy)
+            rs = await asyncio.to_thread(_almacen.recuerdos)
+            sesion.contexto = memoria.contexto_inicial(rs, sesion.dia, hoy)
+        except Exception as e:  # sin recuerdos, klothulhu contesta igual
+            log.warning("memoria: sin contexto para la sesión %s (%s)", sesion.id, type(e).__name__)
+            sesion.contexto = []
+    if _almacen is not None and _freno is not None:
+        embeber, juzgar = (escritor.embeber_falso, escritor.juzgar_falso) if FAKE else (
+            escritor.embeber, escritor.juzgar)
+        tarea = asyncio.create_task(busqueda.buscar(
+            text, sesion, embedder=embeber, indice=_almacen, juez=juzgar, freno=_freno, umbral=UMBRAL))
+        _busquedas.add(tarea)
+        tarea.add_done_callback(_busquedas.discard)
+    return sesion
 
 
 async def _barrido(parar: asyncio.Event) -> None:
@@ -135,6 +175,11 @@ async def _apagar(tarea: asyncio.Task, parar: asyncio.Event) -> None:
 
     async def cerrar_todo():
         parar.set()
+        pendientes = list(_busquedas)
+        for b in pendientes:
+            b.cancel()
+        if pendientes:
+            await asyncio.wait(pendientes, timeout=2)  # D36: como mucho 2 s dentro de APAGADO_S
         await tarea
         abiertas.extend(sesiones.todas())
         while abiertas:
@@ -200,6 +245,7 @@ async def health() -> dict:
         "emotions": EMOTIONS,
         "director": {"enabled": DIRECTOR_ENABLED, "model": DIRECTOR_MODEL},
         "memoria": {"enabled": MEMORIA, "frenada": MEMORIA and _freno is not None and _freno.frenado},
+        "sesiones": sesiones.cuantas(),
     }
 
 
@@ -249,7 +295,8 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
             return out
 
         try:
-            source = _fake_stream() if FAKE else _model_stream(cid, text)
+            sesion = await _preparar_memoria(cid, text) if MEMORIA else None
+            source = _fake_stream() if FAKE else _model_stream(cid, text, _system(sesion))
             async for chunk in source:
                 raw.append(chunk)
                 for line in emit(parser.feed(chunk)):
@@ -325,12 +372,12 @@ def _director(question: str, bs: list[tuple[str, str]]) -> AsyncIterator[dict | 
     )
 
 
-async def _model_stream(cid: str, text: str) -> AsyncIterator[str]:
+async def _model_stream(cid: str, text: str, system) -> AsyncIterator[str]:
     messages = history.messages(cid) + [{"role": "user", "content": text}]
     async with _anthropic.messages.stream(
         model=MODEL,
         max_tokens=MAX_TOKENS,
-        system=SYSTEM_PROMPT,
+        system=system,
         messages=messages,
         output_config={"effort": EFFORT},
     ) as stream:
