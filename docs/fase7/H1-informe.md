@@ -60,7 +60,7 @@ Responde a: 4987715 (H1-revision, «Para el programador»)
 - **R4:** `director.py` solo `type(exc).__name__`; `app.py` sin `exc_info`, con el tipo en el mensaje. `app.py:243` intacto. Ninguna prueba normativa anterior chocó.
 - **Punto 5:** `qdrant-client==1.17.1` en `requirements.txt`; ya no sale el aviso de compatibilidad.
 
-**Pruebas:** 79 pasan con `KLOTHULHU_TEST_DB=1` (incluida T6 contra `klothulhu_test`); sin esa variable, 4 se saltan. `ruff` limpio.
+**Pruebas:** 79 pasan con `KLOTHULHU_TEST_DB=1` (incluida T6 contra `klothulhu_test`); sin esa variable, 74 pasan y 5 se saltan. `ruff` limpio.
 
 **R5 (apagado real)**, `KLOTHULHU_FAKE=1 KLOTHULHU_MEMORIA=1`, TTL 30, `klothulhu_dev`, puerto 8791: dos mensajes y `kill -TERM` al uvicorn.
 ```
