@@ -101,3 +101,63 @@ def test_dia_actual(almacen):
     almacen.guardar(sesion_id="s1", cliente="konnos", recuerdo=Recuerdo("Uno.", 3, "neutral", None),
                     vector=None, creado_dia=1)
     assert almacen.dia_actual() == 2
+
+
+# --- H2: consultar, reforzar, eventos, podar (D36, D45, D46) ---------------------------------------
+
+
+def _v(i: int) -> list[float]:
+    v = [0.0] * 1536
+    v[i] = 1.0
+    return v
+
+
+def test_consultar_ordena_por_similitud(almacen):
+    a = almacen.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo("A.", 3, "neutral", None), vector=_v(0),
+                        creado_dia=1)
+    b = almacen.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo("B.", 3, "neutral", None), vector=_v(1),
+                        creado_dia=1)
+    almacen.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo("Sin vector.", 3, "neutral", None), vector=None,
+                    creado_dia=1)
+    q = [0.9] + [0.0] * 1535
+    q[1] = 0.1
+    hits = almacen.consultar(q, 5)
+    assert [h["id"] for h in hits] == [a, b]                 # el de vector=None no sale
+    assert hits[0]["similitud"] > hits[1]["similitud"] and hits[0]["texto"] == "A."
+    assert {"id", "texto", "importancia", "emocion", "fecha", "creado_dia", "usos", "ultimo_uso_dia",
+            "similitud"} <= set(hits[0])
+    assert len(almacen.consultar(q, 1)) == 1
+
+
+def test_reforzar_eventos_y_podar(almacen):
+    a = almacen.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo("A.", 3, "neutral", None), vector=_v(0),
+                        creado_dia=1)
+    b = almacen.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo("B.", 3, "neutral", None), vector=_v(1),
+                        creado_dia=1)
+    almacen.reforzar([a, "desconocido"], 4)
+    por_id = {r["id"]: r for r in almacen.recuerdos()}
+    assert (por_id[a]["usos"], por_id[a]["ultimo_uso_dia"]) == (1, 4)
+    assert (por_id[b]["usos"], por_id[b]["ultimo_uso_dia"]) == (0, None)
+
+    cuando = datetime(2026, 10, 20, 20, 1)
+    almacen.anotar_eventos("s9", [
+        {"tipo": "candidato", "recuerdo_id": a, "similitud": 0.6, "pertinente": True, "mensaje": "hola", "cuando": cuando},
+        {"tipo": "F4", "recuerdo_id": None, "similitud": None, "pertinente": None, "mensaje": None, "cuando": cuando},
+    ])
+    ev = almacen.eventos()
+    assert [(e["tipo"], e["sesion_id"], e["recuerdo_id"], e["pertinente"]) for e in ev] == [
+        ("candidato", "s9", a, True), ("F4", "s9", None, None)]
+    assert ev[0]["similitud"] == pytest.approx(0.6) and ev[0]["mensaje"] == "hola" and ev[1]["mensaje"] is None
+
+    almacen.podar([a])
+    assert [r["id"] for r in almacen.recuerdos()] == [b]
+    assert [h["id"] for h in almacen.consultar(_v(0), 5)] == [b]
+    almacen.podar([])                                          # no hace nada
+
+
+def test_sesiones_anotadas(almacen):
+    assert almacen.sesiones_anotadas() == []
+    inicio = datetime(2026, 10, 19, 20, 0, tzinfo=ZoneInfo("Europe/Madrid"))
+    almacen.anotar_sesion(id="s1", cliente="konnos", inicio=inicio, motivo="ttl", turnos=3, recuerdos=1, coste=0.0002)
+    [s] = almacen.sesiones_anotadas()
+    assert s["id"] == "s1" and s["motivo"] == "ttl" and s["turnos"] == 3

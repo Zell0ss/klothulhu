@@ -39,3 +39,15 @@ CREATE TABLE IF NOT EXISTS sesiones (
   recuerdos INT NOT NULL,
   coste DOUBLE NOT NULL
 );
+
+-- H2: lo que pasa durante las charlas, para medir la memoria (D44, D45). Nada de esto va a los logs (D42).
+CREATE TABLE IF NOT EXISTS memoria_eventos (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  sesion_id CHAR(36) NOT NULL,
+  cuando DATETIME NOT NULL,
+  tipo VARCHAR(16) NOT NULL,             -- candidato | F3 | F4 | F5 (F1 y F2 se derivan, D44)
+  recuerdo_id CHAR(36) NULL,
+  similitud DOUBLE NULL,
+  pertinente BOOLEAN NULL,               -- veredicto del juez; NULL = no juzgado
+  mensaje VARCHAR(1000) NULL             -- el mensaje del mortal (candidatos); nunca a los logs (D42)
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

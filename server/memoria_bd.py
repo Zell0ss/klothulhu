@@ -31,25 +31,68 @@ def _ahora() -> datetime:
     return datetime.now(MADRID).replace(tzinfo=None)
 
 
+def _a_naive(cuando: datetime) -> datetime:
+    """MariaDB guarda la hora de Madrid sin zona."""
+    return cuando.astimezone(MADRID).replace(tzinfo=None) if cuando.tzinfo is not None else cuando
+
+
 class AlmacenEnMemoria:
     def __init__(self) -> None:
         self._recuerdos: dict[str, dict] = {}
         self._dias: list[date] = []
         self._gasto: list[tuple] = []
         self._sesiones: list[dict] = []
+        self._vectores: dict[str, list[float]] = {}
+        self._eventos: list[dict] = []
 
     def guardar(self, *, sesion_id: str, cliente: str, recuerdo: Recuerdo, vector, creado_dia: int) -> str:
         rid = str(uuid.uuid4())
+        if vector is not None:
+            self._vectores[rid] = list(vector)
         self._recuerdos[rid] = {
             "id": rid, "texto": recuerdo.texto, "importancia": recuerdo.importancia,
             "emocion": recuerdo.emocion, "fecha": recuerdo.fecha, "sesion_id": sesion_id,
             "cliente": cliente, "creado_dia": creado_dia, "usos": 0, "ultimo_uso_dia": None,
-            "indexado": vector is not None,
+            "indexado": vector is not None, "borrado": False,
         }
         return rid
 
     def recuerdos(self) -> list[dict]:
-        return [dict(r) for r in self._recuerdos.values()]
+        return [{k: v for k, v in r.items() if k != "borrado"} for r in self._recuerdos.values()
+                if not r["borrado"]]
+
+    def consultar(self, vector, n: int) -> list[dict]:
+        """Hasta `n` no borrados, de más a menos similares (coseno). Los de `vector=None` no salen."""
+        hits = []
+        for rid, v in self._vectores.items():
+            r = self._recuerdos[rid]
+            if r["borrado"]:
+                continue
+            norma = (sum(x * x for x in v) * sum(x * x for x in vector)) ** 0.5
+            sim = sum(a * b for a, b in zip(v, vector, strict=True)) / norma if norma else 0.0
+            hits.append({**{k: x for k, x in r.items() if k != "borrado"}, "similitud": sim})
+        return sorted(hits, key=lambda h: h["similitud"], reverse=True)[:n]
+
+    def reforzar(self, ids: list[str], dia: int) -> None:
+        for rid in ids:
+            r = self._recuerdos.get(rid)
+            if r is not None and not r["borrado"]:
+                r["usos"] += 1
+                r["ultimo_uso_dia"] = dia
+
+    def anotar_eventos(self, sesion_id: str, eventos: list[dict]) -> None:
+        self._eventos.extend({**e, "sesion_id": sesion_id} for e in eventos)
+
+    def eventos(self) -> list[dict]:
+        return [dict(e) for e in self._eventos]
+
+    def podar(self, ids: list[str]) -> None:
+        for rid in ids:
+            if rid in self._recuerdos:
+                self._recuerdos[rid]["borrado"] = True
+
+    def sesiones_anotadas(self) -> list[dict]:
+        return [dict(s) for s in self._sesiones]
 
     def anotar_dia_uso(self, dia: date) -> int:
         if dia not in self._dias:
@@ -130,7 +173,7 @@ class AlmacenMariaQdrant:
         """Solo para pruebas: se niega si la BD no acaba en `_test`."""
         if not self.nombre_bd.endswith("_test"):
             raise ValueError("vaciar() solo corre contra una BD _test")
-        for tabla in ("recuerdos", "dias_uso", "memoria_gasto", "sesiones"):
+        for tabla in ("recuerdos", "dias_uso", "memoria_gasto", "sesiones", "memoria_eventos"):
             self._ejecutar(f"DELETE FROM {tabla}")  # noqa: S608 (nombres fijos)
         if self._qdrant.collection_exists(self._coleccion):
             self._qdrant.delete_collection(self._coleccion)
@@ -176,6 +219,71 @@ class AlmacenMariaQdrant:
     def dia_actual(self) -> int:
         return self._ejecutar("SELECT COUNT(*) AS n FROM dias_uso")[0]["n"]
 
+    def consultar(self, vector, n: int) -> list[dict]:
+        """D36: hasta `n` recuerdos no borrados, de más a menos similares. Qdrant da el orden y la
+        similitud; MariaDB, los campos y quién está borrado."""
+        puntos = self._qdrant.query_points(self._coleccion, query=vector, limit=n).points
+        if not puntos:
+            return []
+        sim = {str(p.id): p.score for p in puntos}
+        marcas = ", ".join(["%s"] * len(sim))
+        filas = self._ejecutar(
+            "SELECT id, texto, importancia, emocion, fecha, sesion_id, cliente, creado, creado_dia, usos,"
+            f" ultimo_uso_dia, indexado FROM recuerdos WHERE borrado IS NULL AND id IN ({marcas})",  # noqa: S608
+            tuple(sim),
+        )
+        for f in filas:
+            f["indexado"] = bool(f["indexado"])
+            f["similitud"] = sim[f["id"]]
+        return sorted(filas, key=lambda f: f["similitud"], reverse=True)
+
+    def reforzar(self, ids: list[str], dia: int) -> None:
+        """D45: `usos + 1` y `ultimo_uso_dia = dia`. Los ids desconocidos no cambian nada."""
+        if ids:
+            marcas = ", ".join(["%s"] * len(ids))
+            self._ejecutar(
+                f"UPDATE recuerdos SET usos = usos + 1, ultimo_uso_dia = %s WHERE id IN ({marcas})",  # noqa: S608
+                (dia, *ids),
+            )
+
+    def anotar_eventos(self, sesion_id: str, eventos: list[dict]) -> None:
+        for e in eventos:
+            self._ejecutar(
+                "INSERT INTO memoria_eventos"
+                " (sesion_id, cuando, tipo, recuerdo_id, similitud, pertinente, mensaje)"
+                " VALUES (%s,%s,%s,%s,%s,%s,%s)",
+                (sesion_id, _a_naive(e["cuando"]), e["tipo"], e.get("recuerdo_id"), e.get("similitud"),
+                 e.get("pertinente"), e["mensaje"][:1000] if e.get("mensaje") else None),
+            )
+
+    def eventos(self) -> list[dict]:
+        filas = self._ejecutar(
+            "SELECT sesion_id, cuando, tipo, recuerdo_id, similitud, pertinente, mensaje FROM memoria_eventos"
+            " ORDER BY id"
+        )
+        for f in filas:
+            if f["pertinente"] is not None:
+                f["pertinente"] = bool(f["pertinente"])
+        return filas
+
+    def podar(self, ids: list[str]) -> None:
+        """D46: `borrado = ahora` y fuera de Qdrant. Nada se borra de MariaDB."""
+        if not ids:
+            return
+        marcas = ", ".join(["%s"] * len(ids))
+        self._ejecutar(f"UPDATE recuerdos SET borrado = %s WHERE id IN ({marcas})", (_ahora(), *ids))  # noqa: S608
+        try:
+            from qdrant_client.models import PointIdsList
+
+            self._qdrant.delete(self._coleccion, points_selector=PointIdsList(points=list(ids)))
+        except Exception as e:  # ya no sale en recuerdos(); el punto huérfano lo filtra consultar()
+            log.warning("qdrant no borra %d puntos (%s)", len(ids), type(e).__name__)
+
+    def sesiones_anotadas(self) -> list[dict]:
+        return self._ejecutar(
+            "SELECT id, cliente, inicio, cierre, motivo, turnos, recuerdos, coste FROM sesiones"
+        )
+
     def anotar_gasto(self, concepto: str, modelo: str, tokens_in: int, tokens_out: int, coste: float) -> None:
         self._ejecutar(
             "INSERT INTO memoria_gasto (cuando, concepto, modelo, tokens_in, tokens_out, coste)"
@@ -188,8 +296,7 @@ class AlmacenMariaQdrant:
 
     def anotar_sesion(self, *, id: str, cliente: str, inicio: datetime, motivo: str, turnos: int,
                       recuerdos: int, coste: float) -> None:
-        if inicio.tzinfo is not None:
-            inicio = inicio.astimezone(MADRID).replace(tzinfo=None)
+        inicio = _a_naive(inicio)
         self._ejecutar(
             "INSERT INTO sesiones (id, cliente, inicio, cierre, motivo, turnos, recuerdos, coste)"
             " VALUES (%s,%s,%s,%s,%s,%s,%s,%s)",
