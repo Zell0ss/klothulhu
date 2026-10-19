@@ -57,6 +57,9 @@ class AlmacenEnMemoria:
             self._dias.sort()
         return self._dias.index(dia) + 1
 
+    def dia_actual(self) -> int:
+        return len(self._dias)
+
     def anotar_gasto(self, concepto: str, modelo: str, tokens_in: int, tokens_out: int, coste: float) -> None:
         self._gasto.append((concepto, modelo, tokens_in, tokens_out, coste))
 
@@ -169,6 +172,9 @@ class AlmacenMariaQdrant:
     def anotar_dia_uso(self, dia: date) -> int:
         self._ejecutar("INSERT IGNORE INTO dias_uso (dia) VALUES (%s)", (dia,))
         return self._ejecutar("SELECT COUNT(*) AS n FROM dias_uso WHERE dia <= %s", (dia,))[0]["n"]
+
+    def dia_actual(self) -> int:
+        return self._ejecutar("SELECT COUNT(*) AS n FROM dias_uso")[0]["n"]
 
     def anotar_gasto(self, concepto: str, modelo: str, tokens_in: int, tokens_out: int, coste: float) -> None:
         self._ejecutar(

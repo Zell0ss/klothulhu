@@ -92,3 +92,12 @@ def test_vaciar_solo_en_test():
     alm._db["database"] = "klothulhu_dev"
     with pytest.raises(ValueError):
         alm.vaciar()
+
+
+def test_dia_actual(almacen):
+    assert almacen.dia_actual() == 0
+    almacen.anotar_dia_uso(date(2026, 10, 19))
+    almacen.anotar_dia_uso(date(2026, 10, 20))
+    almacen.guardar(sesion_id="s1", cliente="konnos", recuerdo=Recuerdo("Uno.", 3, "neutral", None),
+                    vector=None, creado_dia=1)
+    assert almacen.dia_actual() == 2

@@ -50,14 +50,14 @@ def _almacen() -> AlmacenMariaQdrant:
 
 def _listar(alm: AlmacenMariaQdrant) -> None:
     rs = alm.recuerdos()
-    dia = (max((r["creado_dia"] for r in rs), default=1))  # sin días de uso reales aquí: el último visto
+    dia = alm.dia_actual()
     filas = []
     for r in rs:
         ultimo = r["ultimo_uso_dia"] if r["ultimo_uso_dia"] is not None else r["creado_dia"]
         f = memoria.fuerza(r["importancia"], r["emocion"], dia - ultimo, r["usos"])
         filas.append((f, r))
     filas.sort(key=lambda x: x[0], reverse=True)
-    print(f"{len(rs)} recuerdos (fuerza calculada en el día de uso {dia})")
+    print(f"{len(rs)} recuerdos (fuerza en el día de uso {dia})")
     print("id        fuerza imp emoción   fecha       usos idx creado             texto")
     for f, r in filas:
         idx = "sí" if r["indexado"] else "no"
