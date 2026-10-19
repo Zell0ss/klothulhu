@@ -12,7 +12,8 @@
 - `tests/test_fase7_h1.py` es normativa: no se edita. Las regresiones de los retoques están en `tests/test_fase7_h1_retoques.py`.
 - Pendiente del arquitecto sobre el escritor: voz con adorno, fecha de hoy en hechos de hoy, 137 tokens de salida para una lista vacía.
 - La unidad `server/klothulhu-api.service` está editada (`ReadWritePaths`, `TimeoutStopSec=30`) y no instalada.
-- `scripts/memoria_prueba.py` (T10) no se vuelve a lanzar.
+- `scripts/memoria_prueba.py` (T10) no se vuelve a lanzar. `scripts/memoria_calibrar.py` (T8) tampoco lo lanzo yo: lo lanza Josem.
+- H2 en producción: `crear` añade `memoria_eventos`; con `KLOTHULHU_MEMORIA=1` ya activo, los recuerdos entran en las respuestas en cuanto se reinicie.
 - Automensaje activo con klothulhu-be (arquitecto).
 
-**Bloqueos:** ninguno; espero el plan de H2.
+**Bloqueos:** la autorización de Josem para T8.
