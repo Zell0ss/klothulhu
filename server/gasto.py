@@ -27,6 +27,11 @@ class Freno:
         self._almacen = almacen
         self._frenado = False
 
+    @property
+    def frenado(self) -> bool:
+        """Último estado conocido, sin consultar la BD (/health). False hasta la primera `permitido()`."""
+        return self._frenado
+
     def permitido(self) -> bool:
         ok = self._almacen.gasto_total() < self._tope
         if not ok and not self._frenado:
