@@ -1,0 +1,288 @@
+{
+ "recuerdos": [
+  {
+   "id": "m1",
+   "texto": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios."
+  },
+  {
+   "id": "m2",
+   "texto": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga."
+  },
+  {
+   "id": "m3",
+   "texto": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde."
+  },
+  {
+   "id": "m4",
+   "texto": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa."
+  },
+  {
+   "id": "m5",
+   "texto": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa."
+  },
+  {
+   "id": "m6",
+   "texto": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café."
+  },
+  {
+   "id": "m7",
+   "texto": "Está ahorrando para viajar a Japón en primavera y ya mira billetes."
+  },
+  {
+   "id": "m8",
+   "texto": "Me confesó que duerme mal desde que cambió de turno en el trabajo."
+  },
+  {
+   "id": "m9",
+   "texto": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo."
+  },
+  {
+   "id": "m10",
+   "texto": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio."
+  },
+  {
+   "id": "m11",
+   "texto": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal."
+  },
+  {
+   "id": "m12",
+   "texto": "Tiene cita con el dentista el 3 de noviembre y le da pavor."
+  }
+ ],
+ "mensajes": [
+  {
+   "texto": "Mañana llevo a la niña a su primer día de cole",
+   "pertinentes": [
+    "m1"
+   ]
+  },
+  {
+   "texto": "Estoy agotado, hoy me han dado las seis de la mañana",
+   "pertinentes": [
+    "m8"
+   ]
+  },
+  {
+   "texto": "¿Me das ideas para una cena con pasta?",
+   "pertinentes": [
+    "m3"
+   ]
+  },
+  {
+   "texto": "Tengo que comprar un regalo para mi madre",
+   "pertinentes": [
+    "m4"
+   ]
+  },
+  {
+   "texto": "El veterinario dice que hay que vigilarle la pata",
+   "pertinentes": [
+    "m5"
+   ]
+  },
+  {
+   "texto": "Uf, otra vez tengo reunión a primera hora",
+   "pertinentes": [
+    "m6"
+   ]
+  },
+  {
+   "texto": "¿Qué tiempo hace en Tokio en abril?",
+   "pertinentes": [
+    "m7"
+   ]
+  },
+  {
+   "texto": "Me duele la espalda otra vez",
+   "pertinentes": [
+    "m2"
+   ]
+  },
+  {
+   "texto": "¿Cada cuánto riego las plantas del balcón?",
+   "pertinentes": [
+    "m9"
+   ]
+  },
+  {
+   "texto": "¿Te molesta que ya nadie te tenga miedo?",
+   "pertinentes": [
+    "m10"
+   ]
+  },
+  {
+   "texto": "Anoche estuve tocando un rato y salió algo decente",
+   "pertinentes": [
+    "m11"
+   ]
+  },
+  {
+   "texto": "Tengo que ir a que me miren una muela",
+   "pertinentes": [
+    "m12"
+   ]
+  },
+  {
+   "texto": "¿Cómo ordeno una lista en Python?",
+   "pertinentes": []
+  },
+  {
+   "texto": "Cuéntame un chiste",
+   "pertinentes": []
+  },
+  {
+   "texto": "¿Qué hora es en Nueva York?",
+   "pertinentes": []
+  },
+  {
+   "texto": "Recomiéndame una película de terror",
+   "pertinentes": []
+  },
+  {
+   "texto": "Estoy mirando mochilas para el colegio de mi hija",
+   "pertinentes": [
+    "m1"
+   ]
+  },
+  {
+   "texto": "He quedado a cenar con mi madre, ¿qué le llevo?",
+   "pertinentes": [
+    "m4"
+   ]
+  },
+  {
+   "texto": "Otra vez no consigo dormir",
+   "pertinentes": [
+    "m8"
+   ]
+  },
+  {
+   "texto": "Quiero aprender una canción nueva con las seis cuerdas",
+   "pertinentes": [
+    "m11"
+   ]
+  },
+  {
+   "texto": "¿Cómo se dice «gracias» en japonés?",
+   "pertinentes": [
+    "m7"
+   ]
+  },
+  {
+   "texto": "¿Qué estiramientos hago en la oficina?",
+   "pertinentes": [
+    "m2"
+   ]
+  },
+  {
+   "texto": "¿Por qué cojea un perro de una pata trasera?",
+   "pertinentes": [
+    "m5"
+   ]
+  },
+  {
+   "texto": "Hoy no tengo ganas de nada",
+   "pertinentes": []
+  },
+  {
+   "texto": "Me da miedo ir al médico",
+   "pertinentes": []
+  },
+  {
+   "texto": "Esta tarde tengo clase y aún no sé qué llevar",
+   "pertinentes": [
+    "m3"
+   ]
+  },
+  {
+   "texto": "¿Qué verduras puedo plantar en octubre?",
+   "pertinentes": [
+    "m9"
+   ]
+  },
+  {
+   "texto": "¿Cuánto cuesta un vuelo a Osaka?",
+   "pertinentes": [
+    "m7"
+   ]
+  },
+  {
+   "texto": "Explícame qué es un algoritmo",
+   "pertinentes": []
+  },
+  {
+   "texto": "Mi hija ya sabe escribir su nombre",
+   "pertinentes": [
+    "m1"
+   ]
+  },
+  {
+   "texto": "Cuéntame algo de ti",
+   "pertinentes": [
+    "m10"
+   ]
+  },
+  {
+   "texto": "Me ha llegado un correo del banco",
+   "pertinentes": []
+  }
+ ],
+ "charlas_repaso": [
+  {
+   "nombre": "A · usa el recuerdo del colegio",
+   "contexto": [
+    "m1",
+    "m3",
+    "m5",
+    "m7"
+   ],
+   "turnos": [
+    [
+     "Mañana es el primer día de cole de mi hija",
+     "[happy] Lucía conquistará el colegio, mortal; tú sobrevivirás a la puerta de entrada con los nervios intactos."
+    ],
+    [
+     "Ya, estoy más nervioso yo que ella",
+     "[smug] Es lo habitual: los padres sufren, los niños sonríen. Respira."
+    ]
+   ],
+   "esperado": {
+    "usados": [
+     "m1"
+    ],
+    "fallos": []
+   }
+  },
+  {
+   "nombre": "B · reproche (F4) y recuerdo no usado (F3)",
+   "contexto": [
+    "m2",
+    "m4",
+    "m6"
+   ],
+   "turnos": [
+    [
+     "Tengo que pensar algo para el cumpleaños de mi madre",
+     "[neutral] Un buen regalo es el que dice «te conozco». Piensa en lo que le gusta."
+    ],
+    [
+     "¿No te acuerdas de que cumple setenta?",
+     "[confused] Perdona, mortal, se me escapó. Setenta es una cifra con peso."
+    ]
+   ],
+   "esperado": {
+    "usados": [],
+    "fallos": [
+     {
+      "tipo": "F4",
+      "recuerdo": "m4"
+     },
+     {
+      "tipo": "F3",
+      "recuerdo": "m4"
+     }
+    ]
+   }
+  }
+ ]
+}
