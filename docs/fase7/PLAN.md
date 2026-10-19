@@ -5,7 +5,7 @@ titulo: memoria larga
 plan: arquitecto
 fecha: 2026-10-19
 decisiones: "vault 30-projects/klothulhu/ficha.md § Decisiones (D34-D42; también D14, D20, D27, D29)"
-gasto_autorizado: "H1: solo el paso [API] T10, hasta $0,05, cuando Josem lo autorice en el chat (se anotará aquí)"
+gasto_autorizado: "H1: paso [API] T10, tope $0,05; lanzado por Josem en persona el 2026-10-19 (vale como autorización), gasto $0,000765"
 ---
 
 # Fase 7: memoria larga
