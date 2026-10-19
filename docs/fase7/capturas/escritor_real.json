@@ -1,0 +1,136 @@
+{
+  "sesiones": [
+    {
+      "sesion": "1 · dato personal con fecha relativa",
+      "previos": [],
+      "salida_cruda": "{\"recuerdos\":[{\"texto\":\"El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa.\",\"importancia\":4,\"emocion\":\"smug\",\"fecha\":\"2026-10-22\"}]}",
+      "stop_reason": "end_turn",
+      "salida": {
+        "recuerdos": [
+          {
+            "texto": "El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa.",
+            "importancia": 4,
+            "emocion": "smug",
+            "fecha": "2026-10-22"
+          }
+        ]
+      },
+      "tokens_escritor": {
+        "modelo": "claude-haiku-5-5",
+        "in": 1433,
+        "out": 97
+      },
+      "tokens_embedding": [
+        {
+          "modelo": "text-embedding-3-small",
+          "in": 36,
+          "out": 0
+        }
+      ],
+      "recuerdos_validados": [
+        {
+          "texto": "El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa.",
+          "importancia": 4,
+          "emocion": "smug",
+          "fecha": "2026-10-22",
+          "indexado": true
+        }
+      ],
+      "guardados": 1
+    },
+    {
+      "sesion": "2 · trámite técnico, debería dar 0 recuerdos",
+      "previos": [
+        "El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa."
+      ],
+      "salida_cruda": "{\"recuerdos\":[]}",
+      "stop_reason": "end_turn",
+      "salida": {
+        "recuerdos": []
+      },
+      "tokens_escritor": {
+        "modelo": "claude-haiku-5-5",
+        "in": 1435,
+        "out": 13
+      },
+      "tokens_embedding": [],
+      "recuerdos_validados": [],
+      "guardados": 0
+    },
+    {
+      "sesion": "3 · triste, se le ha muerto el gato",
+      "previos": [
+        "El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa."
+      ],
+      "salida_cruda": "{\"recuerdos\":[{\"texto\":\"El mortal perdió a su gato Tofu, que tenía 14 años. Dormía en su escritorio, justo donde estoy yo; ahora ese sitio está más vacío de lo que él quisiera.\",\"importancia\":5,\"emocion\":\"sad\",\"fecha\":\"2026-10-19\"}]}",
+      "stop_reason": "end_turn",
+      "salida": {
+        "recuerdos": [
+          {
+            "texto": "El mortal perdió a su gato Tofu, que tenía 14 años. Dormía en su escritorio, justo donde estoy yo; ahora ese sitio está más vacío de lo que él quisiera.",
+            "importancia": 5,
+            "emocion": "sad",
+            "fecha": "2026-10-19"
+          }
+        ]
+      },
+      "tokens_escritor": {
+        "modelo": "claude-haiku-5-5",
+        "in": 1469,
+        "out": 117
+      },
+      "tokens_embedding": [
+        {
+          "modelo": "text-embedding-3-small",
+          "in": 45,
+          "out": 0
+        }
+      ],
+      "recuerdos_validados": [
+        {
+          "texto": "El mortal perdió a su gato Tofu, que tenía 14 años. Dormía en su escritorio, justo donde estoy yo; ahora ese sitio está más vacío de lo que él quisiera.",
+          "importancia": 5,
+          "emocion": "sad",
+          "fecha": "2026-10-19",
+          "indexado": true
+        }
+      ],
+      "guardados": 1
+    },
+    {
+      "sesion": "4 · repite el dato de la 1, para ver si respeta los previos",
+      "previos": [
+        "El mortal perdió a su gato Tofu, que tenía 14 años. Dormía en su escritorio, justo donde estoy yo; ahora ese sitio está más vacío de lo que él quisiera.",
+        "El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa."
+      ],
+      "salida_cruda": "{\"recuerdos\":[]}",
+      "stop_reason": "end_turn",
+      "salida": {
+        "recuerdos": []
+      },
+      "tokens_escritor": {
+        "modelo": "claude-haiku-5-5",
+        "in": 1481,
+        "out": 137
+      },
+      "tokens_embedding": [],
+      "recuerdos_validados": [],
+      "guardados": 0
+    }
+  ],
+  "coste_por_modelo": {
+    "text-embedding-3-small": {
+      "llamadas": 2,
+      "in": 81,
+      "out": 0,
+      "coste": 1.6200000000000002e-06
+    },
+    "claude-haiku-5-5": {
+      "llamadas": 4,
+      "in": 5818,
+      "out": 364,
+      "coste": 0.0007638
+    }
+  },
+  "coste_total": 0.00076542
+}

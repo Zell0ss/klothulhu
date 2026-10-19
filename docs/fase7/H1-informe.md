@@ -74,3 +74,36 @@ sesiones: 000d0232  pasada  apagado  2 vueltas  1 recuerdo  0.0000352
 Log: `sesión 000d0232-… cerrada: 2 vueltas, 1 recuerdos, coste 0.000035`.
 
 **Gasto:** 0 real (falsos). **Desviaciones:** el commit 1afbdaa lleva también las regresiones de R2 y R3 (un solo fichero de pruebas). **Decisiones que necesito:** ninguna. Paro aquí; T10 no se ha lanzado.
+
+## Anexo — Parada 2, escritor real (T10) (2026-10-19)
+
+Responde a: 9771048 (PLAN.md, autorización y gasto de T10)
+
+**Hecho:** `scripts/memoria_prueba.py` (bb4cb04) lanzado por Josem en persona, con las claves en su entorno; yo no lo he ejecutado. Captura completa, subida por mí tal cual: `docs/fase7/capturas/escritor_real.json`. Las cuatro charlas se cerraron con Haiku 5.5 y OpenAI reales contra `klothulhu_test`; `stop_reason = end_turn` en las cuatro.
+
+| # | Charla | Recuerdos | Lo que escribió (importancia · emoción · fecha) |
+|---|---|---|---|
+| 1 | Examen de conducir «el jueves» | 1 | «El mortal tiene examen de conducir el jueves; llevó tres meses practicando con su padre. Me pareció un rito de paso que me importa.» (4 · smug · **2026-10-22**) |
+| 2 | Lista y tupla (trámite) | **0** | `{"recuerdos":[]}` |
+| 3 | Muerte del gato | 1 | «El mortal perdió a su gato Tofu, que tenía 14 años. Dormía en su escritorio, justo donde estoy yo; ahora ese sitio está más vacío de lo que él quisiera.» (5 · sad · 2026-10-19) |
+| 4 | Repite el examen (con previos) | **0** | `{"recuerdos":[]}`; los dos previos le llegaron, el más fuerte (el gato) primero |
+
+**Lectura para el arquitecto (no son decisiones mías):**
+- «el jueves» se resolvió bien: dos días tras el lunes 19 → 2026-10-22.
+- La charla de trámite dio 0 y la que repetía el dato no duplicó nada: el prompt cumple en lo que fija el plan.
+- La voz es en primera persona, pero en la 3 el texto dice «justo donde estoy yo» y «más vacío de lo que él quisiera»: habla de sí con algo de adorno.
+- En la 3 puso `fecha = 2026-10-19` (el día de hoy) para un hecho de hoy. El prompt dice «solo si se refiere a un día concreto», y hoy lo es; si no se quiere fecha para lo que ocurre hoy, es un ajuste del prompt.
+- En la 4, para devolver una lista vacía gastó 137 tokens de salida (13 en la 2): el pensamiento cuenta aunque `effort` es `low`.
+- Los dos recuerdos se indexaron (`indexado = true`); con el embedder real no hubo fallos.
+
+**Gasto** (`coste_por_modelo` de la captura):
+
+| Modelo | Llamadas | Tokens in / out | Coste |
+|---|---|---|---|
+| `claude-haiku-5-5` | 4 | 5818 / 364 | $0,0007638 |
+| `text-embedding-3-small` | 2 | 81 / 0 | $0,00000162 |
+| **Total** | | | **$0,00076542** |
+
+Autorizado por Josem el 2026-10-19, en mi ventana («sí», tope $0,05); anotado por el arquitecto en `PLAN.md` (9771048). El gasto real fue el 1,5 % del tope.
+
+**Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí; no vuelvo a lanzar T10.
