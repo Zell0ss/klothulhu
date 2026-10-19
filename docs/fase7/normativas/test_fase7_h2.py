@@ -142,11 +142,11 @@ def test_n1_contexto_inicial():
 
 # N2 — el bloque del prompt: fecha de hoy, textos sin corchetes, vacío si no hay recuerdos (D43)
 def test_n2_bloque():
-    hoy = date(2026, 10, 20)  # lunes
+    hoy = date(2026, 10, 20)  # martes
     ctx = [_rec("a", "El mortal va a pilates [y no lo juzgo].", fecha=date(2026, 10, 21), creado_dia=3),
            _rec("b", "Perdió a su gato Tofu.", importancia=5, emocion="sad", creado_dia=1)]
     b = memoria.bloque(ctx, 3, hoy)
-    assert "Hoy es lunes 2026-10-20" in b
+    assert "Hoy es martes 2026-10-20" in b
     assert "El mortal va a pilates y no lo juzgo." in b
     assert "Perdió a su gato Tofu." in b
     assert "2026-10-21" in b
