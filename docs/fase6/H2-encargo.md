@@ -6,7 +6,7 @@ titulo: emoción sad, motor v3 y emerge
 plan: arquitecto
 fecha: 2026-10-19
 decisiones: "vault 30-projects/klothulhu/ficha.md § Decisiones (D28, D30, D33; también D10, D23, D26, D29)"
-gasto_autorizado: "pendiente: hasta $0.05 en T7 [API], cuando Josem lo autorice en el chat"
+gasto_autorizado: "T7 [API], hasta $0.05 (se esperan ~$0.008): autorizado por Josem el 2026-10-19, en el chat del claudquitecto. La pasada la lanza Josem"
 ---
 
 # H2 · Emoción `sad`, motor v3 y `emerge` (D28, D30, D33)
