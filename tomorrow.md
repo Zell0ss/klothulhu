@@ -1,6 +1,6 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H1 (`fase7`, worktree `/data/klothulhu-fase7`). T1-T9b hechas y commiteadas (último: ca3522a).
+**Parada:** fase 7, H1: parada 1 entregada (H1-informe.md). Espero la revisión del arquitecto.
 Normativas M1-M10 en verde (copiadas a `tests/test_fase7_h1.py`), `ruff` limpio, 70 pasan y 4 se saltan
 (las de la BD real). **Falta para la parada 1:** T6 contra `klothulhu_test` y la pasada a mano con
 `KLOTHULHU_FAKE=1 KLOTHULHU_MEMORIA=1` contra `klothulhu_dev`.
