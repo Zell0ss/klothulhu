@@ -44,6 +44,37 @@ ESQUEMA = {
     "additionalProperties": False,
 }
 
+ESQUEMA_JUEZ = {
+    "type": "object",
+    "properties": {"pertinente": {"type": "boolean"}},
+    "required": ["pertinente"],
+    "additionalProperties": False,
+}
+
+ESQUEMA_REPASO = {
+    "type": "object",
+    "properties": {
+        "usados": {"type": "array", "items": {"type": "string"}},
+        "fallos": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "tipo": {"type": "string", "enum": ["F3", "F4", "F5"]},
+                    "recuerdo": {"type": ["string", "null"]},
+                },
+                "required": ["tipo", "recuerdo"],
+                "additionalProperties": False,
+            },
+        },
+    },
+    "required": ["usados", "fallos"],
+    "additionalProperties": False,
+}
+
+PROMPT_JUEZ = Path(__file__).with_name("juez_prompt.md").read_text(encoding="utf-8")
+PROMPT_REPASO = Path(__file__).with_name("repaso_prompt.md").read_text(encoding="utf-8")
+
 _anthropic = None
 _openai = None
 ultimo: dict = {}  # última respuesta cruda (stop_reason y texto), para memoria_prueba.py
@@ -82,6 +113,75 @@ async def escribir(transcripcion: str, previos: list[str], hoy: date) -> tuple[d
         log.warning("escritor: sin bloque de texto")
         return {"recuerdos": []}, uso
     return json.loads(texto), uso
+
+
+def _cliente_anthropic():
+    global _anthropic
+    if _anthropic is None:
+        from anthropic import AsyncAnthropic
+
+        _anthropic = AsyncAnthropic()  # lee ANTHROPIC_API_KEY
+    return _anthropic
+
+
+async def _estructurada(
+    sistema: str, mensaje: str, esquema: dict, *, max_tokens: int, sin_pensar: bool = False
+):
+    """Una llamada a Haiku con salida estructurada: (dict | None, uso). None si rechazó o se cortó."""
+    kwargs = {}
+    if sin_pensar:
+        kwargs["thinking"] = {"type": "disabled"}  # como el director (D20): menos latencia
+    resp = await _cliente_anthropic().messages.create(
+        model=MODELO,
+        max_tokens=max_tokens,
+        system=sistema,
+        messages=[{"role": "user", "content": mensaje}],
+        output_config={"effort": "low", "format": {"type": "json_schema", "schema": esquema}},
+        **kwargs,
+    )
+    uso = (MODELO, resp.usage.input_tokens, resp.usage.output_tokens)
+    if resp.stop_reason in ("refusal", "max_tokens"):
+        log.warning("%s: stop_reason=%s", sistema[:10].strip(), resp.stop_reason)
+        return None, uso
+    texto = next((b.text for b in resp.content if b.type == "text"), None)
+    return (json.loads(texto) if texto is not None else None), uso
+
+
+async def juzgar(mensaje: str, recuerdo: str) -> tuple[bool, tuple[str, int, int]]:
+    """D44: ¿le serviría a klothulhu tener presente este recuerdo para contestar este mensaje?"""
+    salida, uso = await _estructurada(
+        PROMPT_JUEZ, f"Mensaje del mortal:\n{mensaje}\n\nRecuerdo de klothulhu:\n{recuerdo}", ESQUEMA_JUEZ,
+        max_tokens=1024, sin_pensar=True,
+    )
+    return bool(salida and salida.get("pertinente") is True), uso
+
+
+async def repasar(transcripcion: str, contexto: list[dict]) -> tuple[dict, tuple[str, int, int]]:
+    """D45: qué recuerdos usó klothulhu y qué fallos hubo. Al modelo le llegan ids cortos (r1, r2…);
+    aquí se traducen a los ids completos. Un id corto desconocido se devuelve tal cual."""
+    corto = {f"r{i}": r["id"] for i, r in enumerate(contexto, 1)}
+    lista = "\n".join(f"{c}: {r['texto']}" for c, r in zip(corto, contexto, strict=True))
+    salida, uso = await _estructurada(
+        PROMPT_REPASO, f"Recuerdos presentes:\n{lista}\n\nLa charla:\n{transcripcion}", ESQUEMA_REPASO,
+        max_tokens=2048,
+    )
+    if salida is None:
+        return {"usados": [], "fallos": []}, uso
+    traduce = lambda c: corto.get(c, c) if isinstance(c, str) else c  # noqa: E731
+    return {
+        "usados": [traduce(c) for c in salida.get("usados", [])],
+        "fallos": [{**f, "recuerdo": traduce(f.get("recuerdo"))} for f in salida.get("fallos", [])],
+    }, uso
+
+
+async def juzgar_falso(mensaje: str, recuerdo: str) -> tuple[bool, tuple[str, int, int]]:
+    """Para KLOTHULHU_FAKE=1: todo es pertinente."""
+    return True, (MODELO, 100, 10)
+
+
+async def repasar_falso(transcripcion: str, contexto: list[dict]) -> tuple[dict, tuple[str, int, int]]:
+    """Para KLOTHULHU_FAKE=1: nada usado y sin fallos."""
+    return {"usados": [], "fallos": []}, (MODELO, 100, 10)
 
 
 async def embeber(texto: str) -> tuple[list[float], tuple[str, int, int]]:
