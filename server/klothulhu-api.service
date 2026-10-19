@@ -16,6 +16,10 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=read-only
+# ProtectSystem=strict deja /data en solo lectura; LogCentral escribe aquí (D42).
+ReadWritePaths=/data/klothulhu/logs
+# El apagado cierra las sesiones abiertas, hasta 20 s (D41).
+TimeoutStopSec=30
 
 [Install]
 WantedBy=multi-user.target
