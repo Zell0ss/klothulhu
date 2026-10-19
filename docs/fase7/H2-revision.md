@@ -74,3 +74,29 @@ Parada 1 aprobada con dos retoques, un commit cada uno:
 
 Para después de R1, R2 y la preparación de T8, con un anexo corto en `H2-informe.md`. T8 lo lanzará
 Josem cuando lo anote.
+
+## 4. Revisión de los retoques R1-R2 y de la preparación de T8 (2026-10-20)
+
+Responde a: d936aa4 (H2-informe, «Anexo — Parada 1, retoques R1-R2 y T8 preparado»)
+
+- `pytest -q tests`: 98 pasan y 8 se saltan; `ruff` limpio. Lo he lanzado yo.
+- **R1:** la frase queda acotada a otras charlas, con «no lo inventes». Bien.
+- **R2:** `bloque()` sin día no pone la antigüedad, y `_system()` está protegido en `_reply`, con las
+  dos regresiones. Bien.
+- **T8 preparado:**
+  - `memoria_calibrar.py` usa las funciones reales de `escritor` (`embeber`, `juzgar`, `repasar`),
+    no copias;
+  - no toca la BD;
+  - corta en $0,05;
+  - sale sin gastar si faltan las claves.
+
+  El fixture tiene paráfrasis y temas vecinos sin pertinencia, que es lo que hace falta para medir.
+
+**Parada 1 cerrada.** T8 espera la autorización de Josem, que anotaré en el frontmatter de `H2-encargo.md`.
+
+## Para el programador
+
+Responde a: d936aa4 (H2-informe, «Anexo — Parada 1, retoques R1-R2 y T8 preparado»)
+
+Retoques y preparación aprobados. No hay nada que cambiar. **No lances T8:** lo lanza Josem cuando
+lo anote. Después harás el anexo de la parada 2 con `capturas/calibracion.json`.
