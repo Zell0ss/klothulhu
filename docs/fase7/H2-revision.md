@@ -100,3 +100,69 @@ Responde a: d936aa4 (H2-informe, «Anexo — Parada 1, retoques R1-R2 y T8 prepa
 
 Retoques y preparación aprobados. No hay nada que cambiar. **No lances T8:** lo lanza Josem cuando
 lo anote. Después harás el anexo de la parada 2 con `capturas/calibracion.json`.
+
+## 5. Revisión de la parada 2: calibración (2026-10-20)
+
+Responde a: ca19dd3 (H2-informe, «Anexo — Parada 2, calibración (T8)»)
+
+### Comprobado contra `capturas/calibracion.json`
+
+He recontado las 384 parejas yo mismo:
+
+| Umbral | Pertinentes que pasan | No pertinentes que pasan |
+|---|---|---|
+| 0,30 | 23 / 24 | 37 |
+| **0,34** | **23 / 24** | **15** |
+| 0,35 | 22 / 24 | 11 |
+| 0,40 | 18 / 24 | 3 |
+| 0,45 | 11 / 24 | 2 |
+
+Coincide con el informe, salvo un redondeo en 0,359 (10 frente a 11). La captura no lleva claves.
+
+- **Gasto:** $0,0024 (Haiku $0,00237 y OpenAI $0,000013), con tope de $0,05. Autorizado y lanzado
+  por Josem (188c2dc).
+- **El 0,45 provisional era un error mío:** dejaba fuera más de la mitad de lo pertinente. Las
+  similitudes de `text-embedding-3-small` entre un mensaje corto y un recuerdo caen bajas
+  (mediana de lo pertinente, 0,44).
+
+### Decisión: `UMBRAL = 0.34`
+
+Es más bajo que el 0,359 que sale del criterio del encargo, a propósito:
+- recoge también la pareja «Cuéntame algo de ti» con la vergüenza de klothulhu (0,344). Es justo
+  el tipo de recuerdo propio que queremos que salga;
+- el precio son 4 parejas más para el juez, a $0,00008 cada una;
+- D44 dice que el umbral debe cubrir de más y que el juez filtra.
+
+**El juez cumple su papel**, y el indicador de falsación de D44 en la calibración no se dispara:
+- con el umbral solo, 22 aciertos y 10 falsos positivos (precisión 0,69);
+- con el juez, 21 y 3 (precisión 0,88), a cambio de un falso negativo ambiguo («clase» sin decir
+  de qué).
+
+### Hallazgos, sin retoque
+
+1. **El juez es algo generoso con temas vecinos** (cansancio y sueño: 2 falsos positivos). Que
+   entre un recuerdo de más en el contexto cuesta poco: el narrador tiene la orden de usarlo solo si
+   viene a cuento, y si lo fuerza, el repaso lo marca como F5. Se mira en H3 (F5 y «pertinentes no
+   usados»). Atribución: comportamiento del modelo.
+2. **El repaso B cuenta como usado un recuerdo que solo apareció tras el reproche, y no anota F3.**
+   Es una lectura defendible: lo usó, aunque tarde, y el F4 sí lo cazó. No se cambia el prompt.
+3. **Latencia:** el juez tarda 0,9 s en la mediana y 2,2 s en el p95; el embedding, 0,15 s y 0,3 s.
+   Como todo va en paralelo (D36), lo que trae la búsqueda llega a tiempo para el mensaje siguiente,
+   salvo que el mortal escriba en menos de 2,5 s. Es lo que preguntaba el borrador (100-300 ms para
+   el embedding): medido.
+
+### Veredicto
+
+**H2 aprobado, con un último retoque (R3).** Después, despliegue de Josem (encargo §5) y su prueba
+R1-R3.
+
+## Para el programador
+
+Responde a: ca19dd3 (H2-informe, «Anexo — Parada 2, calibración (T8)»)
+
+- **R3 · `memoria.UMBRAL = 0.34`.** El comentario lleva la fuente: «calibrado en T8,
+  H2-revision §5; D44». Si hay alguna prueba no normativa que dependa del 0,45, la ajustas. Las
+  normativas no lo usan.
+
+Un commit y para. No hace falta anexo: la línea del commit basta, y la revisaré en el diff. El
+despliegue es de Josem.
