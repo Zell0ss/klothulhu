@@ -69,3 +69,63 @@ Responde a: 5d2135b (H2-revision, «Para el programador»)
   - Pruebas (`tests/test_calibrar.py`, sin API): el umbral deja pasar el 90 %, percentil y coseno, el fixture es coherente y una pasada completa con falsos escribe la captura. Sin claves en el entorno, el script sale sin gastar.
 
 **Pruebas:** 98 pasan y 8 se saltan (sin `KLOTHULHU_TEST_DB`); `ruff` limpio. **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí; T8 espera la autorización de Josem.
+
+## Anexo — Parada 2, calibración (T8) (2026-10-20)
+
+Responde a: e2a9c7b (H2-revision §4) y 188c2dc (autorización de T8)
+
+**Hecho:** `scripts/memoria_calibrar.py` (commit de T8) lo lanzó Josem en persona; yo no lo he ejecutado. Captura subida tal cual: `docs/fase7/capturas/calibracion.json` (384 parejas ordenadas por similitud, cada una con su etiqueta y el veredicto del juez).
+
+**Distribución de similitudes** (12 recuerdos × 32 mensajes; 24 parejas pertinentes, 360 no):
+
+| | n | mín | p10 | p25 | p50 | p75 | p90 | máx |
+|---|---|---|---|---|---|---|---|---|
+| pertinentes | 24 | 0,286 | 0,359 | 0,400 | 0,438 | 0,486 | 0,526 | 0,543 |
+| no pertinentes | 360 | 0,029 | 0,116 | 0,158 | 0,206 | 0,265 | 0,300 | 0,549 |
+
+**Umbral propuesto por el criterio del encargo** (el más alto que deja pasar ≥ 90 % de las pertinentes): **0,359**. Para comparar:
+
+| Umbral | Pertinentes que pasan | No pertinentes que pasan |
+|---|---|---|
+| 0,30 | 23 / 24 | 37 / 360 |
+| **0,359** | 22 / 24 | 11 / 360 |
+| 0,40 | 18 / 24 | 3 / 360 |
+| **0,45 (el `UMBRAL` actual)** | **11 / 24** | 2 / 360 |
+
+Con el 0,45 provisional solo pasaría un 46 % de las pertinentes. Las dos pertinentes que quedan bajo 0,359 son «Cuéntame algo de ti» con el recuerdo de la vergüenza de klothulhu (0,344) y «¿Cómo se dice “gracias” en japonés?» con el viaje a Japón (0,286).
+
+**Juez** sobre las 31 parejas que superan 0,359: **27 aciertos** (21 verdaderos positivos, 6 verdaderos negativos), 3 falsos positivos y 1 falso negativo.
+
+| Pareja | Sim. | Etiqueta | Juez |
+|---|---|---|---|
+| «Me da miedo ir al médico» – cita con el dentista | 0,549 | no | sí |
+| «Me duele la espalda otra vez» – duerme mal por el turno | 0,401 | no | sí |
+| «Uf, otra vez tengo reunión a primera hora» – duerme mal por el turno | 0,370 | no | sí |
+| «Esta tarde tengo clase y aún no sé qué llevar» – cocina italiana | 0,359 | sí | no |
+
+Mi lectura, para el arquitecto: el primer falso positivo es discutible (el miedo al médico y el pavor al dentista sí se tocan; el que se quedó corto es mi etiqueta). Los otros dos son temas vecinos (cansancio y sueño) que el juez deja pasar con más generosidad de la que pedía «ante la duda, no». El falso negativo es una pareja que la propia redacción del mensaje hace ambigua («clase» sin decir de qué).
+
+**Repaso** (2 charlas):
+- **A** (colegio): `usados = [m1]`, sin fallos. Coincide con lo esperado.
+- **B** (reproche): `usados = [m4]`, `fallos = [F4 sobre m4]`. Esperaba `usados = []` y además un F3 (no usó el recuerdo en el primer mensaje); el repaso ve el F4, pero considera usado el recuerdo porque la segunda respuesta lo recoge («Setenta es una cifra con peso») y no anota el F3. Es discutible cuál de los dos juicios es el correcto.
+
+**Latencia:**
+
+| | n | p50 | p95 | máx |
+|---|---|---|---|---|
+| Embedding | 44 | 153 ms | 311 ms | 3094 ms (un pico) |
+| Juez | 31 | 946 ms | 2198 ms | 2234 ms |
+
+El juez (con `thinking: disabled`) ronda el segundo y puede tardar dos; el embedding es rápido salvo picos.
+
+**Gasto** (de la captura):
+
+| Modelo | Llamadas | Tokens in / out | Coste |
+|---|---|---|---|
+| `claude-haiku-5-5` | 33 (31 juez + 2 repaso) | 19791 / 780 | $0,0023691 |
+| `text-embedding-3-small` | 44 | 643 / 0 | $0,00001286 |
+| **Total** | | | **$0,00238196** |
+
+Autorizado por Josem en el chat del arquitecto el 2026-10-20 (hasta $0,05), anotado por el arquitecto en `H2-encargo.md` (188c2dc) y lanzado por él en persona. Un 4,8 % del tope.
+
+**Desviaciones:** ninguna. **Decisiones que necesito:** ninguna; fijar `UMBRAL` es del arquitecto. Paro aquí.

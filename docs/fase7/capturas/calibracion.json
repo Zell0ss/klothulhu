@@ -1,0 +1,3574 @@
+{
+  "umbral_propuesto": 0.359198618060641,
+  "criterio": "el más alto que deja pasar al menos el 90% de las pertinentes",
+  "distribucion": {
+    "pertinentes": {
+      "n": 24,
+      "min": 0.28560273585529944,
+      "p10": 0.359198618060641,
+      "p25": 0.39986637129904035,
+      "p50": 0.43750125047877364,
+      "p75": 0.4856368369128778,
+      "p90": 0.5261277448395515,
+      "max": 0.5433292742055652
+    },
+    "no_pertinentes": {
+      "n": 360,
+      "min": 0.02942998789642146,
+      "p10": 0.11649621318339692,
+      "p25": 0.15808447376355814,
+      "p50": 0.20639242221415605,
+      "p75": 0.264885696646776,
+      "p90": 0.3004173773521689,
+      "max": 0.5488955119476484
+    }
+  },
+  "juez": {
+    "parejas": 31,
+    "aciertos": 27,
+    "verdaderos_positivos": 21,
+    "falsos_positivos": 3,
+    "falsos_negativos": 1,
+    "verdaderos_negativos": 6,
+    "pertinentes_bajo_el_umbral": 2
+  },
+  "latencia": {
+    "embedding": {
+      "n": 44,
+      "p50_ms": 153.26900899526663,
+      "p95_ms": 310.64606300060404,
+      "max_ms": 3094.060489005642
+    },
+    "juez": {
+      "n": 31,
+      "p50_ms": 945.8112440042896,
+      "p95_ms": 2197.7564090047963,
+      "max_ms": 2233.905421999225
+    }
+  },
+  "repaso": [
+    {
+      "charla": "A · usa el recuerdo del colegio",
+      "salida": {
+        "usados": [
+          "m1"
+        ],
+        "fallos": []
+      },
+      "esperado": {
+        "usados": [
+          "m1"
+        ],
+        "fallos": []
+      },
+      "tokens": {
+        "in": 1204,
+        "out": 100
+      }
+    },
+    {
+      "charla": "B · reproche (F4) y recuerdo no usado (F3)",
+      "salida": {
+        "usados": [
+          "m4"
+        ],
+        "fallos": [
+          {
+            "tipo": "F4",
+            "recuerdo": "m4"
+          }
+        ]
+      },
+      "esperado": {
+        "usados": [],
+        "fallos": [
+          {
+            "tipo": "F4",
+            "recuerdo": "m4"
+          },
+          {
+            "tipo": "F3",
+            "recuerdo": "m4"
+          }
+        ]
+      },
+      "tokens": {
+        "in": 1164,
+        "out": 370
+      }
+    }
+  ],
+  "coste_por_modelo": {
+    "text-embedding-3-small": {
+      "llamadas": 44,
+      "in": 643,
+      "out": 0,
+      "coste": 1.2859999999999995e-05
+    },
+    "claude-haiku-5-5": {
+      "llamadas": 33,
+      "in": 19791,
+      "out": 780,
+      "coste": 0.0023690999999999994
+    }
+  },
+  "coste_total": 0.0023819599999999994,
+  "parejas": [
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.5488955119476484,
+      "etiqueta": false,
+      "juez": true,
+      "juez_ms": 954.9936550029088
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.5433292742055652,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 747.4190069988254
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.5299859203184429,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 821.2833949946798
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.5261277448395515,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 761.8238279974321
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.5175994406444733,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 2197.7564090047963
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.5076842527376149,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 2233.905421999225
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.48863702686391286,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 916.933082997275
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.4856368369128778,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 965.553373003786
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.48056112440789317,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 1211.194871000771
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.46664024433474177,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 701.6710160023649
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.45698386173998173,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 1060.5038770008832
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.45553005615989023,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 1488.45053200057
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.4503794683007781,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 829.5121029950678
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.4457491314090836,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 745.4455839979346
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.43750125047877364,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 1077.7704149950296
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.4290889640507931,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 955.2873200009344
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.42659384863869276,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 845.0074860011227
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.4189377070882402,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 945.8112440042896
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.4148797328852465,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 710.720195005706
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.4112887589163962,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 1145.9119979990646
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.400900964691812,
+      "etiqueta": false,
+      "juez": true,
+      "juez_ms": 724.9312319981982
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.39986637129904035,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 925.3017329974682
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.39300682323916947,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 691.6362650008523
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.3836992783674125,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 961.6277509994688
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.3708549205152951,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 1124.1200610020314
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.3704008343217307,
+      "etiqueta": false,
+      "juez": true,
+      "juez_ms": 1046.2851869961014
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.36753696452938955,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 705.719459001557
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.36393700147479174,
+      "etiqueta": true,
+      "juez": true,
+      "juez_ms": 984.3462019998697
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.36229882716202033,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 948.7525939985062
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.3622141816294541,
+      "etiqueta": false,
+      "juez": false,
+      "juez_ms": 680.643070001679
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.359198618060641,
+      "etiqueta": true,
+      "juez": false,
+      "juez_ms": 852.7745710016461
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.35911448663367573,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.3566311017813249,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.3475091332215984,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.34511430110586483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.34440424275741904,
+      "etiqueta": true,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.3428762479560264,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.34225024394223175,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.3397406653305722,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.3395878022868443,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.33709474348039187,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.33138823775347337,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.3246209351175539,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.322289615762978,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.31756609610744735,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.3165078827745637,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.31435726052807955,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.314093749393581,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.31388511754004517,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.3137207873003898,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.31252047576667086,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.31112932454471887,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.31016287813669163,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.3088273748705824,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.3086439975779123,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.30657066980224534,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.304804320531442,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.30303737105620715,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.3029269933297855,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.3004173773521689,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.29989764211334036,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.29954023533147395,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.29932247849007393,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.29887844774307526,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.29609582829257197,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2955627853490251,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2948792273564707,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2948309786297719,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2946031869684214,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2941554511008853,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.2940179457894715,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.29400871095454684,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.29389322488463293,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.29342735238317863,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.29166687713765893,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.29087007362748707,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.29047193016410716,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.2891433356554949,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.28892646081183415,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.2881612717141994,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2874659911766212,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.28560273585529944,
+      "etiqueta": true,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2845024815525561,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.28448488665296834,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.2843577538634483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.28425933256435554,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.2840297309931582,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2825689736917651,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2801017425211157,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2786337334516372,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2759039144399988,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.27565587335654307,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2754433422050633,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.27462224929638224,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.27384976857444526,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2734929422616151,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.27261153092936996,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.27184337292088395,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.27026489435673295,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.27020631465775835,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.2697842790193313,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2694546058118338,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.2693560740321576,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2692579305854179,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.26892170449237446,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2678239173850524,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.26703549949214483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2666758287600667,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.2666661269778753,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2664514069615323,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.2662799192359646,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.26622115054638634,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.26618224801440277,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.2655379278038523,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.264885696646776,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.2645382989406561,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.26417471154544664,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.2639827605327716,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.2612459011481367,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.25841270274832095,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.25841194847541005,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.2571859171457711,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.25680043657585105,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2566237872312682,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.25657680727261756,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2555124460987996,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2536083951074841,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2531342218888575,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.2531201072300955,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2529073922711313,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.25237588796853594,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.25184266408907585,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.24944361833802856,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.24872376135621985,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.24869066362672665,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.2485369916154497,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2462538645693247,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.24474553539748453,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.2445314905447691,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.24265173618592098,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.24108280197056733,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.24107551382483888,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.24071161823231027,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.24028994810046567,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.24000370298509086,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.23866246041408776,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.23861450395604264,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.23757026491892605,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.23726062932073463,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.23711700024156343,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.23695004483204207,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.2367446778362261,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2364739774890372,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.23561523169421408,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.23515069129507365,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.23509041751439066,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.2349362036738769,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.23422278289230283,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.23414029245730483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.2341209276856379,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.2337020030734411,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.23360181806500027,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.23264812541467403,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.23238235423172815,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.2323183141849147,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.23198443416295653,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.23149057233018572,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.23127562775533597,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.23102016394580518,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.2303906145586581,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.22799659105078032,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.22782298546719418,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.22756613044095245,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.22640516979247724,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.2263976789857434,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.2256026482058227,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.22485509612242743,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.22485414525195777,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.22327556234837106,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.22150403230934218,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.22053761296368102,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.21978723527952196,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.2197184492765523,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2192122950429524,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.21882417737430815,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.21867262281543462,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.21824809164017064,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.21771520461220764,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.21681886019572422,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.21565741655799747,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.21436417187674187,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.2140557236441623,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2135897968283888,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.21326109285098585,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.21132024794810142,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.21106294288204158,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.20991080711580104,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.20947560340938667,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.208533090313927,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.20816849416172842,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.20792726928590002,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.20690719224699194,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.206682735892528,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.20661291635422174,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.20639242221415605,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.20392448916787945,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.20347321696236387,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.2033885684834688,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.2032381721008384,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2031676202325099,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.2028333928951243,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.20279714649687933,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.20275779515286552,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.20266705988837685,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.20217702384040964,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.20204910031729942,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.20203906085822676,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.20198933325268617,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.20119593996536603,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.2008612248069195,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.2002873047413579,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.19925858620169234,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.1991479861171357,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Esta tarde tengo clase y aún no sé qué llevar",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.19842364464816042,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.19836614627300483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.19822773721181364,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame un chiste",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.19707480002532324,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.19631526186018616,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.19627243226353935,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.19545598451144397,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.19545371832585245,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "He quedado a cenar con mi madre, ¿qué le llevo?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.19492334877939438,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.1946814988641005,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.1936387024704335,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.19294287972038116,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.19213344787119851,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.19208305998776648,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.19041219809404158,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.18985025068244446,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.1895014947538649,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.1879875415950183,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.1877097652751576,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.18756837711713475,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.18754894189182736,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.1874952971969676,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.18610588072733958,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.18525023616680694,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.18504000919900154,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.1845497611421517,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.18372828501781005,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.18355484825405124,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.18337163826421185,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mañana llevo a la niña a su primer día de cole",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.182436193323963,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.17976655942134942,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.1797607877688959,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.17851634550879303,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.17813743177622013,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "El veterinario dice que hay que vigilarle la pata",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.17748468072339357,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que ir a que me miren una muela",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.17740404241309293,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.1771220997906165,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Uf, otra vez tengo reunión a primera hora",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.17634693935550905,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.17616957397127014,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.17568145342219618,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.17537976597802313,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.1741704260516364,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.173120149438925,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.17297450730965738,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.17288150849145378,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me duele la espalda otra vez",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.1721396733887815,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.17149566136561006,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.17149392848006675,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.170692043030438,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.17020897974576035,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.16981724452483565,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.16966830058583085,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.16948487631312262,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.16905883827368529,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.16851055685513636,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.16771999959145634,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Anoche estuve tocando un rato y salió algo decente",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.16758564838431483,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.16690238409269736,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.1659583220756844,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Hoy no tengo ganas de nada",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.16591078928166184,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.1653440452016213,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.16497850935183647,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.16495525980758124,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.16363185517765655,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.16322040448978653,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.16145279809416424,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy mirando mochilas para el colegio de mi hija",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.16103335565761462,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.1602665626144893,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.16010873200861397,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.15884458341254062,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.15829531689659426,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.15808447376355814,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.15769430902716094,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.15713598640334617,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.1559214488918895,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.1558076557029725,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.1551364087033254,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.15469375874116265,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Quiero aprender una canción nueva con las seis cuerdas",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.15401513509098164,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.15367058325547667,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.1512374125599833,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.1509329863605138,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.14949350411716525,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Recomiéndame una película de terror",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.1481710202293946,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.14812654982706674,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.1478419811586899,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.1478304771723452,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.1470944709773094,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Cuéntame algo de ti",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.14663385303638998,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.14651295258391223,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.1446181851973702,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.1440212014899533,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Otra vez no consigo dormir",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.14361141893696397,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.14349728930071304,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.1424450679783533,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me da miedo ir al médico",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.14160924169689357,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Explícame qué es un algoritmo",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.14129828671993308,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Estoy agotado, hoy me han dado las seis de la mañana",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.13999155393507276,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.1399714085170878,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.13987436516453053,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.13857641317323818,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.13716600313395216,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.13544712858754585,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.1345200306982289,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.13389695525381062,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.1327980644976705,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.13126638589400844,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Tengo que comprar un regalo para mi madre",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.130207510094527,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.12999287211344313,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué estiramientos hago en la oficina?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.1298631870318475,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.12942011777742182,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.1291525671166326,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.12810404722530688,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Mi hija ya sabe escribir su nombre",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.12724600924524052,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.12531149985129597,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.12517498609296385,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.12429517023084596,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.12376675762403057,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.12369160257518051,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cada cuánto riego las plantas del balcón?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.12368833233526529,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.12160125358940309,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.11881574306411088,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.11879689562625394,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.11725039583993124,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.11655217740359454,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "Me ha llegado un correo del banco",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.11649621318339692,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.11593739694430323,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.11503393481745193,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.11426244587857579,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.11103551340930609,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.11074212596155737,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.11067042292400657,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.10885333955396181,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.1076203537885233,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.10640252109034058,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m12",
+      "recuerdo": "Tiene cita con el dentista el 3 de noviembre y le da pavor.",
+      "similitud": 0.1035564454068276,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.10135365399843337,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Te molesta que ya nadie te tenga miedo?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.10018036048680005,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.09946231511913327,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.0985072010257769,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Por qué cojea un perro de una pata trasera?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.09841591007840497,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.09792074836482965,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué verduras puedo plantar en octubre?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.09746310660276712,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.09571989754497172,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.09377158610472218,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m10",
+      "recuerdo": "A mí me avergüenza lo poco que se asusta nadie de mí aquí, en un escritorio.",
+      "similitud": 0.0927889443348022,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m7",
+      "recuerdo": "Está ahorrando para viajar a Japón en primavera y ya mira billetes.",
+      "similitud": 0.09028599209261479,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m6",
+      "recuerdo": "El mortal detesta las reuniones de los lunes a las nueve: dice que le roban el alma antes del café.",
+      "similitud": 0.08898873627467573,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m4",
+      "recuerdo": "Su madre cumple 70 años el 14 de noviembre y él le está preparando una sorpresa.",
+      "similitud": 0.08844509228604737,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.08293845532167235,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Me das ideas para una cena con pasta?",
+      "recuerdo_id": "m8",
+      "recuerdo": "Me confesó que duerme mal desde que cambió de turno en el trabajo.",
+      "similitud": 0.08266684900131185,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m2",
+      "recuerdo": "A Josem le duele la espalda de tanto estar sentado y dice que va a probar el yoga.",
+      "similitud": 0.08036157501866872,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué hora es en Nueva York?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.07958440019675986,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m3",
+      "recuerdo": "El mortal se ha apuntado a clases de cocina italiana los miércoles por la tarde.",
+      "similitud": 0.07954642677500724,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m1",
+      "recuerdo": "El mortal tiene una hija pequeña, Lucía, que empieza el colegio este año; se le nota el orgullo y los nervios.",
+      "similitud": 0.07653547205367263,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.07424854815221148,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo se dice «gracias» en japonés?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.07182173110708293,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cómo ordeno una lista en Python?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.0614317556355341,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m11",
+      "recuerdo": "El mortal toca la guitarra por las noches, aunque dice que lo hace fatal.",
+      "similitud": 0.047732788344210506,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Qué tiempo hace en Tokio en abril?",
+      "recuerdo_id": "m5",
+      "recuerdo": "Tiene un perro viejo, Bruno, que cojea de una pata y le preocupa.",
+      "similitud": 0.04645583040781156,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    },
+    {
+      "mensaje": "¿Cuánto cuesta un vuelo a Osaka?",
+      "recuerdo_id": "m9",
+      "recuerdo": "Hablamos de su proyecto de huerto urbano en el balcón: tomates y albahaca, sobre todo.",
+      "similitud": 0.02942998789642146,
+      "etiqueta": false,
+      "juez": null,
+      "juez_ms": null
+    }
+  ]
+}
