@@ -17,7 +17,7 @@ VIDA_BASE = 7  # días de uso en que un recuerdo sin usos pierde la mitad de su 
 PESO_EMOCION = 1.25  # lo que no es neutral pesa más (D34)
 FUERZA_MINIMA = 0.05  # por debajo, el recuerdo se poda (D46)
 CONTEXTO_N = 15  # recuerdos que entran en el prompt al abrir la sesión (D43)
-UMBRAL = 0.45  # similitud a partir de la cual el juez mira un candidato; tentativo hasta la calibración (D44)
+UMBRAL = 0.34  # similitud a partir de la cual el juez mira un candidato; calibrado en T8, H2-revision §5; D44
 PROMPT_BLOQUE = Path(__file__).with_name("memoria_prompt.md")
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
