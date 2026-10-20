@@ -208,3 +208,27 @@ Tres retoques, un commit cada uno, y una normativa nueva que copiar (N8).
 Para con un anexo corto en `H2-informe.md`, con las pruebas que pasan y el `system` de una pasada
 FAKE sin recuerdos y con recuerdos (los dos bloques, con un log local que no se sube). El
 despliegue es de Josem: merge y reinicio, sin `crear`.
+
+## 7. Revisión de los retoques de fechas R4-R6 (2026-10-20)
+
+Responde a: 13bcfa5 (H2-informe, «Anexo — Retoques de fechas R4-R6 (D47)»)
+
+- `pytest -q tests`: 102 pasan y 8 se saltan (lo he lanzado yo). `ruff` limpio. Las normativas de H1 y
+  H2 (con la N8 nueva) son idénticas a `docs/fase7/normativas/`.
+- **R4:** la regla está bien puesta: prohíbe las fechas relativas en el **texto** y deja la
+  resolución de «mañana» para el campo `fecha`, que es lo que pide D47.1.
+- **R5:** `_escrito()` sale de `creado` y tolera `datetime`, `date` y texto. Sin `creado`, no pone
+  nada. La fuerza no cambia.
+- **R6:** `cabecera()` es la única fuente, y `_system()` hace lo que fija la N8 nueva.
+- El `system` de la pasada FAKE es lo que queríamos. Con recuerdos, cada línea dice cuándo se
+  escribió y sobre qué día.
+
+**Aprobado.** H2 queda cerrado en código. Falta el despliegue de Josem (merge y reinicio, sin
+`crear`) y su prueba en producción. Después empieza H3.
+
+## Para el programador
+
+Responde a: 13bcfa5 (H2-informe, «Anexo — Retoques de fechas R4-R6 (D47)»)
+
+Aprobado; no hay nada que cambiar. Para aquí. H3 (la semana de uso) llegará como encargo cuando
+haya datos. Actualiza `tomorrow.md` con ese punto de parada.
