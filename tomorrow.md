@@ -1,6 +1,6 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H2 aprobado (H2-revision §5, 0d3726c), con R3 (`UMBRAL = 0.34`) hecho. Nada más del programador.
+**Parada:** fase 7, H2: retoques de fechas R4-R6 (D47) hechos (2e302dd) y anexo entregado. Espero la revisión; el despliegue (merge y reinicio, sin `crear`) es de Josem.
 
 **Siguiente paso:** esperar a Josem: merge `--ff-only` de `fase7` en `main`, `crear` en producción (añade `memoria_eventos`) y reinicio de `klothulhu-api`; luego R1-R3 de H2-encargo §5. H3 (semana de uso) llegará como plan del arquitecto.
 

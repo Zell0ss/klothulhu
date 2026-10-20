@@ -129,3 +129,31 @@ El juez (con `thinking: disabled`) ronda el segundo y puede tardar dos; el embed
 Autorizado por Josem en el chat del arquitecto el 2026-10-20 (hasta $0,05), anotado por el arquitecto en `H2-encargo.md` (188c2dc) y lanzado por él en persona. Un 4,8 % del tope.
 
 **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna; fijar `UMBRAL` es del arquitecto. Paro aquí.
+
+## Anexo — Retoques de fechas R4-R6 (D47) (2026-10-20)
+
+Responde a: 1be775f (H2-revision §6, «Para el programador»)
+
+**Hecho** (194d455 R4, a51d827 R5, 2e302dd R6):
+- **R4:** `escritor_prompt.md` prohíbe en el **texto** del recuerdo «hoy», «mañana», «ayer», «esta semana» y un día de la semana suelto; pide el día completo («el martes 21 de octubre»). El campo `fecha` y los recuerdos ya guardados no cambian.
+- **R5:** `bloque()` pone `(escrito el <día> AAAA-MM-DD)` en cada línea, sacado de `creado` (acepta `datetime`, `date` o texto ISO), en lugar de la antigüedad en días de uso; sin `creado`, no pone nada. `AlmacenEnMemoria.guardar` guarda `creado` y `consultar()` lo devuelve. `dia_actual` sigue en la firma y la fuerza no cambia.
+- **R6:** `memoria.cabecera(hoy)` es la única fuente de «Hoy es <día> AAAA-MM-DD.» y `bloque()` la usa. `_system()`: con `None`, `SYSTEM_PROMPT`; con sesión y sin recuerdos, `[prompt, cabecera(inicio de la sesión)]`; con recuerdos, el bloque entero. N8 nueva copiada de nuevo, sin editarla.
+
+**Pruebas:** con `KLOTHULHU_TEST_DB=1`, **110 pasan** (normativas N1-N10 e H1 sin editar). Regresiones nuevas en `tests/test_fase7_h1_retoques.py`: un recuerdo creado el 2026-10-19 sale con «escrito el lunes 2026-10-19» (y sin `creado`, sin marca); el almacén en memoria guarda `creado` y `consultar()` lo devuelve; `_system` con sesión sin recuerdos lleva la cabecera aunque la sesión empiece a las 23:59; el prompt del escritor lleva la regla. `ruff` limpio.
+
+**El `system` de una pasada FAKE** (`KLOTHULHU_FAKE=1`, `MEMORIA` activa, almacén en memoria; log local que no se sube):
+
+*Sin recuerdos* (dos bloques):
+```
+1) <prompt.md>
+2) Hoy es martes 2026-10-20.
+```
+*Con recuerdos* (segundo bloque):
+```
+Hoy es martes 2026-10-20.
+Estos son recuerdos tuyos, escritos por ti en charlas anteriores. Úsalos solo si vienen a cuento… (instrucción)
+
+- El mortal tiene examen de conducir el martes 21 de octubre. (escrito el martes 2026-10-20) (sobre el 2026-10-21)
+- Tiene un perro viejo, Bruno, que cojea. (escrito el martes 2026-10-20)
+```
+**Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí: merge y reinicio son de Josem, sin `crear`.
