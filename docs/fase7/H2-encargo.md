@@ -5,7 +5,7 @@ hito: H2
 titulo: recordar
 fecha: 2026-10-20
 decisiones: "vault 30-projects/klothulhu/ficha.md § Decisiones (D43-D46; también D34-D37, D40-D42)"
-gasto_autorizado: "solo el paso [API] T8 (calibración), hasta $0,05, cuando Josem lo autorice en el chat (se anotará aquí)"
+gasto_autorizado: "solo el paso [API] T8 (calibración), hasta $0,05; autorizado por Josem en el chat del arquitecto el 2026-10-20 y lanzado por él"
 ---
 
 Responde a: 6495a4c (H1-informe, anexo de la parada 2). H1 está aprobado y desplegado (diario, 2026-10-20).
