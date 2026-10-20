@@ -52,7 +52,8 @@ class AlmacenEnMemoria:
         self._recuerdos[rid] = {
             "id": rid, "texto": recuerdo.texto, "importancia": recuerdo.importancia,
             "emocion": recuerdo.emocion, "fecha": recuerdo.fecha, "sesion_id": sesion_id,
-            "cliente": cliente, "creado_dia": creado_dia, "usos": 0, "ultimo_uso_dia": None,
+            "cliente": cliente, "creado": _ahora(), "creado_dia": creado_dia, "usos": 0,
+            "ultimo_uso_dia": None,
             "indexado": vector is not None, "borrado": False,
         }
         return rid

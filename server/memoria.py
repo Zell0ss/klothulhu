@@ -6,7 +6,7 @@ del esquema del escritor para longitud, número ni fecha.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from emotion_parser import EMOTIONS
@@ -101,22 +101,35 @@ def contexto_inicial(recuerdos: list[dict], dia_actual: int, hoy: date, n: int =
     return fuertes + [r for r in recuerdos if r.get("fecha") == hoy and r["id"] not in ya]
 
 
-def _antiguedad(r: dict, dia_actual: int) -> str:
-    d = dia_actual - r["creado_dia"]
-    return "de hoy" if d <= 0 else "de hace 1 día de uso" if d == 1 else f"de hace {d} días de uso"
+def cabecera(hoy: date) -> str:
+    """D47: la fecha de hoy, una sola fuente para el bloque y para el `system` sin recuerdos."""
+    return f"Hoy es {dia_semana(hoy)}."
+
+
+def _escrito(r: dict) -> str:
+    """D47: « (escrito el lunes 2026-10-19)», de `creado`; nada si el recuerdo no lo trae."""
+    creado = r.get("creado")
+    if creado is None:
+        return ""
+    try:
+        dia = creado.date() if isinstance(creado, datetime) else (
+            creado if isinstance(creado, date) else date.fromisoformat(str(creado)[:10]))
+    except ValueError:
+        return ""
+    return f" (escrito el {dia_semana(dia)})"
 
 
 def bloque(contexto: list[dict], dia_actual: int | None, hoy: date) -> str:
     """D43: el bloque del prompt con los recuerdos. Sin corchetes: el narrador escribe sus emociones
-    entre corchetes y no debe ver otros. Vacío si no hay recuerdos. Sin `dia_actual` no pone la antigüedad."""
+    entre corchetes y no debe ver otros. Vacío si no hay recuerdos. Cada uno lleva cuándo se escribió (D47);
+    `dia_actual` queda en la firma, pero ya no se usa para la antigüedad."""
     if not contexto:
         return ""
-    lineas = [f"Hoy es {dia_semana(hoy)}.", PROMPT_BLOQUE.read_text(encoding="utf-8").strip(), ""]
+    lineas = [cabecera(hoy), PROMPT_BLOQUE.read_text(encoding="utf-8").strip(), ""]
     for r in contexto:
         extra = r.get("fecha")
         sobre = f" (sobre el {extra.isoformat() if hasattr(extra, 'isoformat') else extra})" if extra else ""
-        edad = f" ({_antiguedad(r, dia_actual)})" if dia_actual is not None else ""
-        lineas.append(f"- {r['texto']}{edad}{sobre}")
+        lineas.append(f"- {r['texto']}{_escrito(r)}{sobre}")
     return "\n".join(lineas).replace("[", "").replace("]", "")
 
 
