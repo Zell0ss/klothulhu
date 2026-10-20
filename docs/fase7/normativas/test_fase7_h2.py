@@ -1,4 +1,4 @@
-"""Pruebas normativas de la fase 7, H2 (D36, D37, D42-D46). No editar: añadir en otro fichero.
+"""Pruebas normativas de la fase 7, H2 (D36, D37, D42-D47; N8 cambiada por D47). No editar: añadir en otro fichero.
 
 Sin red, sin BD y sin Qdrant: `AlmacenEnMemoria` y falsos.
 """
@@ -278,15 +278,20 @@ def test_n7_poda_al_cerrar():
     assert alm.recuerdos() == []
 
 
-# N8 — el prompt del narrador: un bloque más solo si hay recuerdos; /health cuenta sesiones (D43)
+# N8 — el prompt del narrador: con sesión, siempre la fecha; con recuerdos, el bloque entero (D43, D47).
+# Cambiada por D47 (2026-10-20): antes, sin recuerdos, el `system` era solo `prompt.md`.
 def test_n8_system_y_health():
     import app
 
-    assert app._system(None) == app.SYSTEM_PROMPT
+    assert app._system(None) == app.SYSTEM_PROMPT       # memoria apagada: como en la fase 6
     s = _sesion()
     s.dia = 3
     s.contexto = []
-    assert app._system(s) == app.SYSTEM_PROMPT
+    assert memoria.cabecera(date(2026, 10, 20)) == "Hoy es martes 2026-10-20."
+    assert app._system(s) == [
+        {"type": "text", "text": app.SYSTEM_PROMPT},
+        {"type": "text", "text": memoria.cabecera(date(2026, 10, 20))},
+    ]
     s.contexto = [_rec("a", "Va a pilates.")]
     assert app._system(s) == [
         {"type": "text", "text": app.SYSTEM_PROMPT},

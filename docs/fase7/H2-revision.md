@@ -166,3 +166,45 @@ Responde a: ca19dd3 (H2-informe, «Anexo — Parada 2, calibración (T8)»)
 
 Un commit y para. No hace falta anexo: la línea del commit basta, y la revisaré en el diff. El
 despliegue es de Josem.
+
+## 6. Retoques de fechas (D47, 2026-10-20)
+
+Responde a: ca19dd3 (H2-informe, parada 2) y 8e97de8 (R3, umbral a 0,34; lo he visto en el diff: correcto)
+
+H2 está desplegado. Revisando los recuerdos de producción, Josem ha visto uno que dice «Mañana toca
+cambiar la clase de pilates»: a los pocos días, «mañana» ya no significa nada. Ha decidido **D47**
+(ficha § Decisiones), y va antes de la semana de uso (H3).
+
+**Normativa cambiada por D47:** N8 en `docs/fase7/normativas/test_fase7_h2.py`. Con sesión y sin
+recuerdos, el `system` lleva la cabecera de fecha. Vuelve a copiarla a `tests/`. Las demás no cambian.
+
+## Para el programador
+
+Responde a: ca19dd3 (H2-informe, parada 2) y 8e97de8 (R3)
+
+Tres retoques, un commit cada uno, y una normativa nueva que copiar (N8).
+
+- **R4 · El escritor no usa fechas relativas** (D47.1). En `escritor_prompt.md`, en la regla de la
+  fecha: el **texto** del recuerdo nunca dice «hoy», «mañana», «ayer», «esta semana» ni un día de la
+  semana suelto. Dice el día: «el martes 21 de octubre». El campo `fecha` sigue igual. Los recuerdos
+  ya guardados no se tocan.
+- **R5 · Cada recuerdo, con su fecha de escritura** (D47.2).
+  - En `bloque()`, cada línea lleva `(escrito el <día de la semana> AAAA-MM-DD)`, sacado de `creado`,
+    en lugar de la antigüedad en días de uso.
+  - Si el recuerdo no trae `creado`, no se pone nada.
+  - `AlmacenEnMemoria.guardar` guarda `creado`, como el real.
+  - `consultar()` también lo devuelve (el real ya lo hace).
+  - `dia_actual` sigue en la firma; la fuerza no cambia.
+  - Regresión: un recuerdo creado el 2026-10-19 sale con «escrito el lunes 2026-10-19».
+- **R6 · La fecha de hoy, siempre** (D47.3, N8).
+  - `memoria.cabecera(hoy) -> "Hoy es <día> AAAA-MM-DD."`, y `bloque()` la usa en su primera línea:
+    una sola fuente.
+  - `_system(sesion)`:
+    - con `None`, `SYSTEM_PROMPT`;
+    - con sesión y sin recuerdos, `[prompt, cabecera(sesion.inicio.date())]`;
+    - con recuerdos, como ahora.
+  - Hoy es siempre el día de inicio de la sesión, sin hora.
+
+Para con un anexo corto en `H2-informe.md`, con las pruebas que pasan y el `system` de una pasada
+FAKE sin recuerdos y con recuerdos (los dos bloques, con un log local que no se sube). El
+despliegue es de Josem: merge y reinicio, sin `crear`.
