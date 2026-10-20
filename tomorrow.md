@@ -1,8 +1,8 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H2: parada 1 aprobada y retoques R1-R2 aprobados (H2-revision §4, e2a9c7b). T8 (calibración) preparado y **sin lanzar**: espera la autorización de Josem y que la anote el arquitecto en `H2-encargo.md`.
+**Parada:** fase 7, H2 aprobado (H2-revision §5, 0d3726c), con R3 (`UMBRAL = 0.34`) hecho. Nada más del programador.
 
-**Siguiente paso:** cuando Josem lance `scripts/memoria_calibrar.py` (unos $0,003, tope $0,05, con las claves en su entorno), subir `docs/fase7/capturas/calibracion.json` y escribir el anexo de la parada 2 en `H2-informe.md` (distribución, umbral propuesto, aciertos del juez, latencias, repaso, coste por modelo y la autorización). El arquitecto fija `UMBRAL` en su revisión. Merge, `crear` en producción y reinicio son de Josem (H2-encargo §5).
+**Siguiente paso:** esperar a Josem: merge `--ff-only` de `fase7` en `main`, `crear` en producción (añade `memoria_eventos`) y reinicio de `klothulhu-api`; luego R1-R3 de H2-encargo §5. H3 (semana de uso) llegará como plan del arquitecto.
 
 **Gotchas:**
 - `/data/klothulhu` sigue en `main`; la fase 6 (H2: V1-V4 de Josem) puede seguir sin mergear. `.venv` 3.12 propio en el
@@ -16,4 +16,4 @@
 - H2 en producción: `crear` añade `memoria_eventos`; con `KLOTHULHU_MEMORIA=1` ya activo, los recuerdos entran en las respuestas en cuanto se reinicie.
 - Automensaje activo con klothulhu-be (arquitecto).
 
-**Bloqueos:** la autorización de Josem para T8.
+**Bloqueos:** ninguno.
