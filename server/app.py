@@ -122,13 +122,12 @@ async def _cerrar_sesion(sesion, motivo: str) -> None:
 
 
 def _system(sesion: Sesion | None):
-    """El prompt del narrador. Con recuerdos en el contexto de la sesión, un bloque más (D43)."""
-    if sesion is None or not sesion.contexto:
+    """El prompt del narrador. Con memoria, un bloque más: la fecha y, si hay, los recuerdos (D43, D47)."""
+    if sesion is None:
         return SYSTEM_PROMPT
-    return [
-        {"type": "text", "text": SYSTEM_PROMPT},
-        {"type": "text", "text": memoria.bloque(sesion.contexto, sesion.dia, sesion.inicio.date())},
-    ]
+    hoy = sesion.inicio.date()  # D47: hoy es siempre el día de inicio de la sesión, sin hora
+    texto = memoria.bloque(sesion.contexto, sesion.dia, hoy) if sesion.contexto else memoria.cabecera(hoy)
+    return [{"type": "text", "text": SYSTEM_PROMPT}, {"type": "text", "text": texto}]
 
 
 async def _preparar_memoria(cid: str, text: str) -> Sesion:

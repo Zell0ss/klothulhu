@@ -137,3 +137,52 @@ def test_reply_sobrevive_a_un_system_que_lanza(monkeypatch):
 
     salida = asyncio.run(consumir())
     assert "event: done" in salida and "event: error" not in salida
+
+
+# --- H2 R4-R6 (D47): fechas -----------------------------------------------------------------------------
+
+
+def test_r5_bloque_lleva_la_fecha_de_escritura():
+    from datetime import date, datetime
+
+    import memoria
+
+    ctx = [{"id": "a", "texto": "Tiene un perro viejo.", "creado_dia": 1,
+            "creado": datetime(2026, 10, 19, 22, 5)},
+           {"id": "b", "texto": "Sin fecha de escritura.", "creado_dia": 1},
+           {"id": "c", "texto": "Con texto en iso.", "creado_dia": 1, "creado": "2026-10-22T08:00:00"}]
+    b = memoria.bloque(ctx, 3, date(2026, 10, 20))
+    assert "Tiene un perro viejo. (escrito el lunes 2026-10-19)" in b
+    assert "Sin fecha de escritura.\n" in b + "\n" and "Sin fecha de escritura. (escrito" not in b
+    assert "Con texto en iso. (escrito el jueves 2026-10-22)" in b
+    assert "días de uso" not in b
+
+
+def test_r5_el_almacen_en_memoria_guarda_creado_y_consultar_lo_devuelve():
+    from memoria import Recuerdo
+
+    a = AlmacenEnMemoria()
+    r = Recuerdo("X.", 3, "neutral", None)
+    a.guardar(sesion_id="s", cliente="k", recuerdo=r, vector=[1.0, 0.0], creado_dia=1)
+    assert a.recuerdos()[0]["creado"] is not None and a.consultar([1.0, 0.0], 1)[0]["creado"] is not None
+
+
+def test_r6_system_con_sesion_sin_recuerdos_lleva_la_fecha():
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    import memoria
+    from sesiones import Sesion
+
+    s = Sesion(id="s", cliente="k", inicio=datetime(2026, 10, 20, 23, 59, tzinfo=ZoneInfo("Europe/Madrid")))
+    s.contexto = []
+    assert app._system(s) == [{"type": "text", "text": app.SYSTEM_PROMPT},
+                              {"type": "text", "text": "Hoy es martes 2026-10-20."}]
+    assert memoria.cabecera(s.inicio.date()) == "Hoy es martes 2026-10-20."
+
+
+def test_r4_el_prompt_del_escritor_prohibe_fechas_relativas():
+    import escritor
+
+    t = escritor.PROMPT
+    assert "el martes 21 de octubre" in t and "«hoy»" in t and "«mañana»" in t and "«ayer»" in t
