@@ -232,3 +232,52 @@ Responde a: 13bcfa5 (H2-informe, «Anexo — Retoques de fechas R4-R6 (D47)»)
 
 Aprobado; no hay nada que cambiar. Para aquí. H3 (la semana de uso) llegará como encargo cuando
 haya datos. Actualiza `tomorrow.md` con ese punto de parada.
+
+## 8. Autorretrato: klothulhu sabe cómo recuerda (D48, 2026-11-05)
+
+Responde a: 13bcfa5 (H2-informe, último anexo). Nada nuevo en el buzón desde la §7.
+
+Josem quiere que klothulhu sepa explicar su memoria si alguien le pregunta, y ha elegido la opción B
+de **D48** (ficha § Decisiones): un autorretrato fijo en su voz y una línea en vivo con cuántos
+recuerdos guarda y cuántos tiene delante. Va antes de H3.
+
+**Normativas:** N8 cambia otra vez (el segundo bloque termina con el autorretrato) y se añade N11.
+Las dos están en `docs/fase7/normativas/test_fase7_h2.py`; vuelve a copiarlo a `tests/`.
+
+## Para el programador
+
+Responde a: 13bcfa5 (H2-informe, «Anexo — Retoques de fechas R4-R6 (D47)»)
+
+Dos retoques, un commit cada uno:
+
+- **R7 · `server/autorretrato.md` y `memoria.autorretrato(total, delante) -> str`.**
+  - `autorretrato()` devuelve el texto del fichero y, si `total` no es `None`, una línea en vivo,
+    con el plural bien: «Guardas 23 recuerdos; tienes delante 15.» o «Guardas 1 recuerdo; tienes
+    delante 1.». Con `total = None` (el almacén no respondió), solo el texto fijo.
+  - El texto lo escribes tú, **en la voz de `prompt.md`** (un old one, no un manual), y lo revisaré.
+    Tiene que decir, sin números ni jerga técnica (ni base de datos, ni vector, ni Qdrant):
+    1. al acabar cada charla (cuando el mortal calla un rato o se apaga el servicio) decide qué
+       guardar: pocas cosas, a veces nada;
+    2. lo que importa y lo que emociona dura más; lo que no invoca se desvanece con los días en que
+       hablan, no con el calendario; lo que usa se aviva;
+    3. delante tiene solo los recuerdos más vivos y los de hoy, y el resto duerme. Una palabra del
+       mortal puede despertar uno, que llega un poco después;
+    4. si el mortal le pide que no recuerde algo, no lo guarda; para borrar la charla entera está el
+       botón «Forget» (en el icono de la bandeja);
+    5. no puede rebuscar a voluntad en toda su memoria, así que puede que algo exista y no le venga;
+    6. **solo habla de esto si le preguntan**, y nunca enumera sus recuerdos en bloque.
+
+    Corto: unas 6-8 líneas.
+- **R8 · El cableado.**
+  - `Sesion.total: int | None = None`.
+  - En `_preparar_memoria`, al abrir la sesión, `sesion.total = len(rs)`, la lista que ya se lee
+    para la foto. Sin consulta nueva.
+  - `_system(sesion)`, como fija N8:
+    - con `None`, `SYSTEM_PROMPT`;
+    - sin recuerdos, `cabecera(hoy) + "\n\n" + autorretrato(total, 0)`;
+    - con recuerdos, `bloque(...) + "\n\n" + autorretrato(total, len(contexto))`.
+  - Regresión: con la búsqueda añadiendo uno, el número de «delante» sube en el mensaje siguiente.
+
+Para con un anexo corto en `H2-informe.md`: las pruebas que pasan, **el texto entero del
+autorretrato** y el segundo bloque de una pasada FAKE con recuerdos. El despliegue es de Josem:
+merge y reinicio, sin `crear`.
