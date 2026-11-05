@@ -1,6 +1,6 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 7, H2 (recordar) cerrado en código y aprobado: parada 1, calibración (UMBRAL 0,34), R1-R6 y D47 (H2-revision §7, 127bbff). Último commit de código: 2e302dd. 110 pruebas pasan con `KLOTHULHU_TEST_DB=1`
+**Parada:** fase 7, H2: autorretrato R7-R8 (D48) hecho (d5c4457) y anexo entregado. Espero revisión; el despliegue (merge y reinicio, sin `crear`) es de Josem.
 (92+ sin ella, el resto se salta); `ruff` limpio. Nada más del programador.
 
 **Siguiente paso:** esperar. El despliegue de H2 (merge `--ff-only` de `fase7` en `main` desde `/data/klothulhu` y reinicio de

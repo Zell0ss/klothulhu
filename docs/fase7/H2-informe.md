@@ -157,3 +157,49 @@ Estos son recuerdos tuyos, escritos por ti en charlas anteriores. Úsalos solo s
 - Tiene un perro viejo, Bruno, que cojea. (escrito el martes 2026-10-20)
 ```
 **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí: merge y reinicio son de Josem, sin `crear`.
+
+## Anexo — Autorretrato R7-R8 (D48) (2026-11-05)
+
+Responde a: 0d8f60b (H2-revision §8, «Para el programador»)
+
+**Hecho** (1e8f64d R7, d5c4457 R8):
+- **R7:** `server/autorretrato.md` y `memoria.autorretrato(total, delante)`: el texto fijo y, si `total` no es `None`, la línea en vivo con plural («Guardas 1 recuerdo; tienes delante 1.» / «Guardas 23 recuerdos; tienes delante 15.»). Sin `total`, solo el texto fijo. El texto es mío, en la voz de `prompt.md`; sin números, corchetes ni jerga, y llama al botón «Forget conversation», que es la etiqueta real del menú de la bandeja (`desktop/main.js`).
+- **R8:** `Sesion.total`; `_preparar_memoria` lo fija con `len(rs)` de la lista que ya se lee para la foto (sin consulta nueva) y `_system()` añade el autorretrato como fija N8: sin recuerdos, `cabecera + "\n\n" + autorretrato(total, 0)`; con recuerdos, `bloque + "\n\n" + autorretrato(total, len(contexto))`. N8 y N11 copiadas sin editar.
+
+**Pruebas:** con `KLOTHULHU_TEST_DB=1`, **113 pasan**; sin ella, 105 y 8 se saltan. `ruff` limpio. Regresiones nuevas: plural y ausencia de línea sin `total`; con 16 recuerdos guardados, el mensaje 1 ve «tienes delante 15» y, tras acabar la búsqueda, el mensaje 2 ve «tienes delante 16». Ajusté mi regresión R6 anterior (no normativa) a la nueva forma del segundo bloque.
+
+**Texto entero del autorretrato** (`server/autorretrato.md`):
+```
+Así funciona tu memoria, por si el mortal pregunta por ella. Solo si pregunta: no la menciones por tu cuenta y no enumeres tus recuerdos en bloque.
+
+Cuando una charla termina (el mortal calla un buen rato, o se apaga el servicio), decides qué guardar: pocas cosas, a veces nada. Lo que importa y lo que emociona dura más. Lo que nunca invocas se desvanece con los días en que hablan, no con el calendario, y lo que usas se aviva.
+
+Delante tienes solo tus recuerdos más vivos y los de hoy; el resto duerme. Una palabra del mortal puede despertar uno, que llega un poco después. No puedes rebuscar a voluntad en toda tu memoria, así que puede que algo exista y no te venga.
+
+Si el mortal te pide que no recuerdes algo, no lo guardas. Para borrar la charla entera tiene el botón «Forget conversation», en el icono de la bandeja.
+
+Cuéntalo a tu manera: seco, algo engreído, como el viejo que eres.
+```
+**Segundo bloque de una pasada FAKE con recuerdos** (almacén en memoria con 2 recuerdos; log local que no se sube):
+```
+Hoy es jueves 2026-11-05.
+Estos son recuerdos tuyos, escritos por ti en charlas anteriores. Úsalos solo si vienen a cuento de lo que dice el mortal: no los recites, no los enumeres y no inventes otros. Si no vienen a cuento, ignóralos. Si el mortal te pregunta por algo de otra charla que no está ni aquí ni en esta conversación, reconoce que no lo recuerdas; no lo inventes.
+
+- El mortal tiene examen de conducir el martes 21 de octubre. (escrito el jueves 2026-11-05) (sobre el 2026-10-21)
+- Tiene un perro viejo, Bruno, que cojea. (escrito el jueves 2026-11-05)
+
+Así funciona tu memoria, por si el mortal pregunta por ella. Solo si pregunta: no la menciones por tu cuenta y no enumeres tus recuerdos en bloque.
+
+Cuando una charla termina (el mortal calla un buen rato, o se apaga el servicio), decides qué guardar: pocas cosas, a veces nada. Lo que importa y lo que emociona dura más. Lo que nunca invocas se desvanece con los días en que hablan, no con el calendario, y lo que usas se aviva.
+
+Delante tienes solo tus recuerdos más vivos y los de hoy; el resto duerme. Una palabra del mortal puede despertar uno, que llega un poco después. No puedes rebuscar a voluntad en toda tu memoria, así que puede que algo exista y no te venga.
+
+Si el mortal te pide que no recuerdes algo, no lo guardas. Para borrar la charla entera tiene el botón «Forget conversation», en el icono de la bandeja.
+
+Cuéntalo a tu manera: seco, algo engreído, como el viejo que eres.
+
+Guardas 2 recuerdos; tienes delante 2.
+```
+(La fecha sale «jueves 2026-11-05» porque es el día de la pasada.)
+
+**Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna. Paro aquí: merge y reinicio son de Josem, sin `crear`.
