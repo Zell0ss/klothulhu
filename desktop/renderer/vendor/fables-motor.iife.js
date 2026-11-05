@@ -96,8 +96,12 @@ var FablesMotor = (() => {
     // sand
     m: "#5b5f6b",
     // metal
-    M: "#3b3e47"
+    M: "#3b3e47",
     // dark metal
+    v: "#4a7c68",
+    // klothulhu's abyss green
+    V: "#2a4d5a"
+    // its shade, and its tentacles: darker and bluer
   };
   var HERO_FRAMES = [
     [
@@ -123,6 +127,31 @@ var FablesMotor = (() => {
       "..o..o...o.o."
     ]
   ];
+  var KLOTHULHU_FRAMES = [
+    [
+      "..vvvvvvvvv..",
+      "..vkvvvvvkv..",
+      "..vkvkvkvkv..",
+      "..vvvkvkvvv..",
+      "vvvVvVvVvVvvv",
+      "vvvvVVvVVvvvv",
+      "..vvvVvVvvv..",
+      "..v.v...v.v..",
+      "..v.v...v.v.."
+    ],
+    [
+      "..vvvvvvvvv..",
+      "..vkvvvvvkv..",
+      "..vkvkvkvkv..",
+      "..vvvkvkvvv..",
+      "vvvVvVvVvVvvv",
+      "vvvVvVvVvVvvv",
+      "..vvVvvvVvv..",
+      "...v.v.v.v...",
+      "..v..v...v.v."
+    ]
+  ];
+  var KLOTHULHU_EYE_RED = "#e0322b";
   var SPRITES = {
     bug: {
       accent: "#e05252",
@@ -346,6 +375,7 @@ var FablesMotor = (() => {
     "despair",
     "emerge"
   ];
+  var AVATARS = ["claude", "klothulhu"];
   var MOTIONS = [
     "none",
     "bob",
@@ -503,7 +533,7 @@ var FablesMotor = (() => {
   var PY = DIM.LH + DIM.BH * 0.4;
   var MODEL_H = DIM.LH + DIM.BH;
   var MODEL_HALF_W = DIM.BW / 2 + DIM.AW;
-  var POSE0 = { yaw: 0, pitch: 0, roll: 0, hop: 0, sq: 1, armL: 0.06, armR: 0.06, walk: 0, stride: 0, eyeX: 0, eyeY: 0, eyes: "open", liftL: 0, liftR: 0, crouch: 0, dx: 0, tumble: 0 };
+  var POSE0 = { yaw: 0, pitch: 0, roll: 0, hop: 0, sq: 1, armL: 0.06, armR: 0.06, walk: 0, stride: 0, eyeX: 0, eyeY: 0, eyes: "open", liftL: 0, liftR: 0, crouch: 0, dx: 0, tumble: 0, tentacles: 0, stir: 1 };
   var LIGHT = norm([-0.42, 0.62, 0.66]);
   var CAMERA_PITCH = 0.2;
   var PERSP = 0.016;
@@ -563,7 +593,15 @@ var FablesMotor = (() => {
     }
     return lower.slice(0, -1).concat(upper.slice(0, -1));
   }
-  function build(pose, s) {
+  var KLOTHULHU_EYES = [{ x: DIM.EX, dy: 0, k: 0.8 }, { x: 1.4, dy: -0.7, k: 0.64 }];
+  var CLAUDE_EYES = [{ x: DIM.EX, dy: 0, k: 1 }];
+  var TENTACLES = [
+    { x: 1.9, y: 4.6, len: [2, 1.9], w: [1.5, 1.2], d: [1.4, 1.1], bend: [0.1, 0.45] },
+    { x: 4.2, y: 5, len: [2, 1.9], w: [1.6, 1.3], d: [1.4, 1.1], bend: [0.2, 0.55] }
+  ];
+  var SWAY = [0.15, 0.3];
+  var SWAY_LAG = 0.9;
+  function build(pose, s, avatar = "claude") {
     const p = { ...POSE0, ...pose };
     const D = DIM;
     const sxz = 1 / Math.sqrt(Math.max(0.3, p.sq));
@@ -634,14 +672,35 @@ var FablesMotor = (() => {
         return [cc[0], hy + dy * c - dz * sn + lift2, lz + dy * sn + dz * c];
       }, "top");
     }).sort((a, b) => a.depth - b.depth);
+    const klothulhu = avatar === "klothulhu";
+    const tentacles = [];
+    if (klothulhu) {
+      const chains = [-1, 1].flatMap((side) => TENTACLES.map((t, ti) => {
+        let px = side * t.x;
+        let py2 = D.LH + t.y - drop;
+        let ang = 0;
+        return t.len.map((len, i) => {
+          ang -= side * (t.bend[i] + p.stir * SWAY[i] * Math.sin(p.tentacles - i * SWAY_LAG - ti * 0.6));
+          const c = Math.cos(ang);
+          const sn = Math.sin(ang);
+          const [ox, oy] = [px, py2];
+          px = ox + len * sn;
+          py2 = oy - len * c;
+          return part("tentacle", box(-t.w[i] / 2, -len, D.BD / 2 - 0.2, t.w[i] / 2, 0, D.BD / 2 + t.d[i]), (cc) => [ox + cc[0] * c - cc[1] * sn, oy + cc[0] * sn + cc[1] * c, cc[2]]);
+        });
+      }));
+      tentacles.push(...chains.sort((a, b) => a[0].depth - b[0].depth).flat());
+    }
     const bf = body.faces;
     const [armL, armR] = arms;
     const order = [];
     if (!bf.left.vis) order.push(armL);
     if (!bf.right.vis) order.push(armR);
     if (!bf.bottom.vis) order.push(...legs);
+    if (!bf.front.vis) order.push(...tentacles);
     order.push(body);
     if (bf.bottom.vis) order.push(...legs);
+    if (bf.front.vis) order.push(...tentacles);
     if (bf.left.vis) order.push(armL);
     if (bf.right.vis) order.push(armR);
     const faces = order.flatMap((pt) => Object.values(pt.faces).filter((f3) => f3.vis).sort((a, b) => a.depth - b.depth)).map(({ part: part2, name, pts, light }) => ({ part: part2, name, pts, light }));
@@ -668,24 +727,25 @@ var FablesMotor = (() => {
     });
     const eyes = [];
     if (bf.front.vis) {
-      const ew = D.EW / 2;
-      const eh = D.EH / 2;
       const zf = D.BD / 2 + 0.03;
-      for (const side of [-1, 1]) {
-        const ex = side * D.EX + Math.max(-1, Math.min(1, p.eyeX)) * 0.55;
-        const ey = D.LH + D.EY - drop + Math.max(-1, Math.min(1, p.eyeY)) * 0.42;
+      const spiralK = klothulhu ? 0.8 : 1;
+      for (const pair of klothulhu ? KLOTHULHU_EYES : CLAUDE_EYES) for (const side of [-1, 1]) {
+        const ew = D.EW / 2 * pair.k;
+        const eh = D.EH / 2 * pair.k;
+        const ex = side * pair.x + Math.max(-1, Math.min(1, p.eyeX)) * 0.55;
+        const ey = D.LH + D.EY - drop + Math.max(-1, Math.min(1, p.eyeY)) * 0.42 + pair.dy;
         const E = (dx, dy) => proj(W3(ex + dx, ey + dy, zf));
         const ellipse = (rx, ry, oy = 0) => Array.from({ length: 12 }, (_, i) => E(Math.cos(Math.PI * i / 6) * rx, oy + Math.sin(Math.PI * i / 6) * ry));
         if (p.eyes === "wide") eyes.push({ poly: ellipse(ew * 1.3, eh * 1.15) });
         else if (p.eyes === "focus") eyes.push({ poly: ellipse(ew * 1.1, eh * 0.42, -eh * 0.1) });
         else if (p.eyes === "dizzy") eyes.push({ line: [E(-ew, eh * 0.7), E(ew, -eh * 0.7)] }, { line: [E(-ew, -eh * 0.7), E(ew, eh * 0.7)] });
         else if (p.eyes === "sad") eyes.push({ poly: ellipse(ew * 0.85, eh * 0.8, -eh * 0.15) }, { line: [E(side * ew * 1.3, eh * 1.15), E(-side * ew * 0.9, eh * 1.6)] });
-        else if (p.eyes === "angry") eyes.push({ poly: ellipse(ew * 1.05, eh * 0.6, -eh * 0.1) }, { line: [E(side * ew * 1.5, eh * 1.55), E(-side * ew * 1.1, eh * 0.9)] });
+        else if (p.eyes === "angry") eyes.push({ poly: ellipse(ew * 1.05, eh * 0.6, -eh * 0.1), ...klothulhu ? { red: true } : {} }, { line: [E(side * ew * 1.5, eh * 1.55), E(-side * ew * 1.1, eh * 0.9)] });
         else if (p.eyes === "spiral") {
           const steps = 24;
           eyes.push({ line: Array.from({ length: steps }, (_, i) => {
             const k = i / (steps - 1);
-            return E(side * Math.cos(k * 4 * Math.PI) * eh * 1.6 * k, Math.sin(k * 4 * Math.PI) * eh * 1.6 * k);
+            return E(side * Math.cos(k * 4 * Math.PI) * eh * 1.6 * k * spiralK, Math.sin(k * 4 * Math.PI) * eh * 1.6 * k * spiralK);
           }) });
         } else if (p.eyes === "happy") eyes.push({ line: [E(-ew * 1.15, -eh * 0.2), E(-ew * 0.6, eh * 0.3), E(0, eh * 0.5), E(ew * 0.6, eh * 0.3), E(ew * 1.15, -eh * 0.2)] });
         else if (p.eyes === "closed") eyes.push({ line: [E(-ew * 1.2, eh * 0.05), E(-ew * 0.5, -eh * 0.22), E(0, -eh * 0.28), E(ew * 0.5, -eh * 0.22), E(ew * 1.2, eh * 0.05)] });
@@ -703,7 +763,7 @@ var FablesMotor = (() => {
       const a = Math.PI * 2 * i / 14;
       shadow.push(proj(mv(Cm, Math.cos(a) * 8.6, -CY, Math.sin(a) * 4.6)));
     }
-    return { faces, eyes, shadow, parts };
+    return { faces, eyes, shadow, parts, avatar };
   }
   var MOTION_TIMING = {
     walk: { frames: 6, dur: 0.64, kind: "travel" },
@@ -1387,14 +1447,16 @@ var FablesMotor = (() => {
       cap = `<rect x="${t1(x0 + w * 0.1)}" y="${t1(y0 + h * 0.06)}" width="${t1(w * 0.8)}" height="${t1(h * 0.4)}" rx="${t1(h * 0.18)}" fill="url(#ae-cap)"/><ellipse cx="${t1(x0 + w * 0.25)}" cy="${t1(y0 + h * 0.18)}" rx="${t1(w * 0.07)}" ry="${t1(h * 0.05)}" fill="#fff" opacity=".95"/>`;
     }
     const faces = outlinedFaces(m).filter((f3) => f3.part === "body" && f3.name !== "front").map((f3) => `<path fill="${f3.name === "top" ? "#ffeec8" : "#aa3205"}" opacity="${f3.name === "top" ? 0.3 : n(0.22 * (1 - f3.light))}" d="${poly(f3.pts, cx, floor)}"/>`).join("");
+    const tentacles = m.parts.filter((p) => p.name === "tentacle").map((pt) => `<path fill="${K.deep}" stroke="${K.edge}" stroke-width=".8" stroke-linejoin="round" d="${poly(pt.hull, cx, floor)}"/>`).join("");
     const eyes = m.eyes.map(
       (e) => e.poly ? `<path fill="url(#ae-eye)" stroke="#ffe6c8" stroke-opacity=".55" stroke-width=".5" d="${poly(e.poly, cx, floor)}"/><circle cx="${t1((e.poly[3]?.[0] ?? 0) + cx - 0.2)}" cy="${t1((e.poly[3]?.[1] ?? 0) + floor - 0.2)}" r=".6" fill="#fff"/>` : `<path fill="none" stroke="#7a2809" stroke-width="1" stroke-linecap="round" d="${poly(e.line ?? [], cx, floor, false)}"/>`
     ).join("");
-    return `<path fill="url(#ae-shadow)" d="${poly(m.shadow, cx, floor)}"/><path fill="${K.edge}" stroke="${K.edge}" stroke-width="2.4" stroke-linejoin="round" d="${hulls}"/><path fill="url(#ae-jelly)" stroke="url(#ae-jelly)" stroke-width="1.2" stroke-linejoin="round" d="${hulls}"/>` + faces + cap + eyes;
+    return `<path fill="url(#ae-shadow)" d="${poly(m.shadow, cx, floor)}"/><path fill="${K.edge}" stroke="${K.edge}" stroke-width="2.4" stroke-linejoin="round" d="${hulls}"/><path fill="url(#ae-jelly)" stroke="url(#ae-jelly)" stroke-width="1.2" stroke-linejoin="round" d="${hulls}"/>` + faces + tentacles + cap + eyes;
   };
   var escape = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   var AERO = {
     name: "aero",
+    greenFilter: true,
     label: "Frutiger Aero",
     voice: "an upbeat mid-2000s eco-tech ad",
     cell: "solid",
@@ -1656,15 +1718,17 @@ var FablesMotor = (() => {
       const tone3 = f3.light > 0.65 ? OCH_P : f3.light > 0.4 ? OCH_L : OCH_D;
       dabs += `<path fill="${tone3}" opacity="${n(0.35 + f3.light * 0.4)}" d="${poly(f3.pts, cx, floor)}"/>`;
     }
+    const tentacles = m.parts.filter((p) => p.name === "tentacle").map((pt) => `<path fill="${OCH_D}" stroke="${SOOT}" stroke-width="1" stroke-linejoin="round" d="${poly(pt.hull, cx, floor)}"/>`).join("");
     const eyes = m.eyes.map(
       (e) => e.poly ? `<path fill="${SOOT}" d="${poly(e.poly, cx, floor)}"/>` : `<path fill="none" stroke="${SOOT}" stroke-width="1.3" stroke-linecap="round" d="${poly(e.line ?? [], cx, floor, false)}"/>`
     ).join("");
-    return `<path fill="${SOOT}" opacity=".3" stroke="${SOOT}" stroke-width="1.6" stroke-linejoin="round" d="${legs}"/><path fill="${SOOT}" opacity=".85" d="${legs}"/><path fill="none" stroke="${SOOT}" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="11 2.5 6 2" d="${body}"/><path fill="${OCH}" d="${body}"/><g filter="url(#cv-blow)">${dabs}</g>` + eyes + // A grain of the rock over the paint.
+    return `<path fill="${SOOT}" opacity=".3" stroke="${SOOT}" stroke-width="1.6" stroke-linejoin="round" d="${legs}"/><path fill="${SOOT}" opacity=".85" d="${legs}"/><path fill="none" stroke="${SOOT}" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="11 2.5 6 2" d="${body}"/><path fill="${OCH}" d="${body}"/><g filter="url(#cv-blow)">${dabs}</g>` + tentacles + eyes + // A grain of the rock over the paint.
     `<path fill="url(#cv-pits)" d="${body}"/>`;
   };
   var escape3 = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   var CAVE = {
     name: "cave",
+    greenFilter: true,
     label: "Cave Painting",
     voice: "a storyteller by the fire, in short plain words",
     cell: "solid",
@@ -2114,6 +2178,7 @@ var FablesMotor = (() => {
   var screen = (id, base, dot, r2 = 0.6, size = 2.2) => `<pattern id="${id}" width="${size}" height="${size}" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">` + (base === "none" ? "" : `<rect width="${size}" height="${size}" fill="${base}"/>`) + `<circle cx="${n(size / 2)}" cy="${n(size / 2)}" r="${r2}" fill="${dot}"/></pattern>`;
   var GOLDEN = {
     name: "golden",
+    greenFilter: true,
     label: "Golden Age Comic",
     voice: "a punchy 1938 comic book",
     cell: "solid",
@@ -2396,6 +2461,8 @@ var FablesMotor = (() => {
     voice: "a Roman floor inscription",
     cell: "solid",
     figure: "3d",
+    // The tesserae are as big as klothulhu's eyes and tentacles: eyes become two stones and the tentacles a brown smudge.
+    claudeOnly: true,
     font: SERIF3,
     charW: 5.3,
     caption: { fill: P2.cream, stroke: P2.black, ink: P2.black, radius: 0 },
@@ -2518,8 +2585,8 @@ var FablesMotor = (() => {
     const hulls = m.parts.map((pt) => poly(pt.hull, cx, floor)).join("");
     let faces = "";
     for (const f3 of outlinedFaces(m)) {
-      const k = f3.part === "leg" ? 1.5 : 1.5 + f3.light * 4;
-      faces += `<path fill="${WOOL[Math.min(6, Math.round(k))]}" d="${poly(f3.pts, cx, floor)}"/>`;
+      const k = f3.part === "leg" ? 1.5 : f3.part === "tentacle" ? 1 + f3.light * 2 : 1.5 + f3.light * 4;
+      faces += `<path fill="${WOOL[Math.min(6, Math.round(k))]}"${f3.part === "tentacle" ? ` stroke="${DARK2}" stroke-width=".7" stroke-linejoin="round"` : ""} d="${poly(f3.pts, cx, floor)}"/>`;
     }
     const eyes = m.eyes.map((e) => e.poly ? `<path fill="${DARK2}" d="${poly(e.poly, cx, floor)}"/>` : `<path fill="none" stroke="${DARK2}" stroke-width="1.6" d="${poly(e.line ?? [], cx, floor, false)}"/>`).join("");
     return `<path fill="${DARK2}" stroke="${DARK2}" stroke-width="2.6" stroke-linejoin="round" d="${hulls}"/>` + faces + eyes;
@@ -2528,6 +2595,7 @@ var FablesMotor = (() => {
   var MILLE = `<pattern id="tp-mille" width="22" height="18" patternUnits="userSpaceOnUse"><rect width="22" height="18" fill="${W.green[1]}"/><g transform="translate(4 4)">${[0, 1, 2, 3, 4, 5].map((i) => `<circle cx="${n(Math.cos(i) * 1.6)}" cy="${n(Math.sin(i) * 1.6)}" r="1" fill="#f2eedf"/>`).join("")}<circle r=".8" fill="#e7b52f"/></g><g transform="translate(15 6)">${[0, 1, 2, 3, 4].map((i) => `<circle cx="${n(Math.cos(i * 1.26) * 1.3)}" cy="${n(Math.sin(i * 1.26) * 1.3)}" r="1.1" fill="#c9342a"/>`).join("")}<circle r=".6" fill="#7a1a14"/></g><g transform="translate(9 13)">${[0, 1, 2, 3].map((i) => `<circle cx="${n(Math.cos(i * 1.57) * 1.4)}" cy="${n(Math.sin(i * 1.57) * 1.4)}" r="1" fill="#4161b0"/>`).join("")}</g><path d="M18 15q1.5 -2 3 -1M2 12q1.2 -1.6 2.6 -.8" stroke="#4d7d3f" stroke-width="1" fill="none"/><circle cx="20" cy="2" r=".8" fill="#e2b437"/></pattern>`;
   var TAPESTRY = {
     name: "tapestry",
+    greenFilter: true,
     label: "Millefleur Tapestry",
     voice: "a gentle medieval tapestry legend",
     cell: "solid",
@@ -2713,6 +2781,7 @@ var FablesMotor = (() => {
   var escape9 = (text) => text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
   var UKIYOE = {
     name: "ukiyoe",
+    greenFilter: true,
     label: "Ukiyo-e",
     voice: "a calm Edo-period woodblock print",
     cell: "solid",
@@ -2800,7 +2869,18 @@ var FablesMotor = (() => {
     body: { dark: "#a9583d", light: "#f0ac8e" },
     arm: { dark: "#a9583d", light: "#eba083" },
     leg: { dark: "#8f4a33", light: "#d4785a" },
-    eye: "#1f1412"
+    // Claude has no tentacles: these are never painted.
+    tentacle: { dark: "#a9583d", light: "#f0ac8e" },
+    eye: "#1f1412",
+    red: "#1f1412"
+  };
+  var SKIN_KLOTHULHU = {
+    body: { dark: "#1e3b33", light: "#5d8f7a" },
+    arm: { dark: "#1e3b33", light: "#5d8f7a" },
+    leg: { dark: "#17302a", light: "#4a7766" },
+    tentacle: { dark: "#132a33", light: "#3e6a7d" },
+    eye: "#0b0d0c",
+    red: "#e0322b"
   };
   var STEPS = 6;
   var n1 = (v) => (Math.round(v * 10) / 10).toString();
@@ -2808,17 +2888,18 @@ var FablesMotor = (() => {
     const ch = (hex, i) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16);
     return `#${[0, 1, 2].map((i) => Math.round(ch(a, i) + (ch(b, i) - ch(a, i)) * t).toString(16).padStart(2, "0")).join("")}`;
   }
-  var shadeOf = (part, light) => {
-    const skin = SKIN[part === "eye" ? "body" : part];
+  var shadeOf = (skins, part, light) => {
+    const skin = skins[part];
     const step2 = Math.round(Math.pow(light, 0.8) * (STEPS - 1)) / (STEPS - 1);
     return mix2(skin.dark, skin.light, step2);
   };
   var poly2 = (pts, dx, dy) => `M${pts.map(([x, y]) => `${n1(x + dx)} ${n1(y + dy)}`).join("L")}Z`;
   function modelSvg(m, cx, floor) {
+    const skin = m.avatar === "klothulhu" ? SKIN_KLOTHULHU : SKIN;
     const shadow = m.shadow.length ? `<path fill="#1f1e1d" opacity=".22" d="${poly2(m.shadow, cx, floor)}"/>` : "";
     const runs = [];
     for (const f3 of m.faces) {
-      const fill = shadeOf(f3.part, f3.light);
+      const fill = shadeOf(skin, f3.part, f3.light);
       const last = runs[runs.length - 1];
       if (last && last.fill === fill) last.d.push(poly2(f3.pts, cx, floor));
       else runs.push({ fill, d: [poly2(f3.pts, cx, floor)] });
@@ -2826,17 +2907,23 @@ var FablesMotor = (() => {
     const paths = runs.map((r2) => `<path fill="${r2.fill}" stroke="${r2.fill}" d="${r2.d.join("")}"/>`).join("");
     const faces = `<g stroke-width=".5" stroke-linejoin="round">${paths}</g>`;
     const eyes = m.eyes.map(
-      (e) => e.poly ? `<path fill="${SKIN.eye}" d="${poly2(e.poly, cx, floor)}"/>` : `<path fill="none" stroke="${SKIN.eye}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" d="M${(e.line ?? []).map(([x, y]) => `${n1(x + cx)} ${n1(y + floor)}`).join("L")}"/>`
+      (e) => e.poly ? `<path fill="${e.red ? skin.red : skin.eye}" d="${poly2(e.poly, cx, floor)}"/>` : `<path fill="none" stroke="${skin.eye}" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" d="M${(e.line ?? []).map(([x, y]) => `${n1(x + cx)} ${n1(y + floor)}`).join("L")}"/>`
     ).join("");
     return shadow + faces + eyes;
   }
   function motionSvg(motion, o) {
-    const frames = Math.min(MOTION_TIMING[motion].frames, o.maxFrames ?? Infinity);
     const { dur } = MOTION_TIMING[motion];
+    const calm = Math.min(MOTION_TIMING[motion].frames, o.maxFrames ?? Infinity);
+    const frames = calm;
+    const short = dur < 1.6;
+    const waves = Math.max(1, Math.round(dur / 2.4));
+    const talk = o.stir === "talk";
+    const cycles = talk ? Math.max(1, Math.min(waves * 3, Math.floor(frames / 4))) : waves;
+    const stir = (short ? 0.5 : 1) * (talk ? 2 : 1);
     const s = o.height / MODEL_H;
     const timing = o.until !== void 0 ? `repeatDur="${n1(o.until)}s"` : o.from !== void 0 ? `begin="${n1(o.from)}s" repeatCount="indefinite"` : 'repeatCount="indefinite"';
     const groups = Array.from({ length: frames }, (_, k) => {
-      const posed = build(poseAt(motion, k / frames, o.yaw), s);
+      const posed = build({ ...poseAt(motion, k / frames, o.yaw), ...o.avatar === "klothulhu" ? { tentacles: 2 * Math.PI * k * cycles / frames, stir } : {} }, s, o.avatar);
       const model = o.noShadow ? { ...posed, shadow: [] } : posed;
       const at = (v) => (Math.round(v / frames * 1e4) / 1e4).toString();
       const anim = k === 0 ? `<animate attributeName="visibility" values="visible;hidden" keyTimes="0;${at(1)}" calcMode="discrete" dur="${dur}s" ${timing}/>` : `<animate attributeName="visibility" values="hidden;visible;hidden" keyTimes="0;${at(k)};${at(k + 1)}" calcMode="discrete" dur="${dur}s" ${timing}/>`;
@@ -4128,7 +4215,6 @@ var FablesMotor = (() => {
   }
   var HERO_W = 13 * U;
   var HERO_H = 9 * U;
-  var heroColor = (k) => PALETTE[k];
   var isApproach = (scene) => scene.hero.action === "approach";
   var isEmerge = (scene) => scene.hero.action === "emerge";
   var EMERGE_DEPTH = 64;
@@ -4166,6 +4252,8 @@ var FablesMotor = (() => {
   };
   var SPEED = { run: 110, fly: 80, tumble: 90, jump: 60, carry: 30, sneak: 25 };
   var heroReach = (action) => action === "celebrate" ? 16 : action === "jump" ? 18 : action === "dance" ? 6 : action === "fly" || action === "panic" || action === "angry" ? 2 : action === "emerge" ? 6 : 0;
+  var GREEN_TURN = 140;
+  var GREEN_SATURATION = 0.7;
   var LOOP_FIRST = (motion) => Math.max(2.4, 2 * MOTION_TIMING[motion].dur);
   function hero10(scene, floor, sw, figure, idPrefix, tint = (svg) => svg) {
     const cell = figure.kind === "pixel" ? figure.cell : "solid";
@@ -4187,9 +4275,15 @@ var FablesMotor = (() => {
     const flip = toX < fromX && !(approach && figure.kind === "3d" && yaw === 0) ? ` translate(${HERO_W} 0) scale(-1 1)` : "";
     const second = figure.kind === "pixel" ? void 0 : then ?? (kind === "once" || isMoving && action !== "fly" ? "idle" : void 0);
     const handover = second === void 0 ? void 0 : isMoving ? moveDur : kind === "once" ? MOTION_TIMING[action].dur : LOOP_FIRST(action);
-    const legs = (frame, values) => `<g opacity="${frame === 0 ? 1 : 0}" transform="scale(${U})">${pixelPaths(HERO_FRAMES[frame] ?? [], heroColor, cell)}` + (steps ? `<animate attributeName="opacity" values="${values}" dur="${step2 * 2}s" calcMode="discrete" repeatCount="${steps / 2}"/>` : "") + `</g>`;
-    const model = (motion, when = {}) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw, hero: figure.hero, noShadow: emerge && figure.kind === "3d", ...when }).svg : "";
-    const frames = figure.kind === "pixel" ? legs(0, "1;0") + legs(1, "0;1") : second === void 0 || handover === void 0 ? model(action) : model(action, { until: handover }) + model(second, { from: handover, maxFrames: figure.kind === "3d" ? figure.lean ? 2 : figure.second : void 0 });
+    const klothulhu = figure.kind === "pixel" && figure.avatar === "klothulhu";
+    const sprite = klothulhu ? KLOTHULHU_FRAMES : HERO_FRAMES;
+    const redEyes = klothulhu && (scene.hero.action === "angry" || scene.hero.action === "emerge");
+    const colorOf = (k) => redEyes && k === "k" ? KLOTHULHU_EYE_RED : PALETTE[k];
+    const legs = (frame, values) => `<g opacity="${frame === 0 ? 1 : 0}" transform="scale(${U})">${pixelPaths(sprite[frame] ?? [], colorOf, cell)}` + (steps ? `<animate attributeName="opacity" values="${values}" dur="${step2 * 2}s" calcMode="discrete" repeatCount="${steps / 2}"/>` : "") + `</g>`;
+    const model = (motion, when = {}, stir) => figure.kind === "3d" ? motionSvg(motion, { height: MODEL_STAGE_H, cx: HERO_W / 2, floor: HERO_H, yaw, hero: figure.hero, noShadow: emerge && figure.kind === "3d", avatar: figure.avatar, stir, ...when }).svg : "";
+    const poses = (stir) => second === void 0 || handover === void 0 ? model(action, {}, stir) : model(action, { until: handover }, stir) + model(second, { from: handover, maxFrames: figure.kind === "3d" ? figure.lean ? 2 : figure.second : void 0 }, stir);
+    const stirred = figure.kind === "3d" && figure.avatar === "klothulhu" && figure.talk;
+    const frames = figure.kind === "pixel" ? legs(0, "1;0") + legs(1, "0;1") : stirred ? `<g data-tentacles="calm"><set attributeName="display" to="none" begin="${stirred.from.toFixed(2)}s" dur="${(stirred.to - stirred.from).toFixed(2)}s"/>${poses("calm")}</g><g data-tentacles="talk" data-from="${stirred.from.toFixed(2)}" data-to="${stirred.to.toFixed(2)}" display="none"><set attributeName="display" to="inline" begin="${stirred.from.toFixed(2)}s" dur="${(stirred.to - stirred.from).toFixed(2)}s"/>${poses("talk")}</g>` : poses("calm");
     const until = handover === void 0 ? 'repeatCount="indefinite"' : `repeatDur="${n2(handover)}s"`;
     let inner = "";
     const baked = figure.kind === "3d";
@@ -4215,7 +4309,8 @@ var FablesMotor = (() => {
     const extras = shown(flourish(action, figure), handover === void 0 ? void 0 : 0, handover) + (second && handover !== void 0 ? shown(flourish(second, figure), handover) : "");
     const travel = isMoving ? `<animateTransform attributeName="transform" type="translate" values="${fromX} ${baseY};${toX} ${baseY}" dur="${n2(moveDur)}s" fill="freeze"/>` : "";
     const at = isMoving ? fromX : toX;
-    const body = `<g>${inner}<g transform="${flip.trim() || "translate(0 0)"}">${frames}</g>${tint(extras)}</g>`;
+    const greened = figure.kind === "3d" && figure.green ? `<filter id="${idPrefix}green" filterUnits="userSpaceOnUse" x="${-HERO_W}" y="${-HERO_H}" width="${HERO_W * 3}" height="${HERO_H * 3}" color-interpolation-filters="sRGB"><feColorMatrix type="hueRotate" values="${GREEN_TURN}"/><feColorMatrix type="saturate" values="${GREEN_SATURATION}"/></filter><g filter="url(#${idPrefix}green)">${frames}</g>` : frames;
+    const body = `<g>${inner}<g transform="${flip.trim() || "translate(0 0)"}">${greened}</g>${tint(extras)}</g>`;
     const grow = `begin="0s" dur="${n2(APPROACH_SECONDS)}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .6 1"`;
     const rise = `begin="0s" dur="${n2(EMERGE_SECONDS)}s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines=".4 0 .6 1"`;
     const svg = emerge ? (
@@ -4459,6 +4554,7 @@ var FablesMotor = (() => {
   }
   var SPRITE_EYE = "#1f1412";
   var SPRITE_OUTLINE = "#3a1e14";
+  var KLOTHULHU_SPRITE = { eye: "#0b0d0c", outline: "#0f2421" };
   var PIXEL2 = 2;
   var PIXELIZE = (sw, claude, grade = "", sprite = { eye: SPRITE_EYE, outline: SPRITE_OUTLINE }) => {
     const dot = 0.4;
@@ -4476,7 +4572,9 @@ var FablesMotor = (() => {
       // (eyes, finer than a pixel) found by their darkness, thickened just enough to land on
       // whole pixels and set solid; a one-pixel dark outline round the body. The translucent
       // ground shadow is sampled too, under it all, but kept out of the outline and the eyes.
-      `<filter id="sc-pixelize-claude" ${region(claude)} color-interpolation-filters="sRGB">` + grid(claude) + `<feComponentTransfer in="SourceGraphic" result="solid"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer>` + sample("SourceGraphic", "all") + sample("solid", "sampled") + `<feComponentTransfer in="sampled" result="body"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 -17.7 -3.3 0 3.6"/><feComposite in2="solid" operator="in"/><feMorphology operator="dilate" radius=".7" result="dark"/>` + sample("dark", "darkpx") + `<feComponentTransfer in="darkpx"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feComposite in2="body" operator="in" result="eyemask"/><feFlood flood-color="${sprite.eye}"/><feComposite in2="eyemask" operator="in" result="eyes"/><feMorphology in="body" operator="dilate" radius="${PIXEL2}"/><feComposite in2="body" operator="out" result="ring"/><feFlood flood-color="${sprite.outline}"/><feComposite in2="ring" operator="in" result="outline"/><feMerge><feMergeNode in="all"/><feMergeNode in="outline"/><feMergeNode in="body"/><feMergeNode in="eyes"/></feMerge></filter><filter id="sc-pixelize" ${region(stage)} color-interpolation-filters="sRGB">` + (grade ? `${grade}<feMerge result="graded"><feMergeNode/></feMerge>` : "") + `${grid(stage)}${sample(grade ? "graded" : "SourceGraphic", "px")}</filter>`
+      `<filter id="sc-pixelize-claude" ${region(claude)} color-interpolation-filters="sRGB">` + grid(claude) + `<feComponentTransfer in="SourceGraphic" result="solid"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer>` + sample("SourceGraphic", "all") + sample("solid", "sampled") + `<feComponentTransfer in="sampled" result="body"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -9 -17.7 -3.3 0 3.6"/><feComposite in2="solid" operator="in"/><feMorphology operator="dilate" radius=".7" result="dark"/>` + sample("dark", "darkpx") + `<feComponentTransfer in="darkpx"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feComposite in2="body" operator="in" result="eyemask"/><feFlood flood-color="${sprite.eye}"/><feComposite in2="eyemask" operator="in" result="eyes"/><feMorphology in="body" operator="dilate" radius="${PIXEL2}"/><feComposite in2="body" operator="out" result="ring"/><feFlood flood-color="${sprite.outline}"/><feComposite in2="ring" operator="in" result="outline"/>` + // Klothulhu's angry eyes are red, which is not a dark feature: found by their redness, thickened and set on whole
+      // pixels the same way, and laid over the brows, so every eye keeps at least one red pixel.
+      (sprite.red ? `<feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  3 -3 0 0 -1"/><feComposite in2="solid" operator="in"/><feMorphology operator="dilate" radius=".7" result="redf"/>` + sample("redf", "redpx") + `<feComponentTransfer in="redpx"><feFuncA type="discrete" tableValues="0 1"/></feComponentTransfer><feComposite in2="body" operator="in" result="redmask"/><feFlood flood-color="${sprite.red}"/><feComposite in2="redmask" operator="in" result="redeyes"/>` : "") + `<feMerge><feMergeNode in="all"/><feMergeNode in="outline"/><feMergeNode in="body"/><feMergeNode in="eyes"/>${sprite.red ? '<feMergeNode in="redeyes"/>' : ""}</feMerge></filter><filter id="sc-pixelize" ${region(stage)} color-interpolation-filters="sRGB">` + (grade ? `${grade}<feMerge result="graded"><feMergeNode/></feMerge>` : "") + `${grid(stage)}${sample(grade ? "graded" : "SourceGraphic", "px")}</filter>`
     );
   };
   function sceneToSvg(scene, options = {}) {
@@ -4490,7 +4588,7 @@ var FablesMotor = (() => {
     const pixelArt = rich && look.pixel === true;
     const art = rich ? look.art : void 0;
     const painter2 = art?.painter(sw);
-    const figure = rich ? { kind: "3d", hero: art?.hero() } : { kind: "pixel", cell: look.cell };
+    let figure = rich ? { kind: "3d", hero: art?.hero(), avatar: look.claudeOnly ? void 0 : options.avatar, green: options.avatar === "klothulhu" && look.greenFilter } : { kind: "pixel", cell: look.cell, avatar: options.avatar };
     const stageAt = (lean) => rich ? richBackdrop(scene, rng(`${scene.backdrop}|${scene.caption}|stage`), sw, GROUND_Y, W2, lean, !pixelArt && !look.grade && !art, painter2) : flatStage(backdrop(scene, rand, sw));
     let stage = stageAt(false);
     const dust = painter2 ? painter2.el("particles", particles(scene, rand, sw)) : particles(scene, rand, sw);
@@ -4518,31 +4616,38 @@ var FablesMotor = (() => {
     const sway = scene.hero.action === "inspect" ? 2 * U : 0;
     const bigX = plan.endX + HERO_W / 2 - grown / 2;
     const speaker = approach ? { startX: bigX, x: bigX, y: H2 - APPROACH_MARGIN - HERO_H * APPROACH_SCALE, arrive: 0, jump: reach * APPROACH_SCALE, sway: sway * APPROACH_SCALE, scale: APPROACH_SCALE, wait: APPROACH_SECONDS } : isEmerge(scene) ? { startX: plan.endX, x: plan.endX, y: plan.endY - EMERGE_LIFT, arrive: 0, jump: reach, sway, wait: EMERGE_SECONDS } : { startX: plan.startX, x: plan.endX, y: plan.endY, arrive: plan.arrive, jump: reach, sway };
+    const captionTone = rich ? scene.tone ?? (scene.hero.action === "celebrate" ? "milestone" : "work") : void 0;
+    if (figure.kind === "3d" && figure.avatar === "klothulhu") {
+      const said = caption(scene.caption, speaker, idPrefix, sw, look, avoid(0), captionTone, entrance + 0.2, options.bubble, options.secondsPerChar);
+      figure = { ...figure, talk: { from: speaksAfter(said), to: typedAfter(said) } };
+      plan = hero10(scene, stage.floor, sw, figure, idPrefix, tint);
+    }
     const fore = (withDust, propCount) => (withDust ? dust : "") + props.slice(0, propCount).join("") + (pixelArt ? `<g filter="url(#sc-pixelize-claude)">${plan.svg}</g>` : plan.svg);
-    const build2 = (withDust, propCount) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sw} ${H2}" width="${width}" height="${height}" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet" style="display:block;background:${look.grade ? edge : ground}"${look.grade || art ? ` data-look="${look.name}"` : ""}>` + grade + `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 4 + GROUND_Y}" fill="${look.grade ? edge : sky3}"/>` + (art?.defs ? `<defs>${art.defs(sw, H2)}</defs>` : "") + (pixelArt ? `<defs>${PIXELIZE(sw, claudeBox, gradeBody)}</defs><g filter="url(#sc-pixelize)">` : "") + (grade ? `<g filter="url(#lk-grade)">` : "") + // The graded stage carries its own sky, so the grade sees the whole picture.
+    const build2 = (withDust, propCount) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${sw} ${H2}" width="${width}" height="${height}" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet" style="display:block;background:${look.grade ? edge : ground}"${look.grade || art ? ` data-look="${look.name}"` : ""}>` + grade + `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 4 + GROUND_Y}" fill="${look.grade ? edge : sky3}"/>` + (art?.defs ? `<defs>${art.defs(sw, H2)}</defs>` : "") + (pixelArt ? `<defs>${PIXELIZE(sw, claudeBox, gradeBody, figure.kind === "3d" && figure.avatar === "klothulhu" ? { ...KLOTHULHU_SPRITE, red: plan.svg.includes(KLOTHULHU_EYE_RED) ? KLOTHULHU_EYE_RED : void 0 } : void 0)}</defs><g filter="url(#sc-pixelize)">` : "") + (grade ? `<g filter="url(#lk-grade)">` : "") + // The graded stage carries its own sky, so the grade sees the whole picture.
     (look.grade ? `<rect width="${sw}" height="${H2}" fill="${sky3}"/>` : "") + (art?.under?.(sw, H2) ?? "") + stage.back + `<rect x="${-sw * 4}" y="${stage.groundTop}" width="${sw * 9}" height="${H2 * 4}" fill="${ground}"/>` + // Ground-level scenery goes down before anything that stands on it.
-    stage.near + fore(withDust, propCount) + stage.lens + (grade ? "</g>" : "") + (pixelArt ? "</g>" : "") + (look.texture?.(sw, H2, GROUND_Y, pixelArt) ?? "") + (look.frame?.(sw, H2, GROUND_Y) ?? "") + (tag?.svg ?? "") + caption(scene.caption, speaker, idPrefix, sw, look, avoid(propCount), rich ? scene.tone ?? (scene.hero.action === "celebrate" ? "milestone" : "work") : void 0, entrance + 0.2, options.bubble, options.secondsPerChar) + // A new setting fades in from the dark, so the band never jumps from one place to the next.
+    stage.near + fore(withDust, propCount) + stage.lens + (grade ? "</g>" : "") + (pixelArt ? "</g>" : "") + (look.texture?.(sw, H2, GROUND_Y, pixelArt) ?? "") + (look.frame?.(sw, H2, GROUND_Y) ?? "") + (tag?.svg ?? "") + caption(scene.caption, speaker, idPrefix, sw, look, avoid(propCount), captionTone, entrance + 0.2, options.bubble, options.secondsPerChar) + // A new setting fades in from the dark, so the band never jumps from one place to the next.
     (entrance ? `<rect x="${-sw * 4}" y="${-H2 * 4}" width="${sw * 9}" height="${H2 * 9}" fill="#0b0b10" pointer-events="none"><animate attributeName="opacity" values="1;0" dur="${n2(entrance)}s" fill="freeze"/></rect>` : "") + `</svg>`;
+    const budget = options.maxBytes ?? BUDGET;
     const propsShown = props.length;
     let svg = build2(true, propsShown);
-    if (svg.length > BUDGET && figure.kind === "3d") {
+    if (svg.length > budget && figure.kind === "3d") {
       plan = hero10(scene, stage.floor, sw, { ...figure, second: 6 }, idPrefix, tint);
       svg = build2(true, propsShown);
     }
-    if (svg.length > BUDGET && rich) {
+    if (svg.length > budget && rich) {
       stage = stageAt(true);
       svg = build2(true, propsShown);
     }
-    if (svg.length > BUDGET) svg = build2(false, propsShown);
-    if (svg.length > BUDGET && figure.kind === "3d") {
+    if (svg.length > budget) svg = build2(false, propsShown);
+    if (svg.length > budget && figure.kind === "3d") {
       plan = hero10(scene, stage.floor, sw, { ...figure, lean: true }, idPrefix, tint);
       svg = build2(false, propsShown);
     }
-    if (svg.length > BUDGET && rich) {
+    if (svg.length > budget && rich) {
       stage = flatStage(backdrop(scene, rand, sw));
       svg = build2(false, propsShown);
     }
-    for (let count = propsShown - 1; svg.length > BUDGET && count >= 0; count--) svg = build2(false, count);
+    for (let count = propsShown - 1; svg.length > budget && count >= 0; count--) svg = build2(false, count);
     return svg;
   }
   var speaksAfter = (svg) => Number(/data-part="speech"[^>]*\sdata-speaks="([\d.]+)"/.exec(svg)?.[1] ?? 0);
@@ -4557,6 +4662,7 @@ var FablesMotor = (() => {
   var SCHEMA_VERSION = 3;
   var BUBBLE_LINES = [1, 4];
   var SECONDS_PER_CHAR = [0.01, 0.2];
+  var MAX_BYTES = [5e4, 1e6];
   function renderScene(input, options = {}) {
     try {
       let raw = input;
@@ -4573,7 +4679,13 @@ var FablesMotor = (() => {
       if (options.figure !== void 0 && !VOCAB.figures.includes(options.figure)) {
         return { ok: false, error: `unknown figure "${options.figure}"` };
       }
-      const { bubble, secondsPerChar } = options;
+      if (options.avatar !== void 0 && !AVATARS.includes(options.avatar)) {
+        return { ok: false, error: `unknown avatar "${options.avatar}"` };
+      }
+      const { bubble, secondsPerChar, maxBytes } = options;
+      if (maxBytes !== void 0 && (typeof maxBytes !== "number" || !Number.isInteger(maxBytes) || maxBytes < MAX_BYTES[0] || maxBytes > MAX_BYTES[1])) {
+        return { ok: false, error: `maxBytes must be an integer between ${MAX_BYTES[0]} and ${MAX_BYTES[1]}` };
+      }
       if (bubble !== void 0) {
         const lines = bubble?.lines;
         if (typeof bubble !== "object" || bubble === null || typeof lines !== "number" || !Number.isInteger(lines) || lines < BUBBLE_LINES[0] || lines > BUBBLE_LINES[1]) {
@@ -4586,11 +4698,15 @@ var FablesMotor = (() => {
       const scene = parseScene(raw, { maxCaption: bubble ? MAX_LONG_CAPTION : MAX_CAPTION });
       if (!scene) return { ok: false, error: "not a scene: it needs a caption" };
       if (options.fadeIn) scene.enter = "fade";
-      const svg = sceneToSvg(scene, { look: options.look, figure: options.figure, width: options.width, height: options.height, bubble: bubble && { lines: bubble.lines }, secondsPerChar });
+      const svg = sceneToSvg(scene, { look: options.look, figure: options.figure, avatar: options.avatar, maxBytes, width: options.width, height: options.height, bubble: bubble && { lines: bubble.lines }, secondsPerChar });
       const warnings = [];
-      const figure = options.figure && options.figure !== "auto" ? options.figure : LOOKS[options.look ?? DEFAULT_LOOK]?.figure;
+      const lookUsed = LOOKS[options.look ?? DEFAULT_LOOK];
+      const figure = options.figure && options.figure !== "auto" ? options.figure : lookUsed?.figure;
       if (scene.props?.length && figure === "3d") {
         warnings.push('props-not-drawn: the 3d figure draws no props; pass figure "pixel" to show them');
+      }
+      if (options.avatar === "klothulhu" && figure === "3d" && lookUsed?.claudeOnly) {
+        warnings.push(`avatar-not-drawn: the ${lookUsed.name} look draws the claude avatar; use look pixel or original to see klothulhu`);
       }
       return { ok: true, svg, scene, speaksAfter: speaksAfter(svg), typedAfter: typedAfter(svg), warnings };
     } catch (e) {
@@ -4606,14 +4722,16 @@ var FablesMotor = (() => {
     sprites: SPRITE_NAMES,
     looks: LOOK_NAMES,
     figures: ["auto", "pixel", "3d"],
+    avatars: AVATARS,
     tones: ["work", "trouble", "milestone"],
     heights: ["ground", "air", "sky"],
-    defaults: { look: DEFAULT_LOOK, width: W2, height: H2, secondsPerChar: TYPE_SECONDS_PER_CHAR },
+    defaults: { look: DEFAULT_LOOK, avatar: "claude", maxBytes: BUDGET, width: W2, height: H2, secondsPerChar: TYPE_SECONDS_PER_CHAR },
     limits: {
       maxProps: MAX_PROPS,
       maxCaption: MAX_CAPTION,
       maxLongCaption: MAX_LONG_CAPTION,
       bubbleLines: BUBBLE_LINES,
+      maxBytes: MAX_BYTES,
       maxLabel: MAX_LABEL,
       maxTitle: MAX_TITLE,
       maxPixelSide: MAX_PIXEL_SIDE,

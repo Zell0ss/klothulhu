@@ -107,6 +107,10 @@
   "pixel",
   "3d"
  ],
+ "avatars": [
+  "claude",
+  "klothulhu"
+ ],
  "tones": [
   "work",
   "trouble",
@@ -119,6 +123,8 @@
  ],
  "defaults": {
   "look": "pixel",
+  "avatar": "claude",
+  "maxBytes": 126000,
   "width": 640,
   "height": 128,
   "secondsPerChar": 0.03
@@ -130,6 +136,10 @@
   "bubbleLines": [
    1,
    4
+  ],
+  "maxBytes": [
+   50000,
+   1000000
   ],
   "maxLabel": 18,
   "maxTitle": 24,
