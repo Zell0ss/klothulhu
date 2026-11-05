@@ -58,12 +58,14 @@
 <script src="scenes.js"></script>
 <script src="feed.js"></script>
 <script src="convo.js"></script>
+<script src="avatar.js"></script>
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, bootScenes, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
+const { avatarOptions } = window.KlAvatar;
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12); el ancho depende del tamaño (D31)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -81,6 +83,8 @@ const closeBtn = document.getElementById('closeBtn');
 const warnedNow = new Set();   // se vacía en cada ask()
 let look = VOCAB.defaults.look;
 let lookWarned = false;
+let avatar = 'claude';   // el que se elige en el tray y guarda estado.json (D49)
+let avatarWarned = false;
 let readSpeed = 1;  // config.json "readSpeed": mueve la escritura y el scroll del bocadillo (D25)
 let geom = null;     // { size, zoom, stageW, ... } del tamaño actual (D31)
 let sizes = [];
@@ -98,11 +102,16 @@ function note(line) {
 // Devuelve { speaksAfter, typedAfter, spc } o null si no se pudo pintar (entonces se queda la escena anterior).
 function paint(scene, fadeIn) {
   const spc = secondsPerChar(readSpeed, VOCAB.defaults.secondsPerChar);
-  const opts = () => ({ look, fadeIn, width: geom.stageW, height: STAGE_H, bubble: { lines: BUBBLE_LINES }, secondsPerChar: spc });   // D25
+  const opts = () => ({ look, fadeIn, width: geom.stageW, height: STAGE_H, bubble: { lines: BUBBLE_LINES }, secondsPerChar: spc, ...avatarOptions(avatar, VOCAB.avatars) });   // D25, D49
   let r = renderScene(scene, opts());
   if (!r.ok && look !== VOCAB.defaults.look) {
     if (!lookWarned) { console.warn(`look "${look}" no válido (${r.error}); uso "${VOCAB.defaults.look}"`); lookWarned = true; }
     look = VOCAB.defaults.look;
+    r = renderScene(scene, opts());
+  }
+  if (!r.ok && avatar !== 'claude') {   // D49: igual que con look, una sola vez
+    if (!avatarWarned) { console.warn(`avatar "${avatar}" no válido (${r.error}); uso "claude"`); avatarWarned = true; }
+    avatar = 'claude';
     r = renderScene(scene, opts());
   }
   if (!r.ok) { console.warn(`renderScene falló: ${r.error}`); return null; }
@@ -293,6 +302,13 @@ sizeBtn.addEventListener('click', (e) => {
 
 kl.onSizeRequest(requestSize);
 
+// D49: el avatar cambia desde la escena siguiente; con klothulhu parado, se repinta la que hay en pantalla.
+kl.onAvatar((name) => {
+  avatar = name;
+  avatarWarned = false;
+  if (!awaiting && (phase === 'idle' || phase === 'lingering') && lastScene) paint(lastScene, false);
+});
+
 histBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   toggleHistory();
@@ -356,6 +372,7 @@ kl.onSummon(() => toggleInput(true));
 
 kl.init().then((cfg) => {
   look = cfg.look || VOCAB.defaults.look;
+  avatar = cfg.avatar || 'claude';
   debug = Boolean(cfg.debug);
   readSpeed = cfg.readSpeed;
   sizes = cfg.sizes;
