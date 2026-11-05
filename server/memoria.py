@@ -19,6 +19,7 @@ FUERZA_MINIMA = 0.05  # por debajo, el recuerdo se poda (D46)
 CONTEXTO_N = 15  # recuerdos que entran en el prompt al abrir la sesión (D43)
 UMBRAL = 0.34  # similitud a partir de la cual el juez mira un candidato; calibrado en T8, H2-revision §5; D44
 PROMPT_BLOQUE = Path(__file__).with_name("memoria_prompt.md")
+AUTORRETRATO = Path(__file__).with_name("autorretrato.md")
 DIAS = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"]
 
 
@@ -104,6 +105,17 @@ def contexto_inicial(recuerdos: list[dict], dia_actual: int, hoy: date, n: int =
 def cabecera(hoy: date) -> str:
     """D47: la fecha de hoy, una sola fuente para el bloque y para el `system` sin recuerdos."""
     return f"Hoy es {dia_semana(hoy)}."
+
+
+def autorretrato(total: int | None, delante: int) -> str:
+    """D48: cómo funciona su memoria, para que pueda contarlo si le preguntan, y una línea en vivo con
+    cuántos recuerdos guarda y cuántos tiene delante. Con `total = None` (el almacén no respondió), solo el
+    texto fijo."""
+    texto = AUTORRETRATO.read_text(encoding="utf-8").strip()
+    if total is None:
+        return texto
+    guardas = "1 recuerdo" if total == 1 else f"{total} recuerdos"
+    return f"{texto}\n\nGuardas {guardas}; tienes delante {delante}."
 
 
 def _escrito(r: dict) -> str:
