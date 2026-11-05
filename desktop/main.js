@@ -10,7 +10,8 @@ const { normalizeConfig } = require('./config');
 const {
   PANEL_W, SIZE_ORDER, openBounds, closeBounds, sizeGeometry, resizeBounds, startBounds,
 } = require('./layout');
-const { readState, writeState } = require('./state');
+const { readState, readAvatar, writeState } = require('./state');
+const { AVATARS } = require('./renderer/avatar');
 
 const LOG_FILE = path.join(__dirname, 'klothulhu-debug.log');   // ruta fija: el renderer no elige nada
 
@@ -20,7 +21,7 @@ let cfg = null;
 let inflight = null;   // AbortController of the current /chat request
 let panelShift = null; // null = panel de historial cerrado; si no, lo que la ventana se movió a la izquierda al abrirlo (D27)
 let drag = null;       // { timer, dx, dy }
-let state = null;      // { size, x, y } de estado.json (D31)
+let state = null;      // { size, x, y, avatar } de estado.json (D31, D49)
 let stateFile = null;
 
 function loadConfig() {
@@ -41,7 +42,7 @@ function loadConfig() {
 function saveState() {
   if (!win || win.isDestroyed()) return;
   const b = win.getBounds();
-  state = { size: state.size, x: b.x + (panelShift ?? 0), y: b.y };   // la posición con el panel cerrado
+  state = { size: state.size, x: b.x + (panelShift ?? 0), y: b.y, avatar: state.avatar };   // la posición con el panel cerrado
   try {
     writeState(stateFile, state);
   } catch (err) {
@@ -100,6 +101,17 @@ function createTray() {
       label: `Size: ${name}`,
       click: () => { if (win) win.webContents.send('size-request', name); },
     })),
+    // D49: el avatar se elige aquí y no en la ventana; el renderer lo recibe por 'avatar'.
+    ...AVATARS.map((name) => ({
+      label: `Avatar: ${name === 'claude' ? 'Claude' : 'Klothulhu'}`,
+      type: 'radio',
+      checked: state.avatar === name,
+      click: () => {
+        state.avatar = name;
+        saveState();
+        if (win && !win.isDestroyed()) win.webContents.send('avatar', name);
+      },
+    })),
     { type: 'separator' },
     { label: 'Quit', click: () => app.quit() },
   ]));
@@ -116,7 +128,7 @@ function summon() {
   win.webContents.send('summon');
 }
 
-ipcMain.handle('init', () => ({ geom: sizeGeometry(state.size, cfg.scale), sizes: SIZE_ORDER, scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, debug: cfg.debug, readSpeed: cfg.readSpeed, panelW: PANEL_W }));
+ipcMain.handle('init', () => ({ geom: sizeGeometry(state.size, cfg.scale), sizes: SIZE_ORDER, scale: cfg.scale, hotkey: cfg.hotkey, look: cfg.look, avatar: state.avatar, debug: cfg.debug, readSpeed: cfg.readSpeed, panelW: PANEL_W }));
 
 // D27: abrir y cerrar el panel de historial ensancha la ventana. Abrir dos veces o cerrar sin abrir no hace nada.
 ipcMain.handle('panel', (_e, open) => {
@@ -202,7 +214,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     cfg = loadConfig();
     stateFile = path.join(app.getPath('userData'), 'estado.json');
-    state = readState(stateFile);
+    state = { ...readState(stateFile), avatar: readAvatar(stateFile, AVATARS) };
     createWindow();
     createTray();
     if (!globalShortcut.register(cfg.hotkey, summon)) {

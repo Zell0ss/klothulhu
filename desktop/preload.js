@@ -16,5 +16,6 @@ contextBridge.exposeInMainWorld('kl', {
   onEvent: (cb) => ipcRenderer.on('kl-event', (_e, msg) => cb(msg)),
   onForgotten: (cb) => ipcRenderer.on('forgotten', () => cb()),
   onSizeRequest: (cb) => ipcRenderer.on('size-request', (_e, n) => cb(String(n))),
+  onAvatar: (cb) => ipcRenderer.on('avatar', (_e, n) => cb(String(n))),
   onSummon: (cb) => ipcRenderer.on('summon', () => cb()),
 });
