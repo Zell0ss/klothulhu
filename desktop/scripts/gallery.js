@@ -1,26 +1,31 @@
 'use strict';
 // Galería para Josem (fase 2, T9; fase 5: bocadillo de scroll, D25): lee docs/fase5/capturas/api_smoke.json y escribe galeria.html,
 // autocontenido. Cada pregunta con su respuesta y sus escenas pintadas con el motor vendorizado.
-// Uso: node desktop/scripts/gallery.js [entrada.json] [salida.html]
+// Uso: node desktop/scripts/gallery.js [entrada.json] [salida.html] [--avatar claude|klothulhu]   (D49)
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
 const DESKTOP = path.join(__dirname, '..');
 const CAPT = path.join(DESKTOP, '..', 'docs', 'fase5', 'capturas');
-const IN = process.argv[2] || path.join(CAPT, 'api_smoke.json');
-const OUT = process.argv[3] || path.join(CAPT, 'galeria.html');
+const args = process.argv.slice(2);
+const flag = args.indexOf('--avatar');
+const AVATAR = flag >= 0 ? args.splice(flag, 2)[1] : 'claude';
+const IN = args[0] || path.join(CAPT, 'api_smoke.json');
+const OUT = args[1] || path.join(CAPT, 'galeria.html');
 
 const K = require('../renderer/scenes.js');
+const A = require('../renderer/avatar.js');
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(DESKTOP, 'renderer', 'vendor', 'fables-motor.iife.js'), 'utf8'), ctx);
 const M = ctx.FablesMotor;
+if (!A.AVATARS.includes(AVATAR)) { console.error(`avatar desconocido: ${AVATAR} (${A.AVATARS.join(', ')})`); process.exit(1); }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function img(scene, alt) {
-  const r = M.renderScene(scene, { look: 'pixel', bubble: { lines: K.BUBBLE_LINES }, secondsPerChar: 0.03 });
+  const r = M.renderScene(scene, { look: 'pixel', bubble: { lines: K.BUBBLE_LINES }, secondsPerChar: 0.03, ...A.avatarOptions(AVATAR, M.VOCAB.avatars) });
   if (!r.ok) return `<p class="aviso">El motor no pudo pintarla: ${esc(r.error)}</p>`;
   const uri = 'data:image/svg+xml;base64,' + Buffer.from(r.svg, 'utf8').toString('base64');
   return `<img src="${uri}" alt="${esc(alt)}"><p class="meta">typedAfter ${r.typedAfter.toFixed(1)} s</p>`;
@@ -55,7 +60,7 @@ h1{font-size:1.4rem}h2{font-size:1.05rem;margin:0 0 6px}
 .strip{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px}figure{margin:0;flex:1 1 280px;max-width:100%}
 img{width:100%;height:auto;border-radius:6px;display:block}.aviso{color:var(--warn);font-size:.85rem;margin:4px 0}
 </style>
-<h1>klothulhu · galería de la fase 5</h1>
+<h1>klothulhu · galería de la fase 5 · avatar ${AVATAR}</h1>
 <p class="meta">${summary.questions_run} preguntas · ${summary.beats_total} tramos · ${summary.null_scenes} sin escena ·
 gasto $${summary.cost_usd.total.toFixed(4)}${summary.fake ? ' · <b>ENSAYO (fake): no es salida del modelo</b>' : ''}.
 Para juzgar la voz (D16) y las escenas (D14).</p>
