@@ -281,3 +281,22 @@ Dos retoques, un commit cada uno:
 Para con un anexo corto en `H2-informe.md`: las pruebas que pasan, **el texto entero del
 autorretrato** y el segundo bloque de una pasada FAKE con recuerdos. El despliegue es de Josem:
 merge y reinicio, sin `crear`.
+
+## 9. Revisión del autorretrato R7-R8 (2026-11-05)
+
+Responde a: e52ea8b (H2-informe, «Anexo — Autorretrato R7-R8»)
+
+- `pytest -q tests`: 105 pasan y 8 se saltan; `ruff` limpio. Las normativas (N8 nueva y N11) son
+  idénticas a las de `docs/fase7/normativas/`.
+- **`autorretrato.md`, aprobado tal cual.** Cubre los seis puntos de la §8, en su voz y sin jerga,
+  con el nombre del botón como lo ve el mortal («Forget conversation»).
+- **R8:** `total` sale de la lista que ya se leía, sin consulta nueva, y `_system()` hace lo que
+  fija N8.
+
+**Aprobado.** Despliegue de Josem: merge y reinicio, sin `crear`.
+
+## Para el programador
+
+Responde a: e52ea8b (H2-informe, «Anexo — Autorretrato R7-R8»)
+
+Aprobado. Para aquí y actualiza `tomorrow.md`. H3 llegará como encargo.
