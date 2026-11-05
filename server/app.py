@@ -122,11 +122,13 @@ async def _cerrar_sesion(sesion, motivo: str) -> None:
 
 
 def _system(sesion: Sesion | None):
-    """El prompt del narrador. Con memoria, un bloque más: la fecha y, si hay, los recuerdos (D43, D47)."""
+    """El prompt del narrador. Con memoria, un bloque más: fecha o recuerdos, y el autorretrato (D48)."""
     if sesion is None:
         return SYSTEM_PROMPT
     hoy = sesion.inicio.date()  # D47: hoy es siempre el día de inicio de la sesión, sin hora
-    texto = memoria.bloque(sesion.contexto, sesion.dia, hoy) if sesion.contexto else memoria.cabecera(hoy)
+    contexto = sesion.contexto or []
+    arriba = memoria.bloque(contexto, sesion.dia, hoy) if contexto else memoria.cabecera(hoy)
+    texto = arriba + "\n\n" + memoria.autorretrato(sesion.total, len(contexto))  # D48
     return [{"type": "text", "text": SYSTEM_PROMPT}, {"type": "text", "text": texto}]
 
 
@@ -141,6 +143,7 @@ async def _preparar_memoria(cid: str, text: str) -> Sesion:
                 raise RuntimeError("sin almacén")
             sesion.dia = await asyncio.to_thread(_almacen.anotar_dia_uso, hoy)
             rs = await asyncio.to_thread(_almacen.recuerdos)
+            sesion.total = len(rs)  # D48: la lista que ya se lee para la foto, sin consulta nueva
             sesion.contexto = memoria.contexto_inicial(rs, sesion.dia, hoy)
         except Exception as e:  # sin recuerdos, klothulhu contesta igual
             log.warning("memoria: sin contexto para la sesión %s (%s)", sesion.id, type(e).__name__)

@@ -176,8 +176,11 @@ def test_r6_system_con_sesion_sin_recuerdos_lleva_la_fecha():
 
     s = Sesion(id="s", cliente="k", inicio=datetime(2026, 10, 20, 23, 59, tzinfo=ZoneInfo("Europe/Madrid")))
     s.contexto = []
-    assert app._system(s) == [{"type": "text", "text": app.SYSTEM_PROMPT},
-                              {"type": "text", "text": "Hoy es martes 2026-10-20."}]
+    s.total = 0
+    assert app._system(s) == [
+        {"type": "text", "text": app.SYSTEM_PROMPT},
+        {"type": "text", "text": "Hoy es martes 2026-10-20.\n\n" + memoria.autorretrato(0, 0)},
+    ]
     assert memoria.cabecera(s.inicio.date()) == "Hoy es martes 2026-10-20."
 
 
@@ -186,3 +189,49 @@ def test_r4_el_prompt_del_escritor_prohibe_fechas_relativas():
 
     t = escritor.PROMPT
     assert "el martes 21 de octubre" in t and "«hoy»" in t and "«mañana»" in t and "«ayer»" in t
+
+
+# --- H2 R7-R8 (D48): el autorretrato ---------------------------------------------------------------------
+
+
+def test_r7_autorretrato_plural_y_sin_total():
+    import memoria
+
+    assert memoria.autorretrato(23, 15).endswith("Guardas 23 recuerdos; tienes delante 15.")
+    assert memoria.autorretrato(1, 1).endswith("Guardas 1 recuerdo; tienes delante 1.")
+    assert memoria.autorretrato(None, 4) == memoria.autorretrato(None, 0)         # sin línea en vivo
+    assert "Guardas" not in memoria.autorretrato(None, 4)
+
+
+def test_r8_el_delante_sube_cuando_la_busqueda_anade_uno(monkeypatch):
+    from memoria import Recuerdo
+
+    alm = AlmacenEnMemoria()
+    for i in range(16):                                     # 16 guardados: la foto trae 15, uno queda fuera
+        alm.guardar(sesion_id="s", cliente="k", recuerdo=Recuerdo(f"Recuerdo {i}.", 3, "neutral", None),
+                    vector=[0.1] * 1536, creado_dia=1)
+    vistos = []
+    orig = app._system
+
+    def espia(sesion):
+        r = orig(sesion)
+        vistos.append(r[1]["text"].splitlines()[-1])        # la línea en vivo, última del segundo bloque
+        return r
+
+    async def stream():
+        yield "[happy] Hola."
+
+    monkeypatch.setattr(app, "_system", espia)
+    monkeypatch.setattr(app, "_fake_stream", stream)
+    monkeypatch.setattr(app, "DIRECTOR_ENABLED", False)
+    monkeypatch.setattr(app, "MEMORIA", True)
+    monkeypatch.setattr(app, "_almacen", alm)
+    monkeypatch.setattr(app, "_freno", gasto.Freno(1.0, alm))
+    monkeypatch.setattr(app, "sesiones", Sesiones(ttl_seconds=1800))
+
+    async def escena():
+        for texto in ("uno", "dos"):
+            [x async for x in app._reply("fase7-r8", texto, asyncio.Lock())]
+            await asyncio.gather(*list(app._busquedas))     # la búsqueda acaba antes del siguiente
+    asyncio.run(escena())
+    assert vistos == ["Guardas 16 recuerdos; tienes delante 15.", "Guardas 16 recuerdos; tienes delante 16."]

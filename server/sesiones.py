@@ -24,6 +24,7 @@ class Sesion:
     contexto: list[dict] | None = None  # la foto de D43 y lo que traiga la búsqueda (D36); None = sin abrir
     eventos: list[dict] = field(default_factory=list)  # candidatos (D44) y fallos (D45)
     dia: int | None = None  # día de uso de la sesión
+    total: int | None = None  # recuerdos que guarda al abrir la sesión (D48); None = el almacén no respondió
 
 
 class Sesiones:

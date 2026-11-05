@@ -1,4 +1,4 @@
-"""Pruebas normativas de la fase 7, H2 (D36, D37, D42-D47; N8 cambiada por D47). No editar: añadir en otro fichero.
+"""Pruebas normativas de la fase 7, H2 (D36, D37, D42-D48; N8 cambiada por D47 y D48). No editar: añadir en otro fichero.
 
 Sin red, sin BD y sin Qdrant: `AlmacenEnMemoria` y falsos.
 """
@@ -278,24 +278,28 @@ def test_n7_poda_al_cerrar():
     assert alm.recuerdos() == []
 
 
-# N8 — el prompt del narrador: con sesión, siempre la fecha; con recuerdos, el bloque entero (D43, D47).
-# Cambiada por D47 (2026-10-20): antes, sin recuerdos, el `system` era solo `prompt.md`.
+# N8 — el prompt del narrador: con sesión, la fecha (o el bloque de recuerdos) y el autorretrato (D43, D47, D48).
+# Cambiada por D47 (2026-10-20: antes, sin recuerdos, el `system` era solo `prompt.md`) y por D48 (2026-11-05:
+# el segundo bloque termina con el autorretrato).
 def test_n8_system_y_health():
     import app
 
+    hoy = date(2026, 10, 20)
     assert app._system(None) == app.SYSTEM_PROMPT       # memoria apagada: como en la fase 6
     s = _sesion()
     s.dia = 3
     s.contexto = []
-    assert memoria.cabecera(date(2026, 10, 20)) == "Hoy es martes 2026-10-20."
+    s.total = 0
+    assert memoria.cabecera(hoy) == "Hoy es martes 2026-10-20."
     assert app._system(s) == [
         {"type": "text", "text": app.SYSTEM_PROMPT},
-        {"type": "text", "text": memoria.cabecera(date(2026, 10, 20))},
+        {"type": "text", "text": memoria.cabecera(hoy) + "\n\n" + memoria.autorretrato(0, 0)},
     ]
     s.contexto = [_rec("a", "Va a pilates.")]
+    s.total = 23
     assert app._system(s) == [
         {"type": "text", "text": app.SYSTEM_PROMPT},
-        {"type": "text", "text": memoria.bloque(s.contexto, 3, date(2026, 10, 20))},
+        {"type": "text", "text": memoria.bloque(s.contexto, 3, hoy) + "\n\n" + memoria.autorretrato(23, 1)},
     ]
     assert isinstance(asyncio.run(app.health())["sesiones"], int)
 
@@ -328,3 +332,18 @@ def test_n10_esquemas():
     assert set(f["required"]) == {"tipo", "recuerdo"} and f["additionalProperties"] is False
     for nombre in ("juez_prompt.md", "repaso_prompt.md"):
         assert (SERVER / nombre).read_text(encoding="utf-8").strip()
+
+
+# N11 — el autorretrato: texto fijo en su voz, la línea en vivo y sin corchetes (D48)
+def test_n11_autorretrato():
+    assert sesiones.Sesion(id="x", cliente="konnos").total is None
+    a = memoria.autorretrato(23, 15)
+    assert "23" in a and "15" in a
+    assert "Forget" in a                                   # el nombre del botón, como lo ve el mortal
+    assert "[" not in a and "]" not in a
+    for jerga in ("Qdrant", "MariaDB", "vector", "embedding", "base de datos"):
+        assert jerga.lower() not in a.lower()
+    sin_total = memoria.autorretrato(None, 4)              # el almacén no respondió: sin la línea en vivo
+    assert "None" not in sin_total and "4" not in sin_total
+    assert sin_total.strip() and sin_total.strip() in a     # el texto fijo, más la línea en vivo
+    assert (SERVER / "autorretrato.md").read_text(encoding="utf-8").strip()
