@@ -32,7 +32,6 @@ const avatarBtns = [...document.querySelectorAll('#avatars button')];
 const gate = document.getElementById('gate');
 const gateMsg = document.getElementById('gateMsg');
 const tokenInput = document.getElementById('tokenInput');
-const tokenOk = document.getElementById('tokenOk');
 const tokenCancel = document.getElementById('tokenCancel');
 
 // localStorage puede lanzar (modo privado, permisos): sin él la web funciona, solo que no recuerda.
@@ -277,9 +276,10 @@ function saveToken() {
 }
 
 host.onNeedToken(() => showGate(gateNote));
-tokenOk.addEventListener('click', saveToken);
+// Es un <form> (el teclado del móvil muestra «Ir» y el navegador no se queja del campo de contraseña),
+// pero nunca se envía: el token solo va por la cabecera Authorization, nunca en una URL (D50).
+document.getElementById('gateBox').addEventListener('submit', (e) => { e.preventDefault(); saveToken(); });
 tokenCancel.addEventListener('click', hideGate);
-tokenInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveToken(); });
 tokenBtn.addEventListener('click', () => showGate(''));
 
 // --- barra y entrada ---

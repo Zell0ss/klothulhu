@@ -6,11 +6,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 body { overflow: hidden; -webkit-text-size-adjust: 100%; font: 15px/1.4 ui-monospace, Consolas, monospace; }
 
 /* 100dvh: con el teclado abierto (interactive-widget=resizes-content) la entrada sube y no se tapa. */
-#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding-top: env(safe-area-inset-top); }
+#app { width: 100%; overflow: hidden; display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding-top: env(safe-area-inset-top); }
 
 /* La franja del motor: el ancho y el alto los pone app.js (webGeometry). */
-#stage { flex: none; margin: 0 auto; overflow: hidden; background: #000; }
-#scene { display: block; }
+/* max-width: al girar a vertical, la franja de antes (más ancha) no debe desbordar: un móvil ensancha el viewport
+   para contener el desborde y `innerWidth` se quedaría en el ancho viejo. */
+#stage { flex: none; margin: 0 auto; overflow: hidden; background: #000; max-width: 100%; }
+#scene { display: block; max-width: 100%; }
 
 #bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
 #avatars { display: flex; flex: 1; gap: 4px; }
