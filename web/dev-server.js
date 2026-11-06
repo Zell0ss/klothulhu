@@ -56,7 +56,7 @@ function notFound(res) {
 function createServer({ apiHost, apiPort }) {
   return http.createServer((req, res) => {
     let pathname;
-    try { pathname = decodeURIComponent(new URL(req.url, 'x:').pathname); } catch { return notFound(res); }
+    try { pathname = decodeURIComponent(req.url.split('?')[0]); } catch { return notFound(res); }
 
     if (pathname.startsWith('/api/')) {
       // /api/chat -> /chat; las cabeceras (Authorization) y el cuerpo pasan tal cual.
