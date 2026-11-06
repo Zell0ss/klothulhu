@@ -1,23 +1,25 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 8, H1 (segundo avatar, D49): T1-T6 hechas (58a3fda … dc6ce99) e informe entregado en `docs/fase8/H1-informe.md`.
-Espero revisión. Worktree `/data/klothulhu-fase8` (rama `fase8`, `.venv` y `node_modules` propios). La fase 7 ya está en `main`.
+**Parada:** fase 9, H1 (cliente web para el móvil, D50): T1–T6 hechas (16f5b7c … 78e7533) e informe entregado en
+`docs/fase9/H1-informe.md`. Espero revisión. Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio).
+La fase 8 ya está en `main`.
 
-**Siguiente paso:** esperar. El merge `--ff-only` de `fase8` y la prueba K1-K7 en Konnos son de Josem (el servidor no se reinicia).
-Antes de tocar nada, mirar el buzón (`docs/fase8/`).
+**Siguiente paso:** esperar. El segundo secreto + reinicio de `klothulhu-api`, el nginx (`deploy/PASOS-CON-SUDO.md`), el merge
+`--ff-only` de `fase9` y K1–K9 en el móvil son de Josem. Antes de tocar nada, mirar el buzón (`docs/fase9/`).
 
 **Gotchas:**
-- `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso (hoy `/data/klothulhu-fase8`, `.venv` 3.12 propio).
-  El de la fase 7 (`/data/klothulhu-fase7`, con su `.env` de desarrollo contra `klothulhu_dev`) sigue ahí para cualquier retoque.
+- `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
+- Servidor de pruebas de la fase 9 (no producción): desde `fase9/server`,
+  `KLOTHULHU_FAKE=1 KLOTHULHU_TOKENS=konnos:token-de-prueba-0123456789 ../.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8766`
+  y `node web/dev-server.js --api 127.0.0.1:8766` (web en `127.0.0.1:5858`). Gasto 0, sin BD.
+- Fase 9: `web/test/fase9-h1.test.js` es normativa (no se edita). `desktop/renderer/index.html`, `main.js`, `preload.js` y
+  `state.js` NO se tocan: `web/app.js` es una copia deliberada del reproductor (D50), hay que trasladar a mano los cambios.
+- `sse-client.js` es UMD y como `<script>` clásico deja globales (`streamChat`, `forget`, `parseBlock`): por eso `app.js` va en una función.
+- Ningún fichero de `web/` puede llevar una URL absoluta (W11), ni siquiera en comentarios.
+- `nginx -t` sin ejecutar: lo hace Josem. El nginx sirve `main`, así que el merge va antes.
+- K6 (el verde fluido en el móvil) y K8 (girar en un móvil real) solo se prueban en el móvil.
 - Pruebas contra la BD real: `KLOTHULHU_TEST_DB=1`, solo `klothulhu_test` / `klothulhu_memoria_test`.
-- `tests/test_fase7_h1.py` y `tests/test_fase7_h2.py` son normativas: no se editan (N2 y N8 las cambió el arquitecto).
-  Mis regresiones están en `tests/test_fase7_h1_retoques.py`, `tests/test_memoria_bd.py` y `tests/test_calibrar.py`.
-- Con `KLOTHULHU_MEMORIA=1` en producción, los recuerdos entran en las respuestas desde el reinicio, con `UMBRAL = 0.34`
-  (`KLOTHULHU_MEMORIA_UMBRAL` lo sobrescribe).
-- `scripts/memoria.py eventos [--detalle]` resume `memoria_eventos` para H3; `listar` y `gasto` siguen igual.
 - T10 (`memoria_prueba.py`) y T8 (`memoria_calibrar.py`) no se vuelven a lanzar sin autorización de Josem.
 - Automensaje: sin pareja confirmada (la sesión klothulhu-be ya no existe); preguntar a Josem quién es el arquitecto.
-- Fase 8: `desktop/test/fase8-h1.test.js` es normativa (no se edita). `parseState`/`readState` no cambian (M4, M5 de la fase 6): el avatar va por `parseAvatar`/`readAvatar`.
-- K6 (que el verde no vaya a tirones con escenas pesadas) solo se prueba en Konnos; el tray y el renderer no se pueden ejecutar en seb01.
 
 **Bloqueos:** ninguno.
