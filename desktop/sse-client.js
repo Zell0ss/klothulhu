@@ -76,4 +76,9 @@ async function forget({ apiUrl, token }) {
   return res.ok;
 }
 
-module.exports = { streamChat, forget, parseBlock };
+// D50: en Node (main.js, pruebas) es un módulo; en la web (<script> clásico) deja `KlSse`.
+{ // bloque: como <script> clásico, un `const` suelto sería global y chocaría con otros scripts
+  const api = { streamChat, forget, parseBlock };
+  if (typeof module === 'object' && module.exports) module.exports = api;
+  else (typeof self !== 'undefined' ? self : this).KlSse = api;
+}
