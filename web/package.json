@@ -1,0 +1,10 @@
+{
+  "name": "klothulhu-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cliente web de klothulhu para el móvil (fase 9, D50). Sin build y sin dependencias.",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check webcore.js && node --check host.js && node --check app.js && node --check dev-server.js"
+  }
+}
