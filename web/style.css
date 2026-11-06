@@ -1,0 +1,60 @@
+/* Cliente web de klothulhu para el móvil en vertical (D50). Sin fuentes ni imágenes externas. */
+:root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); --bg: #140f0d; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+body { overflow: hidden; -webkit-text-size-adjust: 100%; font: 15px/1.4 ui-monospace, Consolas, monospace; }
+
+/* 100dvh: con el teclado abierto (interactive-widget=resizes-content) la entrada sube y no se tapa. */
+#app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; padding-top: env(safe-area-inset-top); }
+
+/* La franja del motor: el ancho y el alto los pone app.js (webGeometry). */
+#stage { flex: none; margin: 0 auto; overflow: hidden; background: #000; }
+#scene { display: block; }
+
+#bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
+#avatars { display: flex; flex: 1; gap: 4px; }
+#bar button {
+  min-height: 40px; padding: 0 12px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font: inherit; touch-action: manipulation;
+}
+#avatars button { flex: 1; }
+#avatars button[aria-pressed="true"] { background: var(--rust); font-weight: bold; }
+#forgetBtn, #tokenBtn { min-width: 44px; padding: 0; }
+
+#history {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px;
+  border-top: 1px solid rgba(180, 80, 50, 0.4); user-select: text; -webkit-user-select: text;
+}
+#history .turn { margin: 0 0 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
+#history .who { color: var(--rust); font-weight: bold; }
+
+#entry { flex: none; display: flex; gap: 8px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
+#ask {
+  flex: 1; min-width: 0; height: 44px; padding: 0 12px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font: inherit; font-size: 16px; /* ≥16 px: iOS no hace zoom al enfocar */ outline: none;
+}
+#ask::placeholder { color: rgba(243, 239, 232, 0.45); }
+#sendBtn {
+  flex: none; width: 48px; height: 44px; padding: 0; border: none; border-radius: 6px;
+  background: var(--rust); color: var(--ink); font-size: 18px; touch-action: manipulation;
+}
+#sendBtn:disabled { opacity: 0.4; }
+
+/* Formulario del token: encima de todo. */
+#gate {
+  position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(20, 15, 13, 0.97);
+}
+#gateBox { width: 100%; max-width: 420px; }
+#gateMsg { margin: 0 0 12px; }
+#tokenInput {
+  width: 100%; height: 44px; padding: 0 12px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font: inherit; font-size: 16px; outline: none;
+}
+#gateRow { display: flex; gap: 8px; margin-top: 10px; }
+#gateRow button {
+  flex: 1; min-height: 44px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--rust); color: var(--ink); font: inherit; touch-action: manipulation;
+}
+#tokenCancel { background: var(--box); }

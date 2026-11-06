@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<!-- D10, D50: nada de red salvo el propio origen (/api), ni eval, ni JS o CSS en línea. El SVG entra como <img> por img-src data: -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'self'; script-src 'self'; connect-src 'self'">
+<meta name="theme-color" content="#140f0d">
+<title>Klothulhu</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <div id="stage"><img id="scene" alt=""></div>
+  <div id="bar">
+    <div id="avatars" role="group" aria-label="Avatar">
+      <button type="button" data-avatar="claude" aria-pressed="false">Claude</button>
+      <button type="button" data-avatar="klothulhu" aria-pressed="false">Klothulhu</button>
+    </div>
+    <button id="forgetBtn" type="button" title="Olvidar la conversación" aria-label="Olvidar la conversación">🗑</button>
+    <button id="tokenBtn" type="button" title="Cambiar el token" aria-label="Cambiar el token">🔑</button>
+  </div>
+  <div id="history" aria-live="polite"></div>
+  <div id="entry">
+    <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false" enterkeyhint="send">
+    <button id="sendBtn" type="button" title="Enviar" aria-label="Enviar">➤</button>
+  </div>
+</div>
+<div id="gate" hidden>
+  <div id="gateBox">
+    <p id="gateMsg">Pega el token de klothulhu. Se guarda en este móvil.</p>
+    <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="token">
+    <div id="gateRow">
+      <button id="tokenOk" type="button">Guardar</button>
+      <button id="tokenCancel" type="button">Cancelar</button>
+    </div>
+  </div>
+</div>
+<script src="/shared/vendor/fables-motor.iife.js"></script>
+<script src="/shared/scenes.js"></script>
+<script src="/shared/feed.js"></script>
+<script src="/shared/convo.js"></script>
+<script src="/shared/avatar.js"></script>
+<script src="/shared/sse-client.js"></script>
+<script src="webcore.js"></script>
+<script src="host.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
