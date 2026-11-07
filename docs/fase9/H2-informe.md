@@ -87,3 +87,17 @@ Esto es solo una pintada suelta: el tirón de K6 vendrá de la animación, que a
 Ninguna. Esperan a un «sí» de Josem, y no los hago yo: el merge `--ff-only` de `fase9` en `/data/klothulhu` y recargar la web en el móvil (nginx sirve `main`, los
 ficheros son estáticos y no hay que tocar nada más; el servidor no se reinicia). Solo en el móvil real se puede ver si 12-13 px se lee bien en la barra y cómo se comporta
 el selector nativo de Android o iOS; no lo he podido probar aquí.
+
+## Anexo — R2
+
+Responde a: e55c969 (H2-revision §3, retoque R2)
+
+- **Hecho:** R2 en `b5ae706`. `web/index.html`: `<meta name="color-scheme" content="dark">` justo después del `theme-color`.
+  `web/style.css`: `color-scheme: dark;` en `:root`. Nada más: ni colores nuevos ni `prefers-color-scheme`. Prueba nueva en
+  `web/test/darkmode.test.js` (tres casos: el meta en el `<head>` y tras `theme-color`, la propiedad en `:root`, y que el CSS no
+  tiene `prefers-color-scheme`); las dos primeras fallaban antes del arreglo.
+- **Pruebas:** `cd web && npm test`: 25/25 (22 + 3 nuevas); `npm run check` limpio. Sin tocar `desktop/`, `server/` ni la normativa.
+- **Sin captura**, como pedía la revisión: el oscurecido forzado del navegador no se reproduce en headless. Lo comprobará Josem en el móvil.
+- **Efecto lateral esperado:** con `color-scheme: dark`, los controles nativos (el desplegable del select, el campo del token) también salen en oscuro.
+- **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna.
+- **Merge pendiente:** `main` está en `e62ee99`, sin R2; el merge `--ff-only` de `fase9` y recargar en el móvil son de Josem.
