@@ -1,7 +1,7 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9, H1 (cliente web para el móvil, D50): T1–T6 hechas (16f5b7c … 78e7533) e informe entregado en
-`docs/fase9/H1-informe.md`. Espero revisión. Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio).
+**Parada:** fase 9, H1 (cliente web para el móvil, D50): T1–T6 hechas (16f5b7c … 78e7533), R1 aplicada (fc236aa) y
+anexo en `docs/fase9/H1-informe.md` (1358efc). Espero revisión del anexo. Automensaje activo: la pareja es `klothulhu-24`. Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio).
 La fase 8 ya está en `main`.
 
 **Siguiente paso:** esperar. El segundo secreto + reinicio de `klothulhu-api`, el nginx (`deploy/PASOS-CON-SUDO.md`), el merge
