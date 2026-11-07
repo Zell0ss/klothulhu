@@ -84,3 +84,18 @@ probar en Samsung**: solo en Chrome.
   script cada vez, y no sé si el acceso directo de Samsung acepta un `data:` en `apple-touch-icon`; tampoco lo puedo comprobar aquí.
 
 Paro aquí. El merge y volver a añadir el acceso directo en el móvil (el viejo hay que borrarlo) son de Josem, pero **no tiene sentido hacerlos hasta que se resuelva esto**.
+
+## Anexo — R3
+
+Responde a: 7b73002 (H3-revision, R3, D53)
+
+- **Hecho:** R3 en `ff55973`.
+  1. `web/test/fase9-h1.test.js` copiada de `docs/fase9/normativas/` sin editarla: `cmp` sale vacío, y el diff contra la copia anterior son solo las dos líneas de W10 (el comentario de D53 y el `img-src` en cualquier orden).
+  2. `web/index.html`: `img-src 'self' data:` en la CSP, sin tocar nada más de ella. Corregí también el comentario de las `<link>`, que decía que los iconos no pasan por `img-src` (es justo lo contrario), y añadí D53 al de la CSP.
+  3. `web/test/icons.test.js`: el aviso de `img-src` comprueba ahora `'self'` y `data:`.
+- **Pruebas:** `cd web && npm test` 31/31 (W10 incluida, con la normativa revisada); `npm run check` limpio. `desktop/` no se ha tocado en R3.
+- **Medida repetida** (Chrome headless, `Page.getAppManifest` y el log, sobre la página del repo servida con `dev-server.js`; ya parado): el manifest se descarga, el favicon y el icono del manifest cargan
+  (sin ningún `FALLO csp`), **`getAppManifest` no devuelve avisos y la consola está vacía**. Antes: 4 errores de CSP y 1 aviso.
+- **Sin probar en Samsung Internet:** solo en Chrome. Lo que queda por ver en el móvil es que el acceso directo nuevo salga con el icono.
+- **Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna.
+- **Pendiente de Josem:** el merge `--ff-only` de `fase9` en `/data/klothulhu` (`main` sigue en `e62ee99`, sin R2 ni H3) y, después, borrar el acceso directo viejo y volver a añadirlo.
