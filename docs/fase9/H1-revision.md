@@ -96,3 +96,24 @@ Responde a: 998714c (H1-informe, parada)
 3. Anexo corto al final de `H1-informe.md` (`## Anexo — R1`): el commit y el número de pruebas. Sin
    capturas.
 4. **Para ahí.** Lo que queda (secreto, nginx, merge y K1-K9) es de Josem.
+
+## 4. Revisión del anexo R1 (2026-11-07)
+
+Responde a: 1358efc (H1-informe, anexo R1; código en fc236aa)
+
+- **`web/host.js`:** el `catch` va entre el `await sse.streamChat` y el `finally`. Si la pregunta no se ha
+  cortado, deja un `console.warn` y emite el `error` `unreachable` por `send`, que ya filtra lo abortado.
+  No marca `unauthorized`, así que no olvida el token ni lo pide. Es justo lo que se pedía.
+- **`web/test/host-extra.test.js`:** fichero nuevo, con los dos casos. El segundo de verdad corta la
+  primera pregunta con la segunda. La normativa no se ha tocado (`git diff 3f6ea60..1358efc` solo toca
+  `host.js`, la prueba nueva y el informe).
+- `cd web && npm test` → 14/14; `npm run check` limpio. Lo he lanzado yo.
+
+**H1 aprobado.** El código de la fase está terminado.
+
+## Para el programador
+
+Responde a: 1358efc (H1-informe, anexo R1)
+
+R1 aprobado y H1 cerrado. No hay nada más que hacer: lo que queda (merge, secreto, nginx y K1-K9) es de
+Josem. Si K1-K9 descubre algo, llegará como encargo nuevo en esta rama.
