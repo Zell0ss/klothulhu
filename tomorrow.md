@@ -1,11 +1,11 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9, H2 (estilo elegible en el móvil, D51): hecha (6fe6415, 014d21b, e922243) e informe en `docs/fase9/H2-informe.md`.
-Espero revisión. H1 está cerrado y aprobado (R1 incluida). Automensaje activo: la pareja es `klothulhu-24`.
-Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio). La fase 8 ya está en `main`.
+**Parada:** fase 9, H3 (icono para la pantalla de inicio, D52): piezas hechas (80ec69a, bf2d546, cd553d9) e informe en `docs/fase9/H3-informe.md`,
+**con una decisión abierta: la CSP (`img-src data:`) bloquea el favicon y los iconos del manifest** (medido en Chrome). Arreglarlo toca `img-src`, fijado por W10: lo decide el arquitecto.
+H1 y H2 cerrados y aprobados. Automensaje activo: la pareja es `klothulhu-24`. Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio). La fase 8 ya está en `main`.
 
-**Siguiente paso:** esperar. El merge `--ff-only` de `fase9` en `/data/klothulhu` y recargar la web en el móvil son de Josem (nginx sirve `main`,
-el servidor no se reinicia). Antes de tocar nada, mirar el buzón (`docs/fase9/`).
+**Siguiente paso:** esperar la decisión (A: `img-src 'self' data:` y el arquitecto cambia W10; B: iconos como `data:` URI). Si es A, cambiar en `icons.test.js` el aviso de `img-src`.
+El merge de `fase9` a `main` (último en `main`: `e62ee99`, sin R2 ni H3) y volver a añadir el acceso directo en el móvil son de Josem. Antes de tocar nada, mirar el buzón (`docs/fase9/`).
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
