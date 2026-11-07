@@ -33,6 +33,14 @@
       };
       try {
         await sse.streamChat({ apiUrl, token, text, signal: ctl.signal, onEvent: send });
+      } catch (err) {
+        // streamChat convierte en eventos los fallos de red, pero no todo: en un navegador viejo
+        // `AbortSignal.any` no existe y un `res.body` nulo también lanza. Sin esto el móvil se queda en
+        // «pensando» para siempre (R1, D50). Una pregunta ya cortada por otra no avisa de nada.
+        if (!ctl.signal.aborted) {
+          console.warn('klothulhu: streamChat falló', err);
+          send('error', { code: 'unreachable' });
+        }
       } finally {
         if (inflight === ctl) inflight = null;
       }
