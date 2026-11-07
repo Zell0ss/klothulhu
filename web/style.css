@@ -1,5 +1,5 @@
 /* Cliente web de klothulhu para el móvil en vertical (D50). Sin fuentes ni imágenes externas. */
-:root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); --bg: #140f0d; }
+:root { color-scheme: dark; --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); --bg: #140f0d; }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }

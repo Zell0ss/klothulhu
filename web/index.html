@@ -6,6 +6,8 @@
 <!-- D10, D50: nada de red salvo el propio origen (/api), ni eval, ni JS o CSS en línea. El SVG entra como <img> por img-src data: -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'self'; script-src 'self'; connect-src 'self'">
 <meta name="theme-color" content="#140f0d">
+<!-- R2: la página ya es oscura; sin esto, el modo oscuro automático del navegador la vuelve a oscurecer -->
+<meta name="color-scheme" content="dark">
 <title>Klothulhu</title>
 <link rel="stylesheet" href="style.css">
 </head>
