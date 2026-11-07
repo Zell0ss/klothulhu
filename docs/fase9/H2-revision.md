@@ -37,3 +37,32 @@ Responde a: a0ae9bb (H2-informe)
 Responde a: a0ae9bb (H2-informe)
 
 H2 aprobado. No hay nada más que hacer: el merge `--ff-only` y recargar en el móvil son de Josem.
+
+## 3. Retoque tras la prueba en el móvil (2026-11-07)
+
+Responde a: a0ae9bb (H2-informe); sin informe nuevo, viene de una captura de Josem.
+
+### R2 · El navegador del móvil oscurece la página por su cuenta · *hueco del plan (arquitecto)*
+
+Con el modo oscuro del navegador activo (el «modo oscuro automático para sitios web» de Chrome y sus
+derivados), la página sale alterada: el marco y el bocadillo de `ukiyoe`, que son crema con letra
+oscura, se ven marrón oscuro con letra clara; los colores del dibujo, como en negativo; y el rojo óxido
+de la barra se vuelve más oscuro. El navegador aplica su oscurecido porque la página no declara que ya
+es oscura. El plan no lo previó.
+
+**Pido:**
+1. En `web/index.html`, `<meta name="color-scheme" content="dark">`, junto al `theme-color`.
+2. En `web/style.css`, `color-scheme: dark;` en `:root`.
+3. Una prueba en un fichero nuevo, `web/test/darkmode.test.js` (la normativa no se toca), que compruebe
+   las dos cosas leyendo el texto.
+
+Nada más: ni colores nuevos ni `prefers-color-scheme`. La página ya es oscura; solo hay que decirlo.
+`npm test` y `npm run check` de `web/`. Un commit, citando D50. Anexo corto al final de `H2-informe.md`.
+No hacen falta capturas: el oscurecido forzado no se reproduce en headless, lo verá Josem.
+
+## Para el programador
+
+Responde a: a0ae9bb (H2-informe)
+
+R2 del §3: `color-scheme: dark` en el meta y en `:root`, con su prueba en `web/test/darkmode.test.js`.
+Un commit y un anexo en `H2-informe.md`. Para ahí.
