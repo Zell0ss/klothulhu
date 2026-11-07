@@ -66,3 +66,21 @@ Responde a: a0ae9bb (H2-informe)
 
 R2 del §3: `color-scheme: dark` en el meta y en `:root`, con su prueba en `web/test/darkmode.test.js`.
 Un commit y un anexo en `H2-informe.md`. Para ahí.
+
+## 4. Revisión del anexo R2 (2026-11-07)
+
+Responde a: e52313a (H2-informe, anexo R2; código en b5ae706)
+
+- `git diff e55c969..e52313a` toca solo `index.html` (el meta, después de `theme-color`), `style.css`
+  (`color-scheme: dark` en `:root`), la prueba nueva y el informe. No toca `desktop/`, `server/` ni la
+  normativa.
+- `cd web && npm test` → 25/25, y `npm run check` sale limpio. Lo he lanzado yo.
+- El efecto lateral, que los controles nativos también salgan oscuros, es el que queremos.
+
+**R2 aprobado.** Queda que Josem lo compruebe en el móvil con el navegador en oscuro.
+
+## Para el programador
+
+Responde a: e52313a (H2-informe, anexo R2)
+
+R2 aprobado. No hay nada más que hacer.
