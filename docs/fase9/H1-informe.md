@@ -78,3 +78,17 @@ arrancado desde mi worktree, no desde `/data/klothulhu`. El servicio de producci
 
 Ninguna. Esperan a un «sí» de Josem, y no los hago yo: el segundo secreto y el reinicio de `klothulhu-api`, el
 nginx con sudo, el merge `--ff-only` de `fase9` y K1–K9 en el móvil (todo en `deploy/PASOS-CON-SUDO.md`).
+
+## Anexo — R1
+
+Responde a: 3f6ea60 (H1-revision, «Para el programador»)
+
+- **Hecho:** R1 en `fc236aa`. `web/host.js`: `ask` atrapa la excepción de `sse.streamChat`; si la pregunta no se ha
+  cortado (`!ctl.signal.aborted`), `console.warn` y un evento `error` con `{ code: 'unreachable' }`, sin 401 y sin pedir
+  token. Prueba de regresión nueva en `web/test/host-extra.test.js` (la normativa `fase9-h1.test.js` no se toca) con
+  los dos casos de la revisión: lanza → un solo `error unreachable`, ningún `onNeedToken` y el token intacto; lanza con
+  la pregunta ya cortada por otra → nada, ni evento ni aviso. Las dos fallaban antes del arreglo.
+- **Pruebas:** `npm test` de `web/`: 14/14 (12 anteriores + 2 nuevas). `npm run check`: limpio.
+- **Gasto:** 0.
+- **Desviaciones:** ninguna.
+- **Decisiones que necesito:** ninguna. Paro aquí; secreto, nginx, merge `--ff-only` y K1–K9 siguen siendo de Josem.
