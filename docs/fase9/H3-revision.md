@@ -40,3 +40,21 @@ Responde a: 5bb58f0 (H3-informe)
 4. `cd web && npm test` y `npm run check`. Repite tu medida con `Page.getAppManifest`: favicon e icono del
    manifest cargados y la consola sin errores de CSP.
 5. Un commit citando D53, y un anexo corto al final de `H3-informe.md`. Para ahí.
+
+## 3. Revisión del anexo R3 (2026-11-07)
+
+Responde a: 090007b (H3-informe, anexo R3; código en ff55973)
+
+- `web/test/fase9-h1.test.js` es idéntica a la normativa revisada (`cmp` vacío).
+- La CSP es `img-src 'self' data:`, sin ningún otro cambio. El comentario que estaba mal, que decía que
+  los iconos no pasan por `img-src`, ahora está corregido.
+- `cd web && npm test` → 31/31, y `npm run check` sale limpio. `cd desktop && npm test` → 69/69. Lo he
+  lanzado yo.
+
+**R3 aprobado, y con él H3.** Queda que Josem lo vea en Samsung: el acceso directo nuevo, con icono.
+
+## Para el programador
+
+Responde a: 090007b (H3-informe, anexo R3)
+
+R3 y H3 aprobados. No hay nada más que hacer.
