@@ -4,11 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <!-- D10, D50: nada de red salvo el propio origen (/api), ni eval, ni JS o CSS en línea. El SVG entra como <img> por img-src data: -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'self'; script-src 'self'; connect-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'self'; script-src 'self'; connect-src 'self'; manifest-src 'self'">
 <meta name="theme-color" content="#140f0d">
 <!-- R2: la página ya es oscura; sin esto, el modo oscuro automático del navegador la vuelve a oscurecer -->
 <meta name="color-scheme" content="dark">
 <title>Klothulhu</title>
+<!-- D52: icono para la pantalla de inicio. No es una PWA (sin service worker ni HTTPS, D50): un acceso directo con icono.
+     Los iconos los pide el navegador, no la página, así que no pasan por img-src. Rutas relativas. -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>

@@ -32,6 +32,7 @@ const TYPES = {
   '.js': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
+  '.png': 'image/png',   // los iconos de web/icons/ (D52); nginx ya los sirve con su tipo
 };
 
 // Solo ficheros dentro de `dir`; nada de subir con «..» ni de listar carpetas (como nginx sin autoindex).
