@@ -236,7 +236,8 @@ test('W10 index.html', () => {
   assert.deepEqual(dir['default-src'], ["'none'"]);
   assert.deepEqual(dir['script-src'], ["'self'"]);
   assert.deepEqual(dir['style-src'], ["'self'"]);
-  assert.deepEqual(dir['img-src'], ['data:']);
+  // D53 (revisa W10, H3): el SVG sigue entrando por data:; 'self' solo para el favicon y los iconos del manifest (D52).
+  assert.deepEqual([...dir['img-src']].sort(), ["'self'", 'data:']);
   assert.deepEqual(dir['connect-src'], ["'self'"]);
   assert.doesNotMatch(csp, /unsafe-|https?:|\*/);
   assert.match(html, /<meta name="viewport" content="[^"]*width=device-width/);

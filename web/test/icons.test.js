@@ -62,11 +62,12 @@ test('index.html lleva las tres <link>, con rutas relativas', () => {
   }
 });
 
-test('la CSP tiene manifest-src \'self\' y img-src sigue siendo solo data: (aviso; lo fija W10)', () => {
+test('la CSP tiene manifest-src \'self\' e img-src \'self\' data: (D53; lo fija W10)', () => {
   const csp = html.match(/http-equiv="Content-Security-Policy" content="([^"]+)"/)[1];
   const dir = Object.fromEntries(csp.split(';').map((d) => d.trim()).filter(Boolean).map((d) => d.split(/\s+/)).map(([k, ...v]) => [k, v]));
   assert.deepEqual(dir['manifest-src'], ["'self'"]);
-  assert.deepEqual(dir['img-src'], ['data:']);
+  // Chrome aplica img-src al favicon y a los iconos del manifest: sin 'self' los bloquea. `data:` sigue siendo para el SVG.
+  assert.deepEqual([...dir['img-src']].sort(), ["'self'", 'data:']);
 });
 
 // --- el personaje, centrado y dentro del 60 % seguro de los iconos maskable (los recorta Android) ---
