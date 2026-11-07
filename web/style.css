@@ -14,15 +14,26 @@ body { overflow: hidden; -webkit-text-size-adjust: 100%; font: 15px/1.4 ui-monos
 #stage { flex: none; margin: 0 auto; overflow: hidden; background: #000; max-width: 100%; }
 #scene { display: block; max-width: 100%; }
 
-#bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 6px 8px; }
-#avatars { display: flex; flex: 1; gap: 4px; }
+/* La barra cabe en una fila a 360 y 390 px (D51): la letra escala con el ancho y el selector va en em. Por debajo
+   de 340 px el selector baja a una segunda fila, a todo el ancho. */
+#bar { --bar-fs: clamp(11px, 3.4vw, 14px); flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 6px 8px; }
+#avatars { display: flex; flex: 1; min-width: 0; gap: 4px; }
 #bar button {
   min-height: 40px; padding: 0 12px; border: 2px solid var(--rust); border-radius: 6px;
-  background: var(--box); color: var(--ink); font: inherit; touch-action: manipulation;
+  background: var(--box); color: var(--ink); font: inherit; font-size: var(--bar-fs); touch-action: manipulation;
 }
-#avatars button { flex: 1; }
+#avatars button { flex: 1; min-width: 0; padding: 0 2px; }
+/* Estilo del motor (D51): ancho fijo, el mismo borde que los botones; las opciones las crea app.js. */
+#lookSel {
+  flex: none; width: 7.5em; min-height: 40px; padding: 0 2px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font: inherit; font-size: var(--bar-fs); touch-action: manipulation;
+}
 #avatars button[aria-pressed="true"] { background: var(--rust); font-weight: bold; }
-#forgetBtn, #tokenBtn { min-width: 44px; padding: 0; }
+/* `#bar #…`: con solo el id, `#bar button` (más específico) le ganaría el padding y el tamaño. */
+#bar #forgetBtn, #bar #tokenBtn { flex: none; min-width: 40px; padding: 0; font-size: 16px; }
+@media (max-width: 339px) {
+  #lookSel { order: 1; flex: 1 1 100%; width: auto; }
+}
 
 #history {
   flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px;

@@ -4,7 +4,8 @@
 // normativas de las fases 1, 5 y 6 leen el texto de index.html y no se editan; extraerlo es deuda (D50).
 // Lo que cambia respecto al escritorio, y solo eso: la geometría sale de la pantalla (webGeometry), el
 // anfitrión es `host` (KlHost) y no `kl`, el historial y la entrada están siempre visibles, y desaparecen
-// lo de ventana (tamaños, arrastrar, click-through, copiar, cerrar, debug).
+// lo de ventana (tamaños, arrastrar, click-through, copiar, cerrar, debug), y que el estilo del motor se elige
+// en la barra (D51) en vez de venir de la configuración.
 //
 // Va en una función para no chocar con los globales de sse-client.js (`forget`, `streamChat`…), que como
 // <script> clásico quedan en el ámbito global.
@@ -15,7 +16,7 @@ const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = w
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
 const { avatarOptions, AVATARS } = window.KlAvatar;
-const { webGeometry, webBoot } = window.KlWebCore;
+const { webGeometry, webBoot, LOOK_KEY, pickLook } = window.KlWebCore;
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -29,6 +30,7 @@ const historyPanel = document.getElementById('history');
 const forgetBtn = document.getElementById('forgetBtn');
 const tokenBtn = document.getElementById('tokenBtn');
 const avatarBtns = [...document.querySelectorAll('#avatars button')];
+const lookSel = document.getElementById('lookSel');
 const gate = document.getElementById('gate');
 const gateMsg = document.getElementById('gateMsg');
 const tokenInput = document.getElementById('tokenInput');
@@ -41,7 +43,7 @@ try { storage = window.localStorage; } catch { storage = null; }
 const host = window.KlHost.createHost({ storage, sse: window.KlSse });
 
 const warnedNow = new Set();   // se vacía en cada ask()
-let look = VOCAB.defaults.look;   // pixel, sin configuración
+let look = VOCAB.defaults.look;   // el que se elige en la barra y se guarda en localStorage (D51)
 let lookWarned = false;
 let avatar = 'claude';   // el que se elige en la barra y se guarda en localStorage (D49, D50)
 let avatarWarned = false;
@@ -64,6 +66,7 @@ function paint(scene, fadeIn) {
   if (!r.ok && look !== VOCAB.defaults.look) {
     if (!lookWarned) { console.warn(`look "${look}" no válido (${r.error}); uso "${VOCAB.defaults.look}"`); lookWarned = true; }
     look = VOCAB.defaults.look;
+    markLook();   // D51: el selector refleja el que se está usando de verdad
     r = renderScene(scene, opts());
   }
   if (!r.ok && avatar !== 'claude') {   // D49: igual que con look, una sola vez
@@ -254,6 +257,29 @@ function setAvatar(name) {
 
 for (const b of avatarBtns) b.addEventListener('click', () => setAvatar(b.dataset.avatar));
 
+// --- estilo (D51): igual que el avatar; las opciones salen de VOCAB.looks, nunca de una lista a mano ---
+
+function markLook() {
+  lookSel.value = look;
+}
+
+function setLook(name) {
+  if (!VOCAB.looks.includes(name)) return;
+  look = name;
+  lookWarned = false;
+  try { storage.setItem(LOOK_KEY, name); } catch { /* sin storage no se recuerda */ }
+  markLook();
+  if (!awaiting && (phase === 'idle' || phase === 'lingering') && lastScene) paint(lastScene, false);
+}
+
+for (const name of VOCAB.looks) {
+  const opt = document.createElement('option');   // D10: nada de HTML a mano, ni para limpiar el select
+  opt.value = name;
+  opt.textContent = name;
+  lookSel.append(opt);
+}
+lookSel.addEventListener('change', () => setLook(lookSel.value));
+
 // --- token: se pide una vez y se guarda en el móvil ---
 
 function showGate(msg) {
@@ -306,6 +332,8 @@ sendBtn.addEventListener('click', submit);
 try { avatar = storage.getItem(AVATAR_KEY) || 'claude'; } catch { avatar = 'claude'; }
 if (!AVATARS.includes(avatar)) avatar = 'claude';
 markAvatar();
+try { look = pickLook(storage.getItem(LOOK_KEY), VOCAB.looks, VOCAB.defaults.look); } catch { look = VOCAB.defaults.look; }
+markLook();
 applyGeom(webGeometry(window.innerWidth));
 renderHistory();
 enqueue(webBoot(window.KlScenes));
