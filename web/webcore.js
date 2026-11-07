@@ -4,10 +4,11 @@
   else root.KlWebCore = api;
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
-  // Lo puro del cliente web (D50): geometría de la franja, escenas de arranque y almacén del token.
+  // Lo puro del cliente web (D50): geometría de la franja, escenas de arranque, almacén del token y elección del estilo (D51).
   // Sin DOM ni red, para probarlo desde Node. Se carga también como <script> clásico (`KlWebCore`).
 
   const TOKEN_KEY = 'klothulhu.token';
+  const LOOK_KEY = 'klothulhu.look';   // el estilo del motor que se elige en la barra (D51)
   const TOKEN_MIN = 16;          // el servidor exige 16 como mínimo
   const STAGE_H = 128;           // el motor dibuja una franja de alto 128 (D12)
   const WIDE_FROM = 640;         // desde aquí el motor usa su escenario de 640; por debajo, el de 320 (D32)
@@ -45,5 +46,12 @@
     };
   }
 
-  return { TOKEN_KEY, webGeometry, webBoot, createTokenStore };
+  // El estilo guardado, si el motor aún lo tiene; si no (nunca guardado, borrado del motor, basura en
+  // localStorage), el de por defecto. Pura y sin lanzar: lo que llega de localStorage no es de fiar (D51).
+  function pickLook(stored, looks, fallback) {
+    if (typeof stored !== 'string' || !Array.isArray(looks)) return fallback;
+    return looks.includes(stored) ? stored : fallback;
+  }
+
+  return { TOKEN_KEY, LOOK_KEY, webGeometry, webBoot, createTokenStore, pickLook };
 });
