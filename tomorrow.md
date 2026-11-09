@@ -1,11 +1,10 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9, H3 (icono para la pantalla de inicio, D52): piezas hechas (80ec69a, bf2d546, cd553d9) e informe en `docs/fase9/H3-informe.md`,
-**con una decisión abierta: la CSP (`img-src data:`) bloquea el favicon y los iconos del manifest** (medido en Chrome). Arreglarlo toca `img-src`, fijado por W10: lo decide el arquitecto.
-H1 y H2 cerrados y aprobados. Automensaje activo: la pareja es `klothulhu-24`. Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio). La fase 8 ya está en `main`.
+**Parada:** fase 9 cerrada. H1, H2 y H3 aprobados; el último mensaje del buzón es `b1565c8` (revisión del anexo R3 de H3, D53: `img-src 'self' data:`), y dice que no hay nada más que hacer.
+`fase9` y `main` están en el mismo commit (`b1565c8`). Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio).
 
-**Siguiente paso:** esperar la decisión (A: `img-src 'self' data:` y el arquitecto cambia W10; B: iconos como `data:` URI). Si es A, cambiar en `icons.test.js` el aviso de `img-src`.
-El merge de `fase9` a `main` (último en `main`: `e62ee99`, sin R2 ni H3) y volver a añadir el acceso directo en el móvil son de Josem. Antes de tocar nada, mirar el buzón (`docs/fase9/`).
+**Siguiente paso:** ninguno por mi lado. Falta lo de Josem: ver en el Samsung el acceso directo nuevo con icono (hay que volver a añadirlo), y `nginx -t` si no lo ha hecho ya.
+No empezar fase ni hito nuevos sin un «adelante». Antes de tocar nada, mirar el buzón (`docs/<fase>/`). Si la fase 9 ya no hace falta como worktree, quitarlo (`git worktree remove`) lo decide Josem.
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
@@ -16,10 +15,10 @@ El merge de `fase9` a `main` (último en `main`: `e62ee99`, sin R2 ni H3) y volv
   `state.js` NO se tocan: `web/app.js` es una copia deliberada del reproductor (D50), hay que trasladar a mano los cambios.
 - `sse-client.js` es UMD y como `<script>` clásico deja globales (`streamChat`, `forget`, `parseBlock`): por eso `app.js` va en una función.
 - Ningún fichero de `web/` puede llevar una URL absoluta (W11), ni siquiera en comentarios.
-- `nginx -t` sin ejecutar: lo hace Josem. El nginx sirve `main`, así que el merge va antes.
+- La CSP del cliente web es `img-src 'self' data:` (D53): los iconos del manifest y el favicon dependen de `'self'`.
 - K6 (el verde fluido en el móvil) y K8 (girar en un móvil real) solo se prueban en el móvil.
 - Pruebas contra la BD real: `KLOTHULHU_TEST_DB=1`, solo `klothulhu_test` / `klothulhu_memoria_test`.
 - T10 (`memoria_prueba.py`) y T8 (`memoria_calibrar.py`) no se vuelven a lanzar sin autorización de Josem.
-- Automensaje: sin pareja confirmada (la sesión klothulhu-be ya no existe); preguntar a Josem quién es el arquitecto.
+- Automensaje: la última sesión tenía como pareja a `klothulhu-24`; otra anotación decía que no había pareja confirmada. Preguntar a Josem quién es el arquitecto antes de usarlo.
 
 **Bloqueos:** ninguno.
