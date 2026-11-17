@@ -1,10 +1,10 @@
 # tomorrow.md — klothulhu
 
 **Parada:** fase 9. H4 (D54) aprobado sin retoques (`c981b1f`). H5 (D55: alas de murciélago, motor `afa3ade`, `maxBytes` 500000, iconos nuevos)
-implementado y con informe en `docs/fase9/H5-informe.md`; falta la revisión del arquitecto.
+aprobado sin retoques (`a99cab6`, `H5-revision.md`), que dice que no hay hito siguiente.
 Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31, pytest 105 passed (8 skipped).
 
-**Siguiente paso:** mirar el buzón (`docs/fase9/`); si la revisión de H5 pide retoques, hacerlos en el worktree. Falta lo de Josem: el merge `--ff-only`
+**Siguiente paso:** ninguno por mi lado; antes de tocar nada, mirar el buzón (`docs/fase9/`). Falta lo de Josem: el merge `--ff-only`
 (sin reinicio: el servidor no cambia), recargar en el móvil, volver a añadir el acceso directo (Samsung guarda el icono de cuando se creó),
 probar H4 y H5 en Konnos y en el móvil, y `nginx -t` si no lo ha hecho ya.
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git worktree remove`) lo decide Josem.
