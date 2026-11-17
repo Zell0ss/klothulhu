@@ -1,18 +1,22 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9 cerrada. H1, H2 y H3 aprobados; el último mensaje del buzón es `b1565c8` (revisión del anexo R3 de H3, D53: `img-src 'self' data:`), y dice que no hay nada más que hacer.
-`fase9` y `main` están en el mismo commit (`b1565c8`). Worktree `/data/klothulhu-fase9` (rama `fase9`, `.venv` propio).
+**Parada:** fase 9, H4 (D54: la respuesta entra en el historial al acabar de leerla) implementado y con informe en `docs/fase9/H4-informe.md`. Esperando la revisión del arquitecto.
+Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31.
 
-**Siguiente paso:** ninguno por mi lado. Falta lo de Josem: ver en el Samsung el acceso directo nuevo con icono (hay que volver a añadirlo), y `nginx -t` si no lo ha hecho ya.
-No empezar fase ni hito nuevos sin un «adelante». Antes de tocar nada, mirar el buzón (`docs/<fase>/`). Si la fase 9 ya no hace falta como worktree, quitarlo (`git worktree remove`) lo decide Josem.
+**Siguiente paso:** mirar el buzón (`docs/fase9/`); si la revisión de H4 pide retoques, hacerlos en el worktree. Falta lo de Josem: probar H4 en Konnos, el merge `--ff-only`
+(sin reinicio: el servidor no cambia), ver en el Samsung el acceso directo nuevo con icono (hay que volver a añadirlo) y `nginx -t` si no lo ha hecho ya.
+No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git worktree remove`) lo decide Josem.
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
 - Servidor de pruebas de la fase 9 (no producción): desde `fase9/server`,
   `KLOTHULHU_FAKE=1 KLOTHULHU_TOKENS=konnos:token-de-prueba-0123456789 ../.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8766`
   y `node web/dev-server.js --api 127.0.0.1:8766` (web en `127.0.0.1:5858`). Gasto 0, sin BD.
-- Fase 9: `web/test/fase9-h1.test.js` es normativa (no se edita). `desktop/renderer/index.html`, `main.js`, `preload.js` y
-  `state.js` NO se tocan: `web/app.js` es una copia deliberada del reproductor (D50), hay que trasladar a mano los cambios.
+- Fase 9: `web/test/fase9-h1.test.js` y `desktop/test/fase9-h4.test.js` son normativas (no se editan). `main.js`, `preload.js` y
+  `state.js` NO se tocan; `index.html` solo con permiso expreso del encargo (H4 lo dio para dos líneas). `web/app.js` es una copia
+  deliberada del reproductor (D50): hay que trasladar a mano los cambios entre los dos clientes.
+- Para manejar la web a mano hay `playwright-core` en el scratchpad de la sesión (no en el repo) con `/usr/bin/google-chrome`.
+  Nunca `pkill -f`/`pgrep -f` con la línea del servidor escrita en el propio comando: coincide con tu shell y lo mata. Mata por PID.
 - `sse-client.js` es UMD y como `<script>` clásico deja globales (`streamChat`, `forget`, `parseBlock`): por eso `app.js` va en una función.
 - Ningún fichero de `web/` puede llevar una URL absoluta (W11), ni siquiera en comentarios.
 - La CSP del cliente web es `img-src 'self' data:` (D53): los iconos del manifest y el favicon dependen de `'self'`.
@@ -24,6 +28,6 @@ No empezar fase ni hito nuevos sin un «adelante». Antes de tocar nada, mirar e
 - K6 (el verde fluido en el móvil) y K8 (girar en un móvil real) solo se prueban en el móvil.
 - Pruebas contra la BD real: `KLOTHULHU_TEST_DB=1`, solo `klothulhu_test` / `klothulhu_memoria_test`.
 - T10 (`memoria_prueba.py`) y T8 (`memoria_calibrar.py`) no se vuelven a lanzar sin autorización de Josem.
-- Automensaje: la última sesión tenía como pareja a `klothulhu-24`; otra anotación decía que no había pareja confirmada. Preguntar a Josem quién es el arquitecto antes de usarlo.
+- Automensaje: el 2026-11-17 activé `/automensaje-on` con `klothulhu-fc` (tmux `klothulhu-arq`) como arquitecto, deducido del nombre del tmux y sin confirmar por Josem. Los nombres cambian entre sesiones: buscar con `ListAgents` y preguntar si no hay una candidata clara.
 
 **Bloqueos:** ninguno.
