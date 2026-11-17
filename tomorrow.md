@@ -1,10 +1,11 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9, H4 (D54: la respuesta entra en el historial al acabar de leerla) implementado y con informe en `docs/fase9/H4-informe.md`. Esperando la revisión del arquitecto.
+**Parada:** fase 9, H4 (D54: la respuesta entra en el historial al acabar de leerla) aprobado sin retoques; el último mensaje del buzón es `c981b1f` (`H4-revision.md`) y dice que no hay hito siguiente.
 Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31.
 
-**Siguiente paso:** mirar el buzón (`docs/fase9/`); si la revisión de H4 pide retoques, hacerlos en el worktree. Falta lo de Josem: probar H4 en Konnos, el merge `--ff-only`
+**Siguiente paso:** ninguno por mi lado. Falta lo de Josem: probar H4 en Konnos y en el móvil con respuestas reales (varias escenas), el merge `--ff-only`
 (sin reinicio: el servidor no cambia), ver en el Samsung el acceso directo nuevo con icono (hay que volver a añadirlo) y `nginx -t` si no lo ha hecho ya.
+Antes de tocar nada, mirar el buzón (`docs/fase9/`).
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git worktree remove`) lo decide Josem.
 
 **Gotchas:**
