@@ -130,6 +130,7 @@ function pump() {
   }
   // Cola vacía y última escena leída: espera y duerme.
   phase = 'lingering';
+  if (convo.release()) renderHistory();   // D54
   applyGeomIfStill();   // un giro de pantalla que llegó leyendo se aplica ahora (D50)
   timer = setTimeout(() => {
     play({ kind: 'idle', caption: LINES.idle });
@@ -203,8 +204,10 @@ host.onEvent(({ type, data }) => {
     setAwaiting(false);
     note(`done ms=${Math.round(performance.now() - t0)} scenes=${feed.count}`);
     // Siempre se llama a enqueue, aunque no haya nada: con una respuesta vacía saca al cliente de «pensando».
+    // D54: la respuesta entra en el historial al acabar de leer la última escena (pump → lingering).
+    // hold va ANTES de enqueue: con la cola vacía, enqueue llega a lingering en esa misma llamada.
+    convo.hold(reply);
     enqueue(feed.onDone(reply, marks));
-    convo.add('klothulhu', reply); renderHistory();
   } else if (type === 'error') {
     setAwaiting(false);
     feed.onError();
