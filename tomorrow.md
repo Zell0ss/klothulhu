@@ -1,11 +1,12 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 9, H4 (D54: la respuesta entra en el historial al acabar de leerla) aprobado sin retoques; el último mensaje del buzón es `c981b1f` (`H4-revision.md`) y dice que no hay hito siguiente.
-Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31.
+**Parada:** fase 9. H4 (D54) aprobado sin retoques (`c981b1f`). H5 (D55: alas de murciélago, motor `afa3ade`, `maxBytes` 500000, iconos nuevos)
+implementado y con informe en `docs/fase9/H5-informe.md`; falta la revisión del arquitecto.
+Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31, pytest 105 passed (8 skipped).
 
-**Siguiente paso:** ninguno por mi lado. Falta lo de Josem: probar H4 en Konnos y en el móvil con respuestas reales (varias escenas), el merge `--ff-only`
-(sin reinicio: el servidor no cambia), ver en el Samsung el acceso directo nuevo con icono (hay que volver a añadirlo) y `nginx -t` si no lo ha hecho ya.
-Antes de tocar nada, mirar el buzón (`docs/fase9/`).
+**Siguiente paso:** mirar el buzón (`docs/fase9/`); si la revisión de H5 pide retoques, hacerlos en el worktree. Falta lo de Josem: el merge `--ff-only`
+(sin reinicio: el servidor no cambia), recargar en el móvil, volver a añadir el acceso directo (Samsung guarda el icono de cuando se creó),
+probar H4 y H5 en Konnos y en el móvil, y `nginx -t` si no lo ha hecho ya.
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git worktree remove`) lo decide Josem.
 
 **Gotchas:**
@@ -16,6 +17,8 @@ No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git wor
 - Fase 9: `web/test/fase9-h1.test.js` y `desktop/test/fase9-h4.test.js` son normativas (no se editan). `main.js`, `preload.js` y
   `state.js` NO se tocan; `index.html` solo con permiso expreso del encargo (H4 lo dio para dos líneas). `web/app.js` es una copia
   deliberada del reproductor (D50): hay que trasladar a mano los cambios entre los dos clientes.
+- El motor vendorizado sale de `main` de claude-fables (`VENDOR.md`). Si un encargo dice que un commit tiene que estar en `main` y no está,
+  parar: ese merge es de Josem. Construir con `cd /data/claude-fables/motor && npm ci && npm run build` (deja el repo limpio).
 - Para manejar la web a mano hay `playwright-core` en el scratchpad de la sesión (no en el repo) con `/usr/bin/google-chrome`.
   Nunca `pkill -f`/`pgrep -f` con la línea del servidor escrita en el propio comando: coincide con tu shell y lo mata. Mata por PID.
 - `sse-client.js` es UMD y como `<script>` clásico deja globales (`streamChat`, `forget`, `parseBlock`): por eso `app.js` va en una función.
