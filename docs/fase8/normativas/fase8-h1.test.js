@@ -30,9 +30,9 @@ test('V1 motor con avatares', () => {
 
 // V2 — las opciones de pintado de cada avatar; el naranja, sin ninguna (fables A8: su SVG no cambia)
 test('V2 avatarOptions', () => {
-  assert.equal(A.MAX_BYTES_KLOTHULHU, 400000);
+  assert.equal(A.MAX_BYTES_KLOTHULHU, 500000);   // revisada en la fase 9, H5 (D55): era 400000
   const av = M.VOCAB.avatars;
-  assert.deepEqual(A.avatarOptions('klothulhu', av), { avatar: 'klothulhu', maxBytes: 400000 });
+  assert.deepEqual(A.avatarOptions('klothulhu', av), { avatar: 'klothulhu', maxBytes: 500000 });
   assert.deepEqual(A.avatarOptions('claude', av), {});
   assert.deepEqual(A.avatarOptions('cthulhu', av), {});
   assert.deepEqual(A.avatarOptions(undefined, av), {});
