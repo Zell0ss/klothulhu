@@ -100,8 +100,10 @@ var FablesMotor = (() => {
     // dark metal
     v: "#4a7c68",
     // klothulhu's abyss green
-    V: "#2a4d5a"
+    V: "#2a4d5a",
     // its shade, and its tentacles: darker and bluer
+    n: "#33594c"
+    // its wings' membrane: a green darker than the body, not the tentacles' blue (D32)
   };
   var HERO_FRAMES = [
     [
@@ -130,22 +132,22 @@ var FablesMotor = (() => {
   var KLOTHULHU_FRAMES = [
     [
       "..vvvvvvvvv..",
-      "..vkvvvvvkv..",
-      "..vkvkvkvkv..",
-      "..vvvkvkvvv..",
-      "vvvVvVvVvVvvv",
-      "vvvvVVvVVvvvv",
+      "n.vkvvvvvkv.n",
+      "n.vkvkvkvkv.n",
+      "nnvvvkvkvvvnn",
+      "nnvVvVvVvVvnn",
+      "n.vvVVvVVvv.n",
       "..vvvVvVvvv..",
       "..v.v...v.v..",
       "..v.v...v.v.."
     ],
     [
       "..vvvvvvvvv..",
-      "..vkvvvvvkv..",
-      "..vkvkvkvkv..",
-      "..vvvkvkvvv..",
-      "vvvVvVvVvVvvv",
-      "vvvVvVvVvVvvv",
+      "n.vkvvvvvkv.n",
+      "n.vkvkvkvkv.n",
+      "nnvvvkvkvvvnn",
+      "nnvVvVvVvVvnn",
+      "n.vVvVvVvVv.n",
       "..vvVvvvVvv..",
       "...v.v.v.v...",
       "..v..v...v.v."
@@ -601,6 +603,7 @@ var FablesMotor = (() => {
   ];
   var SWAY = [0.15, 0.3];
   var SWAY_LAG = 0.9;
+  var WING = { u: [-0.2, 1.1, 2.8], v: [-0.3, 1.2], tip: [1.6, 4.3], d: 0.6 };
   function build(pose, s, avatar = "claude") {
     const p = { ...POSE0, ...pose };
     const D = DIM;
@@ -612,7 +615,21 @@ var FablesMotor = (() => {
     const tc = Math.cos(p.tumble);
     const ts = Math.sin(p.tumble);
     const tcy = D.LH + D.BH / 2;
-    const tlift = p.tumble ? -Math.min(...[[-D.BW / 2, D.LH], [D.BW / 2, D.LH], [-D.BW / 2, D.LH + D.BH], [D.BW / 2, D.LH + D.BH], [-5.45, 0], [5.45, 0], [-D.BW / 2 - D.AW, D.LH + D.AY], [D.BW / 2 + D.AW, D.LH + D.AY]].map(([x, y]) => tcy + x * ts + (y - tcy) * tc)) : 0;
+    const klothulhu = avatar === "klothulhu";
+    const wingAt = (side) => {
+      const th = side < 0 ? p.armL : p.armR;
+      const c = Math.cos(th);
+      const sn = Math.sin(th);
+      const px = side * D.BW / 2;
+      const ay = D.LH + D.AY - drop + (side < 0 ? p.liftL : p.liftR);
+      const at = (u, v) => [px + side * (u * c + v * sn), ay - u * sn + v * c];
+      return { bi: at(WING.u[0], WING.v[0]), n: at(WING.u[1], WING.v[1]), bo: at(WING.u[2], WING.v[0]), t: at(WING.tip[0], WING.tip[1]) };
+    };
+    const wingReach = klothulhu ? [-1, 1].flatMap((side) => {
+      const w = wingAt(side);
+      return [w.t, w.bi, w.bo];
+    }) : [];
+    const tlift = p.tumble ? -Math.min(...[[-D.BW / 2, D.LH], [D.BW / 2, D.LH], [-D.BW / 2, D.LH + D.BH], [D.BW / 2, D.LH + D.BH], [-5.45, 0], [5.45, 0], [-D.BW / 2 - D.AW, D.LH + D.AY], [D.BW / 2 + D.AW, D.LH + D.AY], ...wingReach].map(([x, y]) => tcy + x * ts + (y - tcy) * tc)) : 0;
     const W3 = (x, y, z) => {
       if (p.tumble) {
         const ty = y - tcy;
@@ -626,7 +643,7 @@ var FablesMotor = (() => {
       const f3 = 1 / (1 - q[2] * PERSP);
       return [q[0] * s * f3, -(q[1] - groundY) * s * f3];
     };
-    const part = (name, corners, local, skip) => {
+    const part = (name, corners, local, skip, merged) => {
       const q = corners.map((c) => W3(...local ? local(c) : c));
       const sp = q.map(proj);
       const faces2 = {};
@@ -641,10 +658,19 @@ var FablesMotor = (() => {
         const light = Math.min(1, Math.max(0, n3[0] * LIGHT[0] + n3[1] * LIGHT[1] + n3[2] * LIGHT[2]));
         faces2[fn] = { part: name, name: fn, pts: S, light, vis: area(S) < -0.02 && fn !== skip, depth: Q.reduce((t, c) => t + c[2], 0) / 4 };
       }
-      return { name, faces: faces2, depth: q.reduce((t, c) => t + c[2], 0) / 8, corners: sp };
+      return { name, faces: faces2, depth: q.reduce((t, c) => t + c[2], 0) / 8, corners: sp, merged };
     };
     const body = part("body", box(-D.BW / 2, D.LH - drop, -D.BD / 2, D.BW / 2, D.LH + D.BH - drop, D.BD / 2));
+    const wedge = (a, b, t) => {
+      const [lo, hi] = (b[0] - a[0]) * (t[1] - a[1]) - (b[1] - a[1]) * (t[0] - a[0]) < 0 ? [b, a] : [a, b];
+      const z = WING.d / 2;
+      return part("wing", [[lo[0], lo[1], -z], [hi[0], hi[1], -z], [t[0], t[1], -z], [t[0], t[1], -z], [lo[0], lo[1], z], [hi[0], hi[1], z], [t[0], t[1], z], [t[0], t[1], z]], void 0, void 0, true);
+    };
     const arms = [-1, 1].map((side) => {
+      if (klothulhu) {
+        const w = wingAt(side);
+        return [wedge(w.bi, w.n, w.t), wedge(w.n, w.bo, w.t)].sort((a, b) => a.depth - b.depth);
+      }
       const ang = side < 0 ? -p.armL : p.armR;
       const c = Math.cos(ang);
       const sn = Math.sin(ang);
@@ -652,11 +678,11 @@ var FablesMotor = (() => {
       const ay = D.LH + D.AY - drop + (side < 0 ? p.liftL : p.liftR);
       const x0 = side < 0 ? -D.BW / 2 - D.AW : D.BW / 2 - 0.3;
       const x1 = side < 0 ? -D.BW / 2 + 0.3 : D.BW / 2 + D.AW;
-      return part("arm", box(x0, ay - D.AH / 2, -D.AD / 2, x1, ay + D.AH / 2, D.AD / 2), (cc) => {
+      return [part("arm", box(x0, ay - D.AH / 2, -D.AD / 2, x1, ay + D.AH / 2, D.AD / 2), (cc) => {
         const dx = cc[0] - px;
         const dy = cc[1] - ay;
         return [px + dx * c - dy * sn, ay + dx * sn + dy * c, cc[2]];
-      }, side < 0 ? "right" : "left");
+      }, side < 0 ? "right" : "left")];
     });
     const OFF = [0, Math.PI, 0, Math.PI];
     const legs = D.LEGS.map(([lx, lz], i) => {
@@ -672,7 +698,6 @@ var FablesMotor = (() => {
         return [cc[0], hy + dy * c - dz * sn + lift2, lz + dy * sn + dz * c];
       }, "top");
     }).sort((a, b) => a.depth - b.depth);
-    const klothulhu = avatar === "klothulhu";
     const tentacles = [];
     if (klothulhu) {
       const chains = [-1, 1].flatMap((side) => TENTACLES.map((t, ti) => {
@@ -694,23 +719,26 @@ var FablesMotor = (() => {
     const bf = body.faces;
     const [armL, armR] = arms;
     const order = [];
-    if (!bf.left.vis) order.push(armL);
-    if (!bf.right.vis) order.push(armR);
+    if (!bf.left.vis) order.push(...armL);
+    if (!bf.right.vis) order.push(...armR);
     if (!bf.bottom.vis) order.push(...legs);
     if (!bf.front.vis) order.push(...tentacles);
     order.push(body);
     if (bf.bottom.vis) order.push(...legs);
     if (bf.front.vis) order.push(...tentacles);
-    if (bf.left.vis) order.push(armL);
-    if (bf.right.vis) order.push(armR);
+    if (bf.left.vis) order.push(...armL);
+    if (bf.right.vis) order.push(...armR);
     const faces = order.flatMap((pt) => Object.values(pt.faces).filter((f3) => f3.vis).sort((a, b) => a.depth - b.depth)).map(({ part: part2, name, pts, light }) => ({ part: part2, name, pts, light }));
     const parts = order.map((pt) => {
+      const at = (i) => pt.merged ? i === 7 ? 6 : i === 3 ? 2 : i : i;
       const meet = /* @__PURE__ */ new Map();
       for (const fn of Object.keys(FACES)) {
         const ix = FACES[fn];
         const shown = pt.faces[fn].vis ? 1 : 0;
-        ix.forEach((i, k) => {
-          const j = ix[(k + 1) % 4];
+        ix.forEach((i0, k) => {
+          const i = at(i0);
+          const j = at(ix[(k + 1) % 4]);
+          if (i === j) return;
           const key = i < j ? `${i}-${j}` : `${j}-${i}`;
           const e = meet.get(key) ?? { i, j, shown: 0 };
           e.shown += shown;
@@ -2868,6 +2896,8 @@ var FablesMotor = (() => {
   var SKIN = {
     body: { dark: "#a9583d", light: "#f0ac8e" },
     arm: { dark: "#a9583d", light: "#eba083" },
+    // Claude has no wings: never painted.
+    wing: { dark: "#a9583d", light: "#eba083" },
     leg: { dark: "#8f4a33", light: "#d4785a" },
     // Claude has no tentacles: these are never painted.
     tentacle: { dark: "#a9583d", light: "#f0ac8e" },
@@ -2877,6 +2907,8 @@ var FablesMotor = (() => {
   var SKIN_KLOTHULHU = {
     body: { dark: "#1e3b33", light: "#5d8f7a" },
     arm: { dark: "#1e3b33", light: "#5d8f7a" },
+    // His wings: a membrane, a little darker than the body (D31).
+    wing: { dark: "#16302a", light: "#4a7766" },
     leg: { dark: "#17302a", light: "#4a7766" },
     tentacle: { dark: "#132a33", light: "#3e6a7d" },
     eye: "#0b0d0c",
