@@ -8,8 +8,9 @@
   // Pura: sin DOM ni motor. Se carga en el renderer y desde las pruebas de Node.
 
   const AVATARS = ['claude', 'klothulhu'];
-  // El verde pesa más que el naranja; es la cifra que pide claude-fables (su D28).
-  const MAX_BYTES_KLOTHULHU = 400000;
+  // El verde pesa más que el naranja, y con las alas de murciélago un 5 % más; es la cifra que pide
+  // claude-fables (su D33, antes su D28). Subió de 400000 a 500000 en la fase 9, H5 (D55).
+  const MAX_BYTES_KLOTHULHU = 500000;
 
   // `avatars` es lo que el motor dice conocer (VOCAB.avatars). El naranja va sin opciones, para que su
   // SVG sea idéntico al de antes de la fase 8; un avatar que el motor no tiene vuelve a ese naranja.
