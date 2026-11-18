@@ -1,15 +1,18 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 10, H1 único (klothulhu ve: imágenes en la conversación, D56, D57) implementado y con informe en
-`docs/fase10/H1-informe.md`; falta la revisión del arquitecto. El último mensaje del buzón de mi lado es ese informe; el del
-arquitecto, `f102367` (`PLAN.md`). La fase 9 (H1-H6) está cerrada y aprobada.
+**Parada:** fase 10, H1 único (klothulhu ve: imágenes en la conversación, D56, D57) **aprobado sin retoques** (`2a9e329`,
+`H1-revision.md`). Después hice A1 [API] (autorizada por Josem, tope 1 €; gasto ≈ $0,0016) y la dejé en un anexo del informe
+(`adb9331`): el narrador ve la foto y se acuerda de ella sin volver a mandarla. **Espero la respuesta del arquitecto** a una pregunta
+del anexo: ¿retoque para subir a INFO los loggers `anthropic`/`httpx`/`httpcore`? Con el log en DEBUG el SDK imprime la imagen en base64.
+La fase 9 (H1-H6) está cerrada y aprobada.
 Rama `fase10`, worktree `/data/klothulhu-fase10` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: pytest 120 passed
 (8 skipped), `ruff` limpio, desktop 97/97, web 31/31. El worktree `/data/klothulhu-fase9` sigue ahí (rama `fase9`).
 
 **Siguiente paso:** mirar el buzón (`docs/fase10/`); si la revisión de H1 pide retoques, hacerlos en el worktree de la fase 10.
 Falta lo de Josem, en este orden (`deploy/PASOS-CON-SUDO.md` §5): merge `--ff-only` de `fase10` → reiniciar `klothulhu-api.service`
 (el servidor cambia) → nginx (`cp`, `nginx -t`, `reload`) → recargar el móvil; en Konnos, `git pull` y reiniciar la app. Después K1-K8 del plan.
-**A1 [API] sin lanzar:** una llamada real con foto (< $0,01) solo con el «sí» de Josem en el chat, contra el servidor de pruebas.
+Gasto: más pruebas de pago solo dentro del tope que dio Josem (1 € en total, el 2026-11-18); lo gastado hasta ahora son ≈ 0,0015 €.
+Para la clave de pruebas Josem eligió leer solo la línea `ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env` (sin imprimirla); no leer el resto del fichero.
 No empezar fase ni hito nuevos sin un «adelante». Quitar los worktrees (`git worktree remove`) lo decide Josem.
 
 **Gotchas:**

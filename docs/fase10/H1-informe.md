@@ -153,7 +153,7 @@ palabras «IZQUIERDA» en blanco y «DERECHA» en negro, a propósito.
   «DERECHA», en negro, «cortada por el borde, solo se alcanzan a leer DERECH». **Se acuerda** (D57: la imagen sigue en el
   historial corto).
 - **Logs:** con el nivel por defecto (INFO), la imagen **no** aparece en ellos; solo `chat a1test: imagen image/jpeg,
-  338796 bytes`. El tamaño del cuerpo cuadra con los 330,9 KB en base64.
+  338796 bytes`: son los 330,9 KB de la imagen ya decodificada.
 
 **Coste** (modelo `claude-haiku-5-5`, `gasto.PRECIOS` = $0,10 / $0,50 por millón de tokens de entrada / salida):
 
