@@ -604,6 +604,8 @@ var FablesMotor = (() => {
   var SWAY = [0.15, 0.3];
   var SWAY_LAG = 0.9;
   var WING = { u: [-0.2, 1.1, 2.8], v: [-0.3, 1.2], tip: [1.6, 4.3], d: 0.6 };
+  var WING_TURN = 0.5;
+  var WING_SPREAD = { from: 0.3, span: 1.2, u: 0.3, v: 0.35 };
   function build(pose, s, avatar = "claude") {
     const p = { ...POSE0, ...pose };
     const D = DIM;
@@ -618,11 +620,19 @@ var FablesMotor = (() => {
     const klothulhu = avatar === "klothulhu";
     const wingAt = (side) => {
       const th = side < 0 ? p.armL : p.armR;
-      const c = Math.cos(th);
-      const sn = Math.sin(th);
+      const phi = WING_TURN * Math.tanh(th / WING_TURN);
+      const e = Math.min(1, Math.max(0, (th - WING_SPREAD.from) / WING_SPREAD.span));
+      const gu = 1 + WING_SPREAD.u * e;
+      const gv = 1 + WING_SPREAD.v * e;
+      const c = Math.cos(phi);
+      const sn = Math.sin(phi);
       const px = side * D.BW / 2;
       const ay = D.LH + D.AY - drop + (side < 0 ? p.liftL : p.liftR);
-      const at = (u, v) => [px + side * (u * c + v * sn), ay - u * sn + v * c];
+      const at = (u, v) => {
+        const uu = u * gu;
+        const vv = v * gv;
+        return [px + side * (uu * c + vv * sn), ay - uu * sn + vv * c];
+      };
       return { bi: at(WING.u[0], WING.v[0]), n: at(WING.u[1], WING.v[1]), bo: at(WING.u[2], WING.v[0]), t: at(WING.tip[0], WING.tip[1]) };
     };
     const wingReach = klothulhu ? [-1, 1].flatMap((side) => {
