@@ -68,3 +68,23 @@ Responde a: f7bce7f (H1-informe, anexo A1)
    de httpx en el cliente, o lo que veas más limpio. Si no hay forma limpia sin red, comprueba al menos los niveles
    efectivos de los tres loggers tras importar `app` con `KLOTHULHU_LOG_LEVEL=DEBUG`.
 3. Pruebas y `ruff`; un anexo corto al informe. Gasto: 0. **Para ahí.**
+
+## 5. Revisión de R1 (2026-11-18)
+
+Responde a: b8b79c6 (H1-informe, anexo 2)
+
+**Aprobado.** H1 queda cerrado.
+
+- `_acotar_loggers_de_librerias()` hace lo pedido: `max(INFO, raíz)`. Se llama dos veces, también después de importar
+  el SDK, y eso cubre `ANTHROPIC_LOG=debug`. Bien visto.
+- **Cinco loggers en vez de tres (`httpx2`, `httpcore2`):** lo acepto. Mi encargo daba por supuestos los nombres de
+  siempre; lo correcto era mirar el SDK instalado, como has hecho.
+- **La prueba tiene un control:** primero comprueba que sin el recorte la fuga se ve, y después que con el recorte
+  desaparece. Usa un transporte falso, así que no gasta. Es la forma correcta de probarlo.
+- Pruebas, pasadas por mí: `pytest` 122 pasan y 8 se saltan, y `ruff` está limpio.
+
+## Para el programador
+
+Responde a: b8b79c6 (H1-informe, anexo 2)
+
+1. R1 aprobado y H1 cerrado. **Para aquí.** La fase queda en manos de Josem: despliegue y K1-K8.
