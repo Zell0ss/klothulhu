@@ -4,7 +4,8 @@
 
 const FIRST_EVENT_TIMEOUT_MS = 30000;
 
-async function streamChat({ apiUrl, token, text, signal, onEvent }) {
+// `image` (D56): { media_type, data (base64) } o nada. Sin imagen, el cuerpo es el de siempre: { text }.
+async function streamChat({ apiUrl, token, text, image, signal, onEvent }) {
   const firstEvent = new AbortController();
   const timer = setTimeout(() => firstEvent.abort(), FIRST_EVENT_TIMEOUT_MS);
   const combined = AbortSignal.any([signal, firstEvent.signal]);
@@ -14,7 +15,7 @@ async function streamChat({ apiUrl, token, text, signal, onEvent }) {
     res = await fetch(`${apiUrl}/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify(image ? { text, image } : { text }),
       signal: combined,
     });
   } catch (err) {

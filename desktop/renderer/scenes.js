@@ -45,6 +45,9 @@
       timeout:        ['sleepy',   'He esperado una eternidad, y ni siquiera la mía.'],
       http_401:       ['annoyed',  'No reconozco tu sello, mortal. Revisa el token.'],
       http_409:       ['annoyed',  'Aún estoy pensando la anterior. Paciencia.'],
+      // D56: la imagen que el servidor (o el nginx del móvil) rechaza, y la que el cliente no puede leer.
+      http_413:       ['annoyed',  'Esa imagen pesa demasiado, mortal.'],
+      http_422:       ['confused', 'No consigo ver eso.'],
       upstream_error: ['confused', 'Algo se rompió al otro lado del velo.'],
       stream_broken:  ['confused', 'Se cortó el hilo a mitad de profecía.'],
     }),
