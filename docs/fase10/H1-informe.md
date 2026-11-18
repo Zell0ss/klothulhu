@@ -126,3 +126,63 @@ Ninguna. (Lo único que puede querer decidir Josem es lo de la Desviación 1, el
 
 Quedan para Josem, en este orden (`deploy/PASOS-CON-SUDO.md` §5): merge `--ff-only` → reiniciar `klothulhu-api.service` →
 nginx (`cp`, `nginx -t`, `reload`) → recargar el móvil; en Konnos, `git pull` y reiniciar la app. Después, K1-K8 del plan.
+
+---
+
+## Anexo — A1 [API] hecha (2026-11-18)
+
+Responde a: 2a9e329 (H1-revision, H1 aprobado)
+
+**Autorización del gasto:** Josem, el 2026-11-18, en esta ventana: «Tienes permiso de antemano para hacer pruebas hasta un
+tope de 1€». Después, a mi pregunta de dónde sacar la clave, eligió el env de producción. Cargué **solo** la línea
+`ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env` en el entorno de un proceso de prueba (sin imprimirla ni copiarla; el
+resto del fichero no se leyó). Por eso el gasto cae en la misma cuenta de Anthropic que usa producción. No toqué el
+servicio, ni la BD, ni `/data/klothulhu`.
+
+**Qué hice.** Un guion en el scratchpad (no está en el repo) importa la app de `fase10` y llama al **endpoint real**
+`POST /chat` (con auth y validación) por ASGI, con `KLOTHULHU_FAKE=0`, `KLOTHULHU_MEMORIA=0` (sin BD) y el director
+encendido. La imagen es la foto de 12 MP **ya reducida por el `reducir` del cliente** (330,9 KB, 1280×960), con las
+palabras «IZQUIERDA» en blanco y «DERECHA» en negro, a propósito.
+
+**Resultado:**
+
+- **K1 (foto + «¿Qué ves en esta imagen? ¿Qué palabras hay a cada lado?»):** HTTP 200, sin errores, 2 escenas del director.
+  El narrador **la vio**: fondo de círculos traslúcidos de colores, «a la izquierda "IZQUIERDA" en blanco y a la derecha
+  "DERECHA" en negro, cortada en el borde de la imagen».
+- **K3 (solo texto, sin volver a mandar la foto: «¿Y qué palabra había a la derecha?»):** HTTP 200. Contestó que era
+  «DERECHA», en negro, «cortada por el borde, solo se alcanzan a leer DERECH». **Se acuerda** (D57: la imagen sigue en el
+  historial corto).
+- **Logs:** con el nivel por defecto (INFO), la imagen **no** aparece en ellos; solo `chat a1test: imagen image/jpeg,
+  338796 bytes`. El tamaño del cuerpo cuadra con los 330,9 KB en base64.
+
+**Coste** (modelo `claude-haiku-5-5`, `gasto.PRECIOS` = $0,10 / $0,50 por millón de tokens de entrada / salida):
+
+| | Entrada | Salida | Coste |
+|---|---|---|---|
+| Narrador, K1 (con foto) | 2 444 | 171 | |
+| Narrador, K3 (sin foto, con la anterior en el historial) | 2 633 | 112 | |
+| **Narrador, total** | **5 077** | **283** | **$0,000649** |
+| Director, las dos | 459 (+ 5 964 de caché) | 606 | ≈ $0,00035 (+ la caché, que `gasto.PRECIOS` no tarifa) |
+
+La imagen de 1280×960 son ⌈1280/28⌉×⌈960/28⌉ = 1 610 tokens, que cuadra con los ~2 444 de entrada del narrador
+(1 610 + el prompt + el texto). Mi primera ejecución se cortó porque pipé la salida a `head` y el guion murió antes de
+imprimir el resultado (llegó a hacer la primera llamada: director `in=246 out=290`); su narrador no lo medí, pero por
+tamaño es ≈ $0,0003. **Total de la sesión: ≈ $0,0016 (≈ 0,0015 €), menos de una milésima del tope de 1 €.**
+
+### Hallazgo: con el log en DEBUG, el SDK de Anthropic imprime la imagen entera
+
+Lo vi sin querer: mi primer guion fijó el nivel raíz en DEBUG y `anthropic._base_client` volcó en la salida las
+`Request options` completas, con el `data` en base64. **No es un fallo de la implementación en su configuración normal**
+(la raíz es INFO por defecto, tanto con `registro.configurar` como con `basicConfig`; con LogCentral solo sube a INFO si
+estaba por encima o sin fijar), pero D57 dice «nunca sale en los logs», y eso hoy solo se cumple mientras nadie ponga
+`KLOTHULHU_LOG_LEVEL=DEBUG`. En ese caso las imágenes irían, en claro, a la salida del servicio y a LogCentral.
+
+Arreglo de una línea, si lo quieres: en `server/app.py`, tras configurar el log, subir a INFO los loggers `anthropic`, `httpx`
+y `httpcore` (`logging.getLogger(n).setLevel(logging.INFO)`), más una prueba que ponga la raíz en DEBUG y compruebe que el
+base64 no sale. **No lo he hecho:** H1 está aprobado y es un cambio de código del servidor; lo decide el arquitecto, y
+llegaría como retoque.
+
+## Para el arquitecto (Anexo)
+
+Decisión que necesito: **¿quieres el arreglo de los loggers (arriba) como retoque de H1, o lo dejas como nota?** Nada más:
+el despliegue y K1-K8 siguen siendo de Josem.
