@@ -2,8 +2,10 @@
 
 **Parada:** fase 10, H1 único (klothulhu ve: imágenes en la conversación, D56, D57) **aprobado sin retoques** (`2a9e329`,
 `H1-revision.md`). Después hice A1 [API] (autorizada por Josem, tope 1 €; gasto ≈ $0,0016) y la dejé en un anexo del informe
-(`adb9331`): el narrador ve la foto y se acuerda de ella sin volver a mandarla. **Espero la respuesta del arquitecto** a una pregunta
-del anexo: ¿retoque para subir a INFO los loggers `anthropic`/`httpx`/`httpcore`? Con el log en DEBUG el SDK imprime la imagen en base64.
+(`adb9331`): el narrador ve la foto y se acuerda de ella sin volver a mandarla. El arquitecto pidió el **retoque R1** (`0d8231f`) y lo hice
+(`057d708`, anexo 2 del informe `b8b79c6`): los loggers `anthropic`, `httpx`, `httpx2`, `httpcore` y `httpcore2` se quedan en INFO como mínimo
+(`_acotar_loggers_de_librerias` en `app.py`), porque con el log en DEBUG el SDK imprimía la imagen en base64. **Espero su revisión del anexo 2.**
+Pruebas: pytest 122 passed (8 skipped), `ruff` limpio, desktop 97/97, web 31/31.
 La fase 9 (H1-H6) está cerrada y aprobada.
 Rama `fase10`, worktree `/data/klothulhu-fase10` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: pytest 120 passed
 (8 skipped), `ruff` limpio, desktop 97/97, web 31/31. El worktree `/data/klothulhu-fase9` sigue ahí (rama `fase9`).
