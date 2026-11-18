@@ -4,14 +4,14 @@
 `H1-revision.md`). Después hice A1 [API] (autorizada por Josem, tope 1 €; gasto ≈ $0,0016) y la dejé en un anexo del informe
 (`adb9331`): el narrador ve la foto y se acuerda de ella sin volver a mandarla. El arquitecto pidió el **retoque R1** (`0d8231f`) y lo hice
 (`057d708`, anexo 2 del informe `b8b79c6`): los loggers `anthropic`, `httpx`, `httpx2`, `httpcore` y `httpcore2` se quedan en INFO como mínimo
-(`_acotar_loggers_de_librerias` en `app.py`), porque con el log en DEBUG el SDK imprimía la imagen en base64. **Espero su revisión del anexo 2.**
+(`_acotar_loggers_de_librerias` en `app.py`), porque con el log en DEBUG el SDK imprimía la imagen en base64. **R1 aprobado y H1 cerrado** (`8271512`, `H1-revision.md` §5): no hay nada más por mi lado.
 Pruebas: pytest 122 passed (8 skipped), `ruff` limpio, desktop 97/97, web 31/31.
 La fase 9 (H1-H6) está cerrada y aprobada.
 Rama `fase10`, worktree `/data/klothulhu-fase10` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: pytest 120 passed
 (8 skipped), `ruff` limpio, desktop 97/97, web 31/31. El worktree `/data/klothulhu-fase9` sigue ahí (rama `fase9`).
 
-**Siguiente paso:** mirar el buzón (`docs/fase10/`); si la revisión de H1 pide retoques, hacerlos en el worktree de la fase 10.
-Falta lo de Josem, en este orden (`deploy/PASOS-CON-SUDO.md` §5): merge `--ff-only` de `fase10` → reiniciar `klothulhu-api.service`
+**Siguiente paso:** ninguno por mi lado; antes de tocar nada, mirar el buzón (`docs/fase10/`); si K1-K8 de Josem sacan algo, llegará como
+una sección nueva de `H1-revision.md`. Falta lo de Josem (la punta de `fase10` incluye R1), en este orden (`deploy/PASOS-CON-SUDO.md` §5): merge `--ff-only` de `fase10` → reiniciar `klothulhu-api.service`
 (el servidor cambia) → nginx (`cp`, `nginx -t`, `reload`) → recargar el móvil; en Konnos, `git pull` y reiniciar la app. Después K1-K8 del plan.
 Gasto: más pruebas de pago solo dentro del tope que dio Josem (1 € en total, el 2026-11-18); lo gastado hasta ahora son ≈ 0,0015 €.
 Para la clave de pruebas Josem eligió leer solo la línea `ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env` (sin imprimirla); no leer el resto del fichero.
