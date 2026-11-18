@@ -4,6 +4,10 @@ Per client, it keeps the last ``max_turns`` exchanges and drops everything
 once the conversation has been idle for ``ttl_seconds``. A service restart
 wipes it, which is acceptable for the POC. Long-term memory is a separate
 concern and does not live here.
+
+A user turn is either plain text or a list of content blocks (phase 10, D57): an image stays in
+the history, as a block, for as long as its turn is among the last ``max_turns``. It lives only in
+process memory: never on disk and never in the logs.
 """
 from __future__ import annotations
 
@@ -37,17 +41,17 @@ class HistoryStore:
         if conv is None:
             return []
         msgs: list[dict] = []
-        for user_text, assistant_text in conv.turns:
-            msgs.append({"role": "user", "content": user_text})
+        for user_content, assistant_text in conv.turns:
+            msgs.append({"role": "user", "content": user_content})
             msgs.append({"role": "assistant", "content": assistant_text})
         return msgs
 
-    def append(self, client_id: str, user_text: str, assistant_text: str) -> None:
+    def append(self, client_id: str, user_content: str | list, assistant_text: str) -> None:
         conv = self._live(client_id)
         if conv is None:
             conv = _Conversation(turns=deque(maxlen=self._max_turns))
             self._conversations[client_id] = conv
-        conv.turns.append((user_text, assistant_text))
+        conv.turns.append((user_content, assistant_text))
         conv.last_activity = self._clock()
 
     def clear(self, client_id: str) -> None:

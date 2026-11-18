@@ -13,6 +13,16 @@ as each one is ready (D19). ``scene`` is a FablesScene, or null when the directo
 returns something invalid: the client then falls back to its own staging. Scenes never enter the
 history. Clients that do not know ``scene`` ignore it.
 
+Request (POST /chat, phase 10, D56)::
+
+    {"text": "...", "image": {"media_type": "image/jpeg", "data": "<base64>"}}
+
+``text`` may be empty only when there is an ``image`` (one per message; jpeg, png, webp or gif, at most
+``imagen.MAX_BYTES`` decoded). Errors: 422 ``empty`` / ``image_type`` / ``image_base64`` /
+``image_mismatch``, 413 ``image_size``. The narrator sees the image and it stays in the short history
+while its turn is among the last ones (D57); the long-term memory and the director only see a line of
+text saying there was an image. It is never written to disk or to the logs.
+
 Clients render; all model and parsing logic lives here.
 """
 from __future__ import annotations
@@ -36,6 +46,7 @@ import cierre
 import director
 import escritor
 import gasto
+import imagen
 import memoria
 from beats import is_cut, tramos
 from emotion_parser import EMOTIONS, EmotionStreamParser
@@ -134,7 +145,8 @@ def _system(sesion: Sesion | None):
 
 async def _preparar_memoria(cid: str, text: str) -> Sesion:
     """Con MEMORIA: la sesión del cliente, su foto de recuerdos si es nueva (D43) y la búsqueda en
-    paralelo para el mensaje siguiente (D36). Nunca lanza."""
+    paralelo para el mensaje siguiente (D36). Nunca lanza. Sin texto (solo imagen, D57) la sesión se abre
+    igual, pero no se busca."""
     sesion = sesiones.actual(cid)
     if sesion.contexto is None:
         hoy = sesion.inicio.date()
@@ -148,7 +160,7 @@ async def _preparar_memoria(cid: str, text: str) -> Sesion:
         except Exception as e:  # sin recuerdos, klothulhu contesta igual
             log.warning("memoria: sin contexto para la sesión %s (%s)", sesion.id, type(e).__name__)
             sesion.contexto = []
-    if _almacen is not None and _freno is not None:
+    if text and _almacen is not None and _freno is not None:
         embeber, juzgar = (escritor.embeber_falso, escritor.juzgar_falso) if FAKE else (
             escritor.embeber, escritor.juzgar)
         tarea = asyncio.create_task(busqueda.buscar(
@@ -234,8 +246,16 @@ def client_id(authorization: str = Header(default="")) -> str:
 # --- routes ---------------------------------------------------------------
 
 
+class ImagenIn(BaseModel):
+    # Sin max_length en `data`: el 422 de Pydantic devolvería la imagen entera en el cuerpo del error.
+    # Se valida a mano en imagen.validar (D56).
+    media_type: str
+    data: str
+
+
 class ChatIn(BaseModel):
-    text: str = Field(min_length=1, max_length=1000)
+    text: str = Field(default="", max_length=1000)  # vacío solo si hay imagen (lo mira chat())
+    image: ImagenIn | None = None
 
 
 @app.get("/health")
@@ -260,11 +280,23 @@ async def forget(cid: str = Depends(client_id)) -> dict:
 
 @app.post("/chat")
 async def chat(body: ChatIn, cid: str = Depends(client_id)) -> StreamingResponse:
+    text = body.text.strip()
+    image = None
+    if body.image is None:
+        if not text:
+            raise HTTPException(status_code=422, detail="empty")
+    else:
+        try:
+            raw = imagen.validar(body.image.media_type, body.image.data)
+        except imagen.ImagenInvalida as e:
+            raise HTTPException(status_code=413 if e.code == "image_size" else 422, detail=e.code) from None
+        log.info("chat %s: imagen %s, %d bytes", cid, body.image.media_type, len(raw))  # D42: nunca `data`
+        image = (body.image.media_type, body.image.data)
     lock = _locks.setdefault(cid, asyncio.Lock())
     if lock.locked():
         raise HTTPException(status_code=409, detail="busy")
     return StreamingResponse(
-        _reply(cid, body.text.strip(), lock),
+        _reply(cid, text, lock, image=image),
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
@@ -277,8 +309,14 @@ def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
+async def _reply(
+    cid: str, text: str, lock: asyncio.Lock, image: tuple[str, str] | None = None
+) -> AsyncIterator[str]:
+    """``image`` es (media_type, base64) ya validado (D56). El narrador y el historial reciben el contenido
+    con la imagen; la memoria larga y el director, solo un texto que dice que la hubo (D57)."""
     async with lock:
+        contenido = imagen.contenido(text, *image) if image else text
+        para_otros = imagen.texto_memoria(text) if image else text
         parser = EmotionStreamParser()
         raw: list[str] = []
         shown = ""  # texto sin etiquetas, como lo reconstruye el cliente
@@ -303,7 +341,10 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
             except Exception as e:  # la memoria nunca tumba la respuesta
                 log.warning("memoria: sin bloque de recuerdos (%s)", type(e).__name__)
                 system = SYSTEM_PROMPT
-            source = _fake_stream() if FAKE else _model_stream(cid, text, system)
+            if FAKE:
+                source = _fake_image_stream(image[1]) if image else _fake_stream()
+            else:
+                source = _model_stream(cid, contenido, system)
             async for chunk in source:
                 raw.append(chunk)
                 for line in emit(parser.feed(chunk)):
@@ -318,9 +359,9 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
             log.warning("unknown emotion tags from model: %s", parser.unknown_tags)
         # Only complete replies enter history; tags are kept so the model
         # keeps seeing the format it is expected to follow.
-        history.append(cid, text, "".join(raw))
+        history.append(cid, contenido, "".join(raw))  # D57: con la imagen, mientras quede en las 6 vueltas
         if MEMORIA:
-            sesiones.anotar(cid, text, "".join(raw))
+            sesiones.anotar(cid, para_otros, "".join(raw))
         bs = tramos(shown, marks)  # D24: una escena por tramo, no por golpe de 70
         sent = 0
         last = None  # la última escena emitida, ya corregida (D23)
@@ -328,7 +369,7 @@ async def _reply(cid: str, text: str, lock: asyncio.Lock) -> AsyncIterator[str]:
         if bs and DIRECTOR_ENABLED:
             # Cada escena sale en cuanto el director la tiene lista (D19). Si falla, el resto va a null.
             try:
-                async with aclosing(_director(text, bs)) as scenes:
+                async with aclosing(_director(para_otros, bs)) as scenes:
                     async for scene in scenes:
                         if sent >= len(bs):
                             break
@@ -379,8 +420,9 @@ def _director(question: str, bs: list[tuple[str, str]]) -> AsyncIterator[dict | 
     )
 
 
-async def _model_stream(cid: str, text: str, system) -> AsyncIterator[str]:
-    messages = history.messages(cid) + [{"role": "user", "content": text}]
+async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[str]:
+    """``content`` es el texto del usuario o, con imagen, la lista de bloques de imagen.contenido (D56)."""
+    messages = history.messages(cid) + [{"role": "user", "content": content}]
     async with _anthropic.messages.stream(
         model=MODEL,
         max_tokens=MAX_TOKENS,
@@ -404,8 +446,26 @@ _FAKE_REPLIES = [
 
 
 async def _fake_stream() -> AsyncIterator[str]:
+    await _fake_wait()
+    async for chunk in _fake_chunks(random.choice(_FAKE_REPLIES)):
+        yield chunk
+
+
+async def _fake_image_stream(data: str) -> AsyncIterator[str]:
+    """Con imagen (D56): una respuesta aparte que dice cuánto pesó la imagen que llegó, para comprobar a
+    mano que el cliente la reduce. Se calcula del base64, sin decodificarlo."""
+    kb = len(data) * 3 / 4 / 1024
+    await _fake_wait()
+    reply = f"[smug] Veo una imagen de {kb:.1f} KB, mortal. [happy] El tubo con imagen funciona."
+    async for chunk in _fake_chunks(reply):
+        yield chunk
+
+
+async def _fake_wait() -> None:
     await asyncio.sleep(1.5)  # long enough to see the thinking pose
-    reply = random.choice(_FAKE_REPLIES)
+
+
+async def _fake_chunks(reply: str) -> AsyncIterator[str]:
     for i in range(0, len(reply), 3):
         yield reply[i : i + 3]  # small chunks to exercise split tags
         await asyncio.sleep(0.04)
