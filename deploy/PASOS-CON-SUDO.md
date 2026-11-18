@@ -1,7 +1,7 @@
 # Pasos con sudo — klothulhu web (fase 9, D50)
 
 Nada de esto lo ejecuta Claude Code: son los pasos que le tocan a Josem, con los comandos exactos.
-Orden: **§0 → §1 → §2 → §3**. Para volver atrás, §4.
+Orden: **§0 → §1 → §2 → §3**. Para volver atrás, §4. Las imágenes de la fase 10 tienen su propia sección, §5.
 
 ## 0. Antes de nada: el código tiene que estar en `main`
 
@@ -90,3 +90,56 @@ sudo nginx -t && sudo systemctl reload nginx
 El sitio `klothulhu-web` desaparece y el puerto 5757 se cierra. Los demás sitios de nginx no se tocan, y
 `klothulhu-api` sigue como estaba. Si añadiste el segundo secreto (§1) y quieres revocar el del móvil,
 quítalo de `KLOTHULHU_TOKENS` y reinicia `klothulhu-api`.
+
+## 5. Fase 10: klothulhu ve (imágenes, D56, D57)
+
+Esta fase cambia **el servidor** (reinicio de `klothulhu-api`) **y el nginx del móvil** (el tamaño de la petición).
+Es lo que le toca a Josem; Claude Code no ejecuta nada de esto. **Orden: merge → reiniciar el servicio → nginx →
+recargar el móvil**; en Konnos, `git pull` y reiniciar la app.
+
+### 5.1 Merge y reinicio del servicio
+
+```bash
+cd /data/klothulhu
+git status --short            # solo debe salir lo que ya había sin versionar
+git merge --ff-only fase10
+sudo systemctl restart klothulhu-api
+systemctl status klothulhu-api --no-pager | head -5
+curl -s http://127.0.0.1:8765/health                 # {"ok":true,...}
+```
+
+### 5.2 nginx: dejar pasar peticiones de hasta 8 MB
+
+Una foto del móvil se reduce a ~300 KB antes de salir, pero un PNG pegado puede pasar de 1 MB, que es el tope por
+defecto de nginx (daría un 413 antes de llegar al servidor). El conf ya lleva `client_max_body_size 8m;` dentro de
+`location /api/`. El sitio ya está instalado (§2): basta con copiar el conf nuevo encima.
+
+```bash
+sudo cp /data/klothulhu/deploy/nginx-klothulhu-web.conf /etc/nginx/sites-available/klothulhu-web
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+(`nginx -t` debe decir `syntax is ok` y `test is successful`. Si falla, no hagas el `reload`: sigue cargado el conf
+anterior y lo único que pasa es que no entran imágenes grandes.)
+
+Comprobar, desde seb01:
+
+```bash
+sudo nginx -T 2>/dev/null | grep -n client_max_body_size      # debe salir 8m, dentro del sitio klothulhu-web
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5757/shared/imagen.js     # 200
+head -c 2000000 /dev/zero | curl -s -o /dev/null -w '%{http_code}\n' -X POST --data-binary @- http://127.0.0.1:5757/api/chat
+```
+
+La última manda 2 MB sin token: lo que importa es que **no salga 413**. Un 401 o un 422 quiere decir que la petición
+llegó al servidor, que la rechaza por no llevar token o por no ser un JSON. (Con el límite por defecto, nginx habría
+contestado 413 antes.)
+
+### 5.3 Móvil y Konnos
+
+- **Móvil:** recarga la página (el conf lleva `Cache-Control: no-cache`, así que el navegador revalida solo). Se ve un
+  📷 en la barra.
+- **Konnos:** `git pull` y reiniciar la app (el escritorio va directo a uvicorn por Tailscale: no tiene el límite de
+  nginx; el tope de 4 MB del servidor vale igual).
+
+Después, las pruebas K1–K8 de `docs/fase10/PLAN.md` §6.
