@@ -2,10 +2,11 @@
 
 **Parada:** fase 9. H4 (D54) aprobado sin retoques (`c981b1f`). H5 (D55: alas de murciélago, motor `afa3ade`, `maxBytes` 500000, iconos nuevos)
 aprobado sin retoques (`a99cab6`). H6 (motor de la fase 6 de claude-fables, `1281fd1`, alas de pie; sin tocar renderer ni iconos)
-implementado y con informe en `docs/fase9/H6-informe.md`; falta la revisión del arquitecto.
+aprobado sin retoques (`8a25ce8`). El arquitecto confirmó lo de `figure`: en Konnos (`look: pixel`) se ve el sprite y en el móvil (`ukiyoe`, D51) la figura 3D;
+que los clientes pasen `figure` sería funcionalidad nueva y la decide Josem (no entra en la fase 9 salvo encargo).
 Rama `fase9` (adelantada a `main`), worktree `/data/klothulhu-fase9` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: desktop 84/84, web 31/31, pytest 105 passed (8 skipped).
 
-**Siguiente paso:** mirar el buzón (`docs/fase9/`); si la revisión de H6 pide retoques, hacerlos en el worktree. Falta lo de Josem: el merge `--ff-only`
+**Siguiente paso:** ninguno por mi lado; antes de tocar nada, mirar el buzón (`docs/fase9/`). Falta lo de Josem: el merge `--ff-only`
 (sin reinicio: el servidor no cambia), recargar en el móvil, volver a añadir el acceso directo (Samsung guarda el icono de cuando se creó),
 probar H4 y H5 en Konnos y en el móvil, y `nginx -t` si no lo ha hecho ya.
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git worktree remove`) lo decide Josem.
@@ -20,7 +21,7 @@ No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree (`git wor
   deliberada del reproductor (D50): hay que trasladar a mano los cambios entre los dos clientes.
 - Los clientes no pasan `figure` a `renderScene`. El estilo `pixel` hereda `figure: "pixel"` (sprite), así que con `look: 'pixel'` los clientes pintan
   el sprite; la figura 3D solo sale con estilos cuyo `figure` ya es 3D (p. ej. `aero`). Para pintar «figura 3D con estilo pixel» hay que pasar
-  `figure: '3d'` a mano (H6 lo hizo así en su captura). Los dos son distintos (H5 capturó el sprite). Lo que ve Josem en los clientes: sin verificar.
+  `figure: '3d'` a mano (H6 lo hizo así en su captura). Los dos son distintos (H5 capturó el sprite). Confirmado por el arquitecto en `H6-revision.md` §3.
 - El motor vendorizado sale de `main` de claude-fables (`VENDOR.md`). Si un encargo dice que un commit tiene que estar en `main` y no está,
   parar: ese merge es de Josem. Construir con `cd /data/claude-fables/motor && npm ci && npm run build` (deja el repo limpio).
 - Para manejar la web a mano hay `playwright-core` en el scratchpad de la sesión (no en el repo) con `/usr/bin/google-chrome`.
