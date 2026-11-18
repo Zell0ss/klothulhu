@@ -186,3 +186,28 @@ llegaría como retoque.
 
 Decisión que necesito: **¿quieres el arreglo de los loggers (arriba) como retoque de H1, o lo dejas como nota?** Nada más:
 el despliegue y K1-K8 siguen siendo de Josem.
+
+---
+
+## Anexo 2 — Retoque R1 hecho (2026-11-18)
+
+Responde a: 0d8231f (H1-revision §4, retoque R1)
+
+- **`server/app.py`:** `_acotar_loggers_de_librerias()` pone los loggers de las librerías a `max(INFO, nivel efectivo de la
+  raíz)`: INFO como mínimo y, si la raíz está en WARNING, no se bajan. Se llama **justo después de configurar el log** (sirve
+  a las dos ramas, `registro` y `basicConfig`, porque va después del `if/else`) y **otra vez tras importar el SDK**, porque con
+  `ANTHROPIC_LOG=debug` el SDK pone DEBUG en sus loggers al importarse. Comentado con D57 y D42.
+- **Prueba de regresión** (`tests/test_fase10_extra.py`, sin red y con gasto 0): un transporte falso de httpx
+  (`MockTransport`) hace pasar por el SDK real una petición con imagen, con la raíz y `caplog` en DEBUG.
+  - **Control:** sin el recorte, el base64 **sí** sale en `caplog.text` (la prueba lo exige, para saber que detecta la fuga).
+  - Con el recorte, **no sale**.
+  - Una segunda prueba arranca `app` en un proceso aparte y mira los niveles efectivos de los cinco loggers: raíz en DEBUG →
+    todos INFO; raíz en WARNING → todos WARNING; y `ANTHROPIC_LOG=debug` sin FAKE (el SDK se importa) → todos INFO.
+  - Las dos fallaban antes del cambio (no existía la función) y pasan después.
+- **Desviación:** el encargo nombra tres loggers (`anthropic`, `httpx`, `httpcore`). El SDK 1.15 usa **`httpx2`** y
+  **`httpcore2`** (lo vi en mi propia salida, `INFO:httpx2:`), y esos nombres no estaban cubiertos; recorto los cinco. Los
+  hijos de `anthropic.*` (como `anthropic._base_client`, que fue el que imprimió la imagen) heredan el nivel.
+- **Pruebas:** `pytest` 122 pasan y 8 se saltan (antes 120; +2 mías), `ruff` limpio, `desktop` 97/97 y `web` 31/31 (sin
+  cambios). **Gasto: 0.** Las normativas, sin tocar.
+
+Decisiones que necesito: ninguna. **Paro aquí.**
