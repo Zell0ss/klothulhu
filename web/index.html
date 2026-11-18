@@ -25,11 +25,19 @@
       <button type="button" data-avatar="klothulhu" aria-pressed="false">Klothulhu</button>
     </div>
     <select id="lookSel" aria-label="Estilo"></select>
+    <!-- D56: sin `capture`, para que Android ofrezca cámara y galería. El input va oculto; el botón lo abre. -->
+    <button id="photoBtn" type="button" title="Enseñarle una imagen" aria-label="Enseñarle una imagen">📷</button>
+    <input id="photoInput" type="file" accept="image/*" hidden>
     <button id="forgetBtn" type="button" title="Olvidar la conversación" aria-label="Olvidar la conversación">🗑</button>
     <button id="tokenBtn" type="button" title="Cambiar el token" aria-label="Cambiar el token">🔑</button>
   </div>
   <div id="history" aria-live="polite"></div>
   <div id="entry">
+    <!-- La imagen pendiente (D56): una sola; la miniatura es un <img> con el data URL (img-src ya admite data:). -->
+    <div id="thumb" hidden>
+      <img id="thumbImg" alt="Imagen adjunta">
+      <button id="thumbX" type="button" title="Quitar la imagen" aria-label="Quitar la imagen">✕</button>
+    </div>
     <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false" enterkeyhint="send">
     <button id="sendBtn" type="button" title="Enviar" aria-label="Enviar">➤</button>
   </div>
@@ -48,6 +56,7 @@
 <script src="/shared/scenes.js"></script>
 <script src="/shared/feed.js"></script>
 <script src="/shared/convo.js"></script>
+<script src="/shared/imagen.js"></script>
 <script src="/shared/avatar.js"></script>
 <script src="/shared/sse-client.js"></script>
 <script src="webcore.js"></script>

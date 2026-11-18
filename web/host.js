@@ -18,7 +18,7 @@
 
     const emit = (list, ...args) => { for (const cb of list) cb(...args); };
 
-    async function ask(text) {
+    async function ask(text, image) {   // `image` (D56): { media_type, data } o nada
       const token = tokens.get();
       if (!token) { emit(onNeedTokens); return; }   // sin token no hay red
       if (inflight) inflight.abort();
@@ -32,7 +32,7 @@
         emit(onEvents, { type, data });
       };
       try {
-        await sse.streamChat({ apiUrl, token, text, signal: ctl.signal, onEvent: send });
+        await sse.streamChat({ apiUrl, token, text, image, signal: ctl.signal, onEvent: send });
       } catch (err) {
         // streamChat convierte en eventos los fallos de red, pero no todo: en un navegador viejo
         // `AbortSignal.any` no existe y un `res.body` nulo también lanza. Sin esto el móvil se queda en

@@ -11,6 +11,8 @@
 
   const MAX_LADO = 1280;   // lado largo de lo que se manda; una foto de móvil de 12 MP baja a ~300 KB
   const CALIDAD = 0.85;    // JPEG
+  const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];   // los de server/imagen.py
+  const MAX_DATA_CHARS = 6_000_000;   // base64: algo más que MAX_BYTES (4 000 000) de server/imagen.py → ~5,33 M
 
   // Tamaño al que hay que reducir: el lado largo como mucho `max`, con la proporción conservada.
   // Nunca amplía y nunca da 0.
@@ -26,6 +28,16 @@
     if (!m) return null;
     const data = url.slice(m[0].length);   // sin regex sobre el resto: puede pesar megas
     return data ? { media_type: m[1], data } : null;
+  }
+
+  // Lo que `main.js` deja pasar del renderer al servidor (D56): solo un objeto con uno de los cuatro tipos y
+  // `data` de texto de como mucho MAX_DATA_CHARS. Devuelve una copia limpia, o null (y entonces se descarta).
+  function filtrarImagen(image) {
+    if (!image || typeof image !== 'object') return null;
+    const { media_type: mediaType, data } = image;
+    if (!MEDIA_TYPES.includes(mediaType)) return null;
+    if (typeof data !== 'string' || !data || data.length > MAX_DATA_CHARS) return null;
+    return { media_type: mediaType, data };
   }
 
   // Lo que sale en el panel de historial por tu mensaje (el historial local no guarda la imagen).
@@ -58,5 +70,5 @@
     }
   }
 
-  return { MAX_LADO, CALIDAD, medidas, deDataUrl, paraHistorial, reducir };
+  return { MAX_LADO, CALIDAD, MEDIA_TYPES, MAX_DATA_CHARS, medidas, deDataUrl, filtrarImagen, paraHistorial, reducir };
 });

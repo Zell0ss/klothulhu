@@ -15,6 +15,7 @@ const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
+const { reducir, paraHistorial } = window.KlImagen;   // D56
 const { avatarOptions, AVATARS } = window.KlAvatar;
 const { webGeometry, webBoot, LOOK_KEY, pickLook } = window.KlWebCore;
 
@@ -28,6 +29,11 @@ const input = document.getElementById('ask');
 const sendBtn = document.getElementById('sendBtn');
 const historyPanel = document.getElementById('history');
 const forgetBtn = document.getElementById('forgetBtn');
+const photoBtn = document.getElementById('photoBtn');
+const photoInput = document.getElementById('photoInput');
+const thumb = document.getElementById('thumb');
+const thumbImg = document.getElementById('thumbImg');
+const thumbX = document.getElementById('thumbX');
 const tokenBtn = document.getElementById('tokenBtn');
 const avatarBtns = [...document.querySelectorAll('#avatars button')];
 const lookSel = document.getElementById('lookSel');
@@ -163,6 +169,7 @@ let gateNote = '';       // el motivo con el que se pide el token (p. ej. el 401
 function setAwaiting(on) {
   awaiting = on;
   sendBtn.disabled = on;
+  photoBtn.disabled = on;   // D56: mientras se espera, no se puede adjuntar
 }
 
 // --- historial (D27): la conversación de esta sesión, en memoria; no se guarda ---
@@ -183,12 +190,22 @@ function renderHistory() {
   historyPanel.scrollTop = historyPanel.scrollHeight;
 }
 
-function ask(text) {
-  convo.add('user', text); renderHistory();
+// `image`: { media_type, data } o null (D56). El historial local guarda solo el texto, con 📷 si había imagen.
+function ask(text, image) {
+  convo.add('user', paraHistorial(text, Boolean(image))); renderHistory();
   reply = ''; marks = []; setAwaiting(true);
   feed = createFeed(); warnedNow.clear(); firstSceneAt = null; t0 = performance.now();
   think();
-  host.ask(text);
+  host.ask(text, image);
+}
+
+// La escena fija de una línea de error (LINES.errors); la de un código desconocido avisa del código.
+function errorItem(code) {
+  const known = Object.prototype.hasOwnProperty.call(LINES.errors, code);
+  const [kind, text] = known
+    ? LINES.errors[code]
+    : ['confused', `Error desconocido: ${code}`.slice(0, CAPTION_MAX)];
+  return { kind, caption: text, tone: 'trouble' };
 }
 
 host.onEvent(({ type, data }) => {
@@ -211,13 +228,10 @@ host.onEvent(({ type, data }) => {
   } else if (type === 'error') {
     setAwaiting(false);
     feed.onError();
-    const known = Object.prototype.hasOwnProperty.call(LINES.errors, data.code);
-    const [kind, text] = known
-      ? LINES.errors[data.code]
-      : ['confused', `Error desconocido: ${data.code}`.slice(0, CAPTION_MAX)];
-    if (data.code === 'http_401') gateNote = text;   // la línea de siempre, también en el formulario (host avisa justo después)
+    const item = errorItem(data.code);
+    if (data.code === 'http_401') gateNote = item.caption;   // la línea de siempre, también en el formulario (host avisa justo después)
     queue = [];  // la del error espera a que se lea la que está en pantalla
-    enqueue([{ kind, caption: text, tone: 'trouble' }]);
+    enqueue([item]);
   }
 });
 
@@ -318,12 +332,54 @@ forgetBtn.addEventListener('click', () => {
   if (window.confirm('¿Olvidar toda la conversación? También se borra en Konnos.')) host.forget();
 });
 
+// --- imagen pendiente (D56): una sola; elegir otra sustituye a la anterior ---
+
+let pending = null;      // { media_type, data, vista } o null
+let reading = 0;         // lecturas en curso (reducir es asíncrono); mientras haya, no se envía
+
+function setPending(p) {
+  pending = p;
+  thumb.hidden = !p;
+  if (p) thumbImg.src = p.vista; else thumbImg.removeAttribute('src');
+}
+
+async function attach(file) {
+  if (!file || awaiting) return;
+  reading += 1;
+  try {
+    setPending(await reducir(file));
+  } catch (err) {
+    console.warn('klothulhu: no se pudo leer la imagen', err);
+    enqueue([errorItem('http_422')]);   // «No consigo ver eso.»; sin vaciar la cola: espera su turno
+  } finally {
+    reading -= 1;
+  }
+}
+
+photoBtn.addEventListener('click', () => { if (!awaiting) photoInput.click(); });
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files && photoInput.files[0];
+  photoInput.value = '';   // para poder elegir otra vez el mismo fichero
+  attach(file);
+});
+thumbX.addEventListener('click', () => setPending(null));
+// Pegar una imagen en la caja de texto la deja pendiente; pegar texto sigue igual.
+input.addEventListener('paste', (e) => {
+  const items = e.clipboardData ? [...e.clipboardData.items] : [];
+  const img = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
+  if (!img) return;
+  e.preventDefault();
+  attach(img.getAsFile());
+});
+
 function submit() {
   const text = input.value.trim();
-  if (!text || awaiting) return;   // mientras se espera, un segundo envío se ignora (como el escritorio)
+  if ((!text && !pending) || awaiting || reading) return;   // mientras se espera, un segundo envío se ignora (como el escritorio)
   if (!host.hasToken()) { showGate(''); return; }
-  ask(text);
+  const image = pending ? { media_type: pending.media_type, data: pending.data } : null;
+  ask(text, image);
   input.value = '';
+  setPending(null);
   input.blur();   // cierra el teclado: la respuesta se lee en la franja
 }
 

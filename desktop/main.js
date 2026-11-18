@@ -12,6 +12,7 @@ const {
 } = require('./layout');
 const { readState, readAvatar, writeState } = require('./state');
 const { AVATARS } = require('./renderer/avatar');
+const { filtrarImagen } = require('./renderer/imagen');   // D56
 
 const LOG_FILE = path.join(__dirname, 'klothulhu-debug.log');   // ruta fija: el renderer no elige nada
 
@@ -185,7 +186,11 @@ ipcMain.on('drag-end', () => {
   saveState();
 });
 
-ipcMain.handle('ask', async (_e, text) => {
+ipcMain.handle('ask', async (_e, text, rawImage) => {
+  // D56: el renderer no es de fiar para lo que llega aquí. Solo pasa una imagen bien formada; si no, se
+  // descarta y se avisa en el log de depuración (nunca el contenido, solo que se descartó).
+  const image = filtrarImagen(rawImage);
+  if (rawImage != null && !image && cfg.debug) appendLog(LOG_FILE, 'warning imagen descartada: formato o tamaño no válido');
   if (inflight) inflight.abort();
   const ctl = new AbortController();
   inflight = ctl;
@@ -195,7 +200,7 @@ ipcMain.handle('ask', async (_e, text) => {
     }
   };
   try {
-    await streamChat({ ...cfg, text, signal: ctl.signal, onEvent: send });
+    await streamChat({ ...cfg, text, image, signal: ctl.signal, onEvent: send });
   } finally {
     if (inflight === ctl) inflight = null;
   }

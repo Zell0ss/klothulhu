@@ -12,11 +12,14 @@
   #col { display: flex; flex-direction: column; align-items: center; flex: none; }
   #stage { position: relative; flex: none; }
   #scene { display: block; }
-  #copyBtn, #closeBtn, #histBtn, #sizeBtn {
+  #copyBtn, #closeBtn, #histBtn, #sizeBtn, #photoBtn {
     position: absolute; top: 4px; width: 18px; height: 18px; padding: 0;
     border: none; border-radius: 4px; background: rgba(26, 20, 18, 0.7); color: var(--ink);
     font-size: 11px; line-height: 18px; text-align: center; cursor: pointer; opacity: 0.7;
   }
+  #photoBtn { right: 92px; }   /* D56: enseñarle una imagen */
+  #photoBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
+  #photoBtn:disabled { opacity: 0.3; cursor: default; }
   #sizeBtn { right: 70px; }
   #sizeBtn:hover { opacity: 1; background: rgba(180, 80, 50, 0.8); }
   #histBtn { right: 48px; }
@@ -26,8 +29,17 @@
   #copyBtn.copied { background: #4a7c4e; opacity: 1; }
   #closeBtn { right: 4px; }
   #closeBtn:hover { opacity: 1; background: rgba(200, 60, 60, 0.85); }
+  /* D56: la fila de entrada lleva, si hay una imagen pendiente, su miniatura a la izquierda de la caja. */
+  #entry { display: flex; align-items: center; gap: 6px; box-sizing: border-box; width: calc(100% - 16px); margin-top: 6px; }
+  #thumb { display: none; position: relative; flex: none; width: 32px; height: 32px; }
+  #entry.on #thumb.has { display: block; }
+  #thumbImg { display: block; width: 100%; height: 100%; object-fit: cover; border: 2px solid var(--rust); border-radius: 6px; box-sizing: border-box; }
+  #thumbX {
+    position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
+    background: var(--rust); color: var(--ink); font-size: 9px; line-height: 16px; text-align: center; cursor: pointer;
+  }
   #ask {
-    visibility: hidden; box-sizing: border-box; width: calc(100% - 16px); height: 32px; margin-top: 6px;
+    visibility: hidden; box-sizing: border-box; flex: 1; min-width: 0; height: 32px;
     padding: 0 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
     font: 13px ui-monospace, Consolas, monospace; outline: none;
   }
@@ -46,18 +58,27 @@
 <div id="col">
 <div id="stage">
   <img id="scene" alt="" draggable="false">
+  <button id="photoBtn" type="button" title="Enseñarle una imagen" aria-label="Enseñarle una imagen">📷</button>
   <button id="sizeBtn" type="button" title="Tamaño" aria-label="Tamaño">⤡</button>
   <button id="histBtn" type="button" title="Historial" aria-label="Historial">📜</button>
   <button id="copyBtn" type="button" title="Copiar" aria-label="Copiar">📋</button>
   <button id="closeBtn" type="button" title="Cerrar Klothulhu" aria-label="Cerrar Klothulhu">✕</button>
 </div>
-<input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+<input id="photoInput" type="file" accept="image/*" hidden>
+<div id="entry">
+  <div id="thumb">
+    <img id="thumbImg" alt="Imagen adjunta" draggable="false">
+    <button id="thumbX" type="button" title="Quitar la imagen" aria-label="Quitar la imagen">✕</button>
+  </div>
+  <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+</div>
 </div>
 <div id="history"></div>
 <script src="vendor/fables-motor.iife.js"></script>
 <script src="scenes.js"></script>
 <script src="feed.js"></script>
 <script src="convo.js"></script>
+<script src="imagen.js"></script>
 <script src="avatar.js"></script>
 <script>
 'use strict';
@@ -65,6 +86,7 @@ const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, bootScenes, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
 const { createConvo } = window.KlConvo;
+const { reducir, paraHistorial } = window.KlImagen;   // D56
 const { avatarOptions } = window.KlAvatar;
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12); el ancho depende del tamaño (D31)
@@ -74,6 +96,12 @@ const stage = document.getElementById('stage');
 const sceneImg = document.getElementById('scene');
 const input = document.getElementById('ask');
 const col = document.getElementById('col');
+const entry = document.getElementById('entry');
+const photoBtn = document.getElementById('photoBtn');
+const photoInput = document.getElementById('photoInput');
+const thumb = document.getElementById('thumb');
+const thumbImg = document.getElementById('thumbImg');
+const thumbX = document.getElementById('thumbX');
 const historyPanel = document.getElementById('history');
 const sizeBtn = document.getElementById('sizeBtn');
 const histBtn = document.getElementById('histBtn');
@@ -231,13 +259,24 @@ async function toggleHistory() {
   }
 }
 
-function ask(text) {
-  convo.add('user', text); renderHistory();
+// `image`: { media_type, data } o null (D56). El historial local guarda solo el texto, con 📷 si había imagen.
+function ask(text, image) {
+  convo.add('user', paraHistorial(text, Boolean(image))); renderHistory();
   reply = ''; marks = []; awaiting = true;
+  photoBtn.disabled = true;   // D56: mientras se espera, no se puede adjuntar
   feed = createFeed(); warnedNow.clear(); firstSceneAt = null; t0 = performance.now();
   copyBtn.style.display = 'none';
   think();
-  kl.ask(text);
+  kl.ask(text, image);
+}
+
+// La escena fija de una línea de error (LINES.errors); la de un código desconocido avisa del código.
+function errorItem(code) {
+  const known = Object.prototype.hasOwnProperty.call(LINES.errors, code);
+  const [kind, text] = known
+    ? LINES.errors[code]
+    : ['confused', `Error desconocido: ${code}`.slice(0, CAPTION_MAX)];
+  return { kind, caption: text, tone: 'trouble' };
 }
 
 kl.onEvent(({ type, data }) => {
@@ -251,6 +290,7 @@ kl.onEvent(({ type, data }) => {
     if (item) enqueue([item]);   // en cuanto llega: la primera sustituye a «pensando» (D21.1)
   } else if (type === 'done') {
     awaiting = false;
+    photoBtn.disabled = false;
     note(`done ms=${Math.round(performance.now() - t0)} scenes=${feed.count}`);
     // Siempre se llama a enqueue, aunque no haya nada: con una respuesta vacía saca al cliente de «pensando».
     // D54: la respuesta entra en el historial al acabar de leer la última escena (pump → lingering).
@@ -260,13 +300,11 @@ kl.onEvent(({ type, data }) => {
     copyBtn.style.display = reply ? 'block' : 'none';
   } else if (type === 'error') {
     awaiting = false;
+    photoBtn.disabled = false;
     feed.onError();
-    const known = Object.prototype.hasOwnProperty.call(LINES.errors, data.code);
-    const [kind, text] = known
-      ? LINES.errors[data.code]
-      : ['confused', `Error desconocido: ${data.code}`.slice(0, CAPTION_MAX)];
+    const item = errorItem(data.code);
     queue = [];  // la del error espera a que se lea la que está en pantalla
-    enqueue([{ kind, caption: text, tone: 'trouble' }]);
+    enqueue([item]);
   }
 });
 
@@ -333,14 +371,14 @@ function setInteractive(on) {
 }
 
 const onStrip = (t) => stage.contains(t) || historyPanel.contains(t);   // el panel de historial también (D27)
-const onButton = (t) => t === copyBtn || t === closeBtn || t === histBtn || t === sizeBtn;
+const onButton = (t) => t === copyBtn || t === closeBtn || t === histBtn || t === sizeBtn || t === photoBtn;
 
 window.addEventListener('mousemove', (e) => {
   if (press && !dragging && Math.hypot(e.screenX - press.x, e.screenY - press.y) > 4) {
     dragging = true; kl.dragStart();
   }
   if (!press) {
-    const overInput = e.target === input && input.classList.contains('on');
+    const overInput = (e.target === input || thumb.contains(e.target)) && input.classList.contains('on');   // la miniatura también (D56)
     setInteractive(overInput || onStrip(e.target));
   }
 });
@@ -358,14 +396,61 @@ window.addEventListener('blur', () => { if (dragging) kl.dragEnd(); press = null
 function toggleInput(force) {
   const on = force ?? !input.classList.contains('on');
   input.classList.toggle('on', on);
+  entry.classList.toggle('on', on);   // con la caja, su miniatura (D56)
   if (on) input.focus(); else input.blur();
 }
 
+// --- imagen pendiente (D56): una sola; elegir otra sustituye a la anterior ---
+
+let pending = null;      // { media_type, data, vista } o null
+let reading = 0;         // lecturas en curso (reducir es asíncrono); mientras haya, no se envía
+
+function setPending(p) {
+  pending = p;
+  thumb.classList.toggle('has', Boolean(p));
+  if (p) thumbImg.src = p.vista; else thumbImg.removeAttribute('src');
+}
+
+async function attach(file) {
+  if (!file || awaiting) return;
+  reading += 1;
+  try {
+    setPending(await reducir(file));
+    toggleInput(true);   // que se vea la miniatura y se pueda escribir
+  } catch (err) {
+    console.warn('klothulhu: no se pudo leer la imagen', err);
+    enqueue([errorItem('http_422')]);   // «No consigo ver eso.»; sin vaciar la cola: espera su turno
+  } finally {
+    reading -= 1;
+  }
+}
+
+photoBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  if (!awaiting) photoInput.click();
+});
+photoInput.addEventListener('change', () => {
+  const file = photoInput.files && photoInput.files[0];
+  photoInput.value = '';   // para poder elegir otra vez el mismo fichero
+  attach(file);
+});
+thumbX.addEventListener('click', (e) => { e.stopPropagation(); setPending(null); });
+// Ctrl+V de una imagen en la caja la deja pendiente; pegar texto sigue igual.
+input.addEventListener('paste', (e) => {
+  const items = e.clipboardData ? [...e.clipboardData.items] : [];
+  const img = items.find((i) => i.kind === 'file' && i.type.startsWith('image/'));
+  if (!img) return;
+  e.preventDefault();
+  attach(img.getAsFile());
+});
+
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') toggleInput(false);
-  if (e.key === 'Enter' && input.value.trim() && !awaiting) {
-    ask(input.value.trim());
+  if (e.key === 'Enter' && (input.value.trim() || pending) && !awaiting && !reading) {
+    const image = pending ? { media_type: pending.media_type, data: pending.data } : null;
+    ask(input.value.trim(), image);
     input.value = '';
+    setPending(null);
     toggleInput(false);
   }
 });

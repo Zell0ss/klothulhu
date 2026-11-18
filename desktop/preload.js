@@ -3,7 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('kl', {
   init: () => ipcRenderer.invoke('init'),
-  ask: (text) => ipcRenderer.invoke('ask', text),
+  ask: (text, image) => ipcRenderer.invoke('ask', text, image),   // D56: image = { media_type, data } o nada
   forget: () => ipcRenderer.invoke('forget'),
   panel: (open) => ipcRenderer.invoke('panel', Boolean(open)),
   size: (name) => ipcRenderer.invoke('size', String(name)),
