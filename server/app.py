@@ -61,6 +61,22 @@ if os.getenv("LOGCENTRAL_LOG_DIR"):
 else:
     logging.basicConfig(level=os.getenv("KLOTHULHU_LOG_LEVEL", "INFO"))
 
+# D57 (la imagen nunca sale en los logs) y D42 (con LogCentral los logs acaban en Grafana Cloud): en DEBUG,
+# el SDK de Anthropic vuelca la petición entera, con el base64 de la imagen. Que se cumpla no puede depender
+# de que nadie suba el nivel: las librerías se quedan en INFO como mínimo (o más alto, si la raíz ya lo está).
+# `httpx2` y `httpcore2` son los nombres que usa el SDK 1.15; `httpx` y `httpcore`, por si se cambia o se
+# inyecta otro cliente.
+_LOGGERS_DE_LIBRERIAS = ("anthropic", "httpx", "httpx2", "httpcore", "httpcore2")
+
+
+def _acotar_loggers_de_librerias() -> None:
+    nivel = max(logging.INFO, logging.getLogger().getEffectiveLevel())
+    for nombre in _LOGGERS_DE_LIBRERIAS:
+        logging.getLogger(nombre).setLevel(nivel)
+
+
+_acotar_loggers_de_librerias()
+
 # --- settings -------------------------------------------------------------
 
 MODEL = os.getenv("KLOTHULHU_MODEL", "claude-haiku-5-5")
@@ -121,6 +137,7 @@ if not FAKE:
     from anthropic import AsyncAnthropic
 
     _anthropic = AsyncAnthropic()  # reads ANTHROPIC_API_KEY
+    _acotar_loggers_de_librerias()  # el SDK pone DEBUG al importarse con ANTHROPIC_LOG=debug (D57)
 
 
 
