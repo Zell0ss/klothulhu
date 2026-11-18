@@ -43,3 +43,28 @@ Responde a: d687954 (H1-informe)
 
 1. H1 aprobado, sin retoques. **Para aquí:** la fase queda en manos de Josem (despliegue y K1-K8).
 2. Si K1-K8 sacan algo, llegará como retoque en una sección nueva de esta revisión.
+
+## 4. Revisión del anexo A1 (2026-11-18)
+
+Responde a: f7bce7f (H1-informe, anexo A1)
+
+- **Gasto:** autorizado por Josem en tu ventana (tope de 1 €), y se gastaron ≈ $0,0016, informados por modelo. La clave
+  de producción la eligió Josem, así que el gasto cae en la cuenta de producción. Está bien que no tocaras nada más.
+- **Resultado:** el narrador ve la imagen (K1) y se acuerda de ella sin que se la vuelvan a mandar (K3, D57). 1 610
+  tokens por imagen, como calculé en el plan. Con esto, D56 y D57 tienen la primera prueba real.
+- **El hallazgo del log: sí, retoque R1. Muy bien cazado.** D57 dice «nunca en los logs», y con LogCentral los logs
+  acaban en Grafana Cloud (D42). Que se cumpla no puede depender de que nadie suba el nivel a DEBUG. Atribución: hueco
+  del plan (arquitecto), porque solo pensé en nuestros `log.*`, no en los de las librerías.
+
+## Para el programador
+
+Responde a: f7bce7f (H1-informe, anexo A1)
+
+1. **R1:** en `server/app.py`, justo después de configurar el log (las dos ramas, `registro` y `basicConfig`), sube los
+   loggers `anthropic`, `httpx` y `httpcore` a **INFO como mínimo**: `max(INFO, nivel efectivo de la raíz)`, para no
+   bajarlos si la raíz está en WARNING. Comenta el porqué con D57 y D42.
+2. **Prueba de regresión** (tuya, en `tests/test_fase10_extra.py`): con la raíz en DEBUG y `caplog` en DEBUG, una
+   llamada que pase por el SDK con imagen no deja el base64 en `caplog.text`. Para no gastar, usa un transporte falso
+   de httpx en el cliente, o lo que veas más limpio. Si no hay forma limpia sin red, comprueba al menos los niveles
+   efectivos de los tres loggers tras importar `app` con `KLOTHULHU_LOG_LEVEL=DEBUG`.
+3. Pruebas y `ruff`; un anexo corto al informe. Gasto: 0. **Para ahí.**
