@@ -25,14 +25,15 @@
       <button type="button" data-avatar="klothulhu" aria-pressed="false">Klothulhu</button>
     </div>
     <select id="lookSel" aria-label="Estilo"></select>
-    <!-- D56: sin `capture`, para que Android ofrezca cámara y galería. El input va oculto; el botón lo abre. -->
-    <button id="photoBtn" type="button" title="Enseñarle una imagen" aria-label="Enseñarle una imagen">📷</button>
-    <input id="photoInput" type="file" accept="image/*" hidden>
     <button id="forgetBtn" type="button" title="Olvidar la conversación" aria-label="Olvidar la conversación">🗑</button>
     <button id="tokenBtn" type="button" title="Cambiar el token" aria-label="Cambiar el token">🔑</button>
   </div>
   <div id="history" aria-live="polite"></div>
   <div id="entry">
+    <!-- D56: el 📷 va aquí y no en #bar: con él, la barra no cabe a 360 y 390 px y «Klothulhu» queda recortado (D51).
+         Sin `capture`, para que Android ofrezca cámara y galería. El input va oculto; el botón lo abre. -->
+    <button id="photoBtn" type="button" title="Enseñarle una imagen" aria-label="Enseñarle una imagen">📷</button>
+    <input id="photoInput" type="file" accept="image/*" hidden>
     <!-- La imagen pendiente (D56): una sola; la miniatura es un <img> con el data URL (img-src ya admite data:). -->
     <div id="thumb" hidden>
       <img id="thumbImg" alt="Imagen adjunta">

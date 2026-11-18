@@ -78,14 +78,16 @@ test('X5 los dos clientes: pegar, ✕, enviar con solo imagen, y sin adjuntar mi
   }
 });
 
-test('X6 la web: el input de fichero admite imagen y NO lleva capture (cámara y galería en Android)', () => {
+test('X6 la web: el 📷 va junto a la caja; el input admite imagen y NO lleva capture (cámara y galería en Android)', () => {
   const html = read(REPO, 'web', 'index.html');
   const input = html.match(/<input id="photoInput"[^>]*>/)[0];
   assert.match(input, /type="file"/);
   assert.match(input, /accept="image\/\*"/);
   assert.doesNotMatch(input, /capture/);
   assert.match(html, /<button id="photoBtn"/);
-  assert.ok(html.indexOf('id="photoBtn"') > html.indexOf('id="bar"'), 'el 📷 va en la barra');
+  // En #entry y no en #bar: con el 📷 en la barra, «Klothulhu» queda recortado a 360 y 390 px (D51).
+  assert.ok(html.indexOf('id="photoBtn"') > html.indexOf('id="entry"'), 'el 📷 va en la fila de entrada');
+  assert.ok(html.indexOf('id="photoBtn"') > html.indexOf('id="history"'), 'y no en la barra');
   assert.match(read(REPO, 'web', 'host.js'), /streamChat\(\{ apiUrl, token, text, image,/);
 });
 
