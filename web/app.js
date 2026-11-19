@@ -174,6 +174,25 @@ function setAwaiting(on) {
 
 // --- historial (D27): la conversación de esta sesión, en memoria; no se guarda ---
 const convo = createConvo();
+let fuentes = [];        // D60: los enlaces que citó la respuesta en curso, ya filtrados (fuentes.js)
+
+// D60: bajo la respuesta que buscó en la web, los dominios citados como enlaces (con `title` de tooltip).
+function sourcesLine(sources) {
+  const line = document.createElement('div');
+  line.className = 'sources';
+  line.append('fuentes: ');
+  sources.forEach((s, i) => {
+    if (i) line.append(' · ');
+    const a = document.createElement('a');
+    a.textContent = s.host;   // nunca HTML (D10)
+    a.title = s.title;
+    a.href = s.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';   // sin acceso a la página de klothulhu
+    line.append(a);
+  });
+  return line;
+}
 
 function renderHistory() {
   historyPanel.replaceChildren(...convo.entries().map((e) => {
@@ -185,6 +204,7 @@ function renderHistory() {
     const text = document.createElement('span');
     text.textContent = e.text;   // nunca HTML (D10)
     turn.append(who, text);
+    if (e.sources) turn.append(sourcesLine(e.sources));   // D60
     return turn;
   }));
   historyPanel.scrollTop = historyPanel.scrollHeight;
@@ -193,7 +213,7 @@ function renderHistory() {
 // `image`: { media_type, data } o null (D56). El historial local guarda solo el texto, con 📷 si había imagen.
 function ask(text, image) {
   convo.add('user', paraHistorial(text, Boolean(image))); renderHistory();
-  reply = ''; marks = []; setAwaiting(true);
+  reply = ''; marks = []; fuentes = []; setAwaiting(true);
   feed = createFeed(); warnedNow.clear(); firstSceneAt = null; t0 = performance.now();
   think();
   host.ask(text, image);
@@ -214,6 +234,11 @@ host.onEvent(({ type, data }) => {
     marks.push({ at: marks.length ? reply.length : 0, emotion: e });
   } else if (type === 'delta') {
     reply += data.text;
+  } else if (type === 'searching') {
+    // D60: «consultando los grimorios» mientras busca; si ya hay escenas en marcha, no se toca nada.
+    if (phase === 'thinking') play({ kind: 'searching', caption: LINES.searching });
+  } else if (type === 'sources') {
+    fuentes = window.KlFuentes.normalizar(data.items);   // el servidor no es de fiar para el DOM (D10)
   } else if (type === 'scene') {
     const item = feed.onScene(data);
     if (item) enqueue([item]);   // en cuanto llega: la primera sustituye a «pensando» (D21.1)
@@ -223,7 +248,7 @@ host.onEvent(({ type, data }) => {
     // Siempre se llama a enqueue, aunque no haya nada: con una respuesta vacía saca al cliente de «pensando».
     // D54: la respuesta entra en el historial al acabar de leer la última escena (pump → lingering).
     // hold va ANTES de enqueue: con la cola vacía, enqueue llega a lingering en esa misma llamada.
-    convo.hold(reply);
+    convo.hold(reply, fuentes);
     enqueue(feed.onDone(reply, marks));
   } else if (type === 'error') {
     setAwaiting(false);

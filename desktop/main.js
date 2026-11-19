@@ -1,6 +1,6 @@
 'use strict';
 const {
-  app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage, globalShortcut, dialog, clipboard,
+  app, BrowserWindow, ipcMain, screen, Tray, Menu, nativeImage, globalShortcut, dialog, clipboard, shell,
 } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -13,6 +13,7 @@ const {
 const { readState, readAvatar, writeState } = require('./state');
 const { AVATARS } = require('./renderer/avatar');
 const { filtrarImagen } = require('./renderer/imagen');   // D56
+const { esSegura } = require('./renderer/fuentes');   // D60
 
 const LOG_FILE = path.join(__dirname, 'klothulhu-debug.log');   // ruta fija: el renderer no elige nada
 
@@ -81,6 +82,9 @@ function createWindow() {
     },
   });
   win.setAlwaysOnTop(true, 'floating');
+  // D60: la ventana de klothulhu nunca navega ni abre otras: los enlaces salen por 'open-external', ya validados.
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-navigate', (e) => e.preventDefault());
   // Clicks pass through to the desktop until the renderer reports the
   // pointer is over the strip or the input box.
   win.setIgnoreMouseEvents(true, { forward: true });
@@ -207,6 +211,13 @@ ipcMain.handle('ask', async (_e, text, rawImage) => {
 });
 
 ipcMain.handle('forget', () => forget(cfg).catch(() => false));
+
+// D60: abre una fuente en el navegador del sistema, y solo si es http(s) (el renderer no es de fiar).
+ipcMain.handle('open-external', async (_e, url) => {
+  if (!esSegura(url)) return false;
+  await shell.openExternal(url);
+  return true;
+});
 
 ipcMain.handle('copy', (_e, text) => clipboard.writeText(String(text || '')));
 

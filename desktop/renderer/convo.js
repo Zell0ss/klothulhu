@@ -16,13 +16,15 @@
     // se llevaría la mirada mientras la escena va por la primera frase.
     let pending = null;
 
-    function push(role, t) {
-      list.push({ role, text: t });
+    function push(role, t, sources) {
+      const entry = { role, text: t };
+      if (sources) entry.sources = sources;   // D60: solo si las hay
+      list.push(entry);
       if (list.length > max) list = list.slice(list.length - max);
     }
     function flush() {
       if (pending === null) return false;
-      push('klothulhu', pending);
+      push('klothulhu', pending.text, pending.sources);
       pending = null;
       return true;
     }
@@ -36,16 +38,19 @@
         flush();   // si escribes antes de que acabe, su respuesta va delante de tu mensaje
         push(role, t);
       },
-      hold(text) {
+      // `sources`: los enlaces que citó al buscar en la web (D60); ya normalizados por KlFuentes.
+      hold(text, sources) {
         if (typeof text !== 'string') return;
         const t = text.trim();
         if (!t) return;
         flush();   // un pendiente anterior no se pierde
-        pending = t;
+        pending = { text: t, sources: Array.isArray(sources) && sources.length ? sources.map((s) => ({ ...s })) : null };
       },
       release() { return flush(); },
       clear() { list = []; pending = null; },
-      entries() { return list.map((e) => ({ ...e })); },
+      entries() {
+        return list.map((e) => (e.sources ? { ...e, sources: e.sources.map((s) => ({ ...s })) } : { ...e }));
+      },
     };
   }
 

@@ -29,6 +29,8 @@
     smug:     { backdrop: 'city',    hero: hero('sneak', 10, 40, 'point'),     tone: 'work' },
     sleepy:   { backdrop: 'night',   hero: hero('sleep', 50, 50),              particles: { kind: 'stars', density: 0.3 }, tone: 'work' },
     sad:      { backdrop: 'desert',  hero: hero('approach', 30, 50, 'sad'),   particles: { kind: 'rain', density: 0.3 }, tone: 'work' },
+    // D60: «consultando los grimorios» mientras el narrador busca en la web; se distingue de thinking.
+    searching: { backdrop: 'space',   hero: hero('walk', 15, 40, 'inspect'),    particles: { kind: 'leaves', density: 0.3 }, tone: 'work' },
     thinking: { backdrop: 'lab',     hero: hero('think', 45, 45),              particles: { kind: 'bubbles', density: 0.3 }, tone: 'work' },
     idle:     { backdrop: 'night',   hero: hero('sleep', 50, 50),              particles: { kind: 'stars', density: 0.2 }, tone: 'work' },
   });
@@ -38,6 +40,7 @@
     boot: (hotkey) => `klothulhu escucha, mortal. Pulsa ${String(hotkey).replace(/Control/, 'Ctrl')} o haz clic para hablar.`
       .slice(0, CAPTION_MAX),
     thinking: 'Consultando a los astros…',
+    searching: 'Consultando los grimorios…',
     idle: 'Los astros duermen. Zzz…',
     // Respaldo cuando seb01 no puede contestar: { código: [emoción, texto] }.
     errors: Object.freeze({

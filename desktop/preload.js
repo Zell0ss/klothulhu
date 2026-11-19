@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('kl', {
   forget: () => ipcRenderer.invoke('forget'),
   panel: (open) => ipcRenderer.invoke('panel', Boolean(open)),
   size: (name) => ipcRenderer.invoke('size', String(name)),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),   // D60: main valida que sea http(s)
   copy: (text) => ipcRenderer.invoke('copy', text),
   debug: (line) => ipcRenderer.send('debug', String(line)),
   quit: () => ipcRenderer.send('quit'),

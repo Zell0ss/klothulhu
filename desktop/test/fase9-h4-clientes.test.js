@@ -18,9 +18,9 @@ for (const [name, src] of Object.entries(CLIENTS)) {
   });
 
   test(`H4 ${name}: hold va antes de enqueue(feed.onDone(...))`, () => {
-    const hold = src.indexOf('convo.hold(reply)');
+    const hold = src.indexOf('convo.hold(reply');   // fase 11: con las fuentes, `convo.hold(reply, fuentes)` (D60)
     const enq = src.indexOf('enqueue(feed.onDone(');
-    assert.ok(hold > -1, 'falta convo.hold(reply)');
+    assert.ok(hold > -1, 'falta convo.hold(reply…)');
     assert.ok(enq > -1, 'falta enqueue(feed.onDone(...))');
     assert.ok(hold < enq, 'hold tiene que ir antes de enqueue: con la cola vacía, enqueue llega a lingering en esa llamada');
   });
