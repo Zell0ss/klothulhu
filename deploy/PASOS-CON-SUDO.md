@@ -138,8 +138,30 @@ contestado 413 antes.)
 ### 5.3 Móvil y Konnos
 
 - **Móvil:** recarga la página (el conf lleva `Cache-Control: no-cache`, así que el navegador revalida solo). Se ve un
-  📷 en la barra.
+  📷 junto al campo de texto.
 - **Konnos:** `git pull` y reiniciar la app (el escritorio va directo a uvicorn por Tailscale: no tiene el límite de
   nginx; el tope de 4 MB del servidor vale igual).
 
 Después, las pruebas K1–K8 de `docs/fase10/PLAN.md` §6.
+
+## 6. Fase 11: klothulhu busca (búsqueda web, D58, D59, D60)
+
+Cambia **el servidor** (reinicio de `klothulhu-api`) y los dos clientes. **El nginx no cambia** (`/shared/fuentes.js`
+sale solo del alias de `/shared/`) y **no hay variables nuevas obligatorias**. Orden: merge → reiniciar el servicio →
+recargar el móvil; en Konnos, `git pull` y reiniciar la app.
+
+```bash
+cd /data/klothulhu
+git status --short            # solo debe salir lo que ya había sin versionar
+git merge --ff-only fase11
+sudo systemctl restart klothulhu-api
+systemctl status klothulhu-api --no-pager | head -5
+curl -s http://127.0.0.1:8765/health                 # {"ok":true,...}
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5757/shared/fuentes.js     # 200
+```
+
+- **Gasto:** $10 por 1 000 búsquedas más los tokens de los resultados; con el tope de 30 al día, como mucho ~$9 al mes.
+  La cuota del día vive en la memoria del proceso: un reinicio la pone a cero.
+- **Apagarla sin desplegar nada:** `KLOTHULHU_BUSQUEDA_TOPE=0` en `/etc/klothulhu/klothulhu.env` y reiniciar el servicio
+  (con 0, el narrador no recibe la herramienta). Cambiar el tope: el mismo ajuste con otro número.
+- **Konnos:** `git pull` y reiniciar la app. Después, las pruebas K1–K6 de `docs/fase11/PLAN.md` §6.
