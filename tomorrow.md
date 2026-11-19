@@ -1,27 +1,27 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 10, H1 único (klothulhu ve: imágenes en la conversación, D56, D57) **aprobado sin retoques** (`2a9e329`,
-`H1-revision.md`). Después hice A1 [API] (autorizada por Josem, tope 1 €; gasto ≈ $0,0016) y la dejé en un anexo del informe
-(`adb9331`): el narrador ve la foto y se acuerda de ella sin volver a mandarla. El arquitecto pidió el **retoque R1** (`0d8231f`) y lo hice
-(`057d708`, anexo 2 del informe `b8b79c6`): los loggers `anthropic`, `httpx`, `httpx2`, `httpcore` y `httpcore2` se quedan en INFO como mínimo
-(`_acotar_loggers_de_librerias` en `app.py`), porque con el log en DEBUG el SDK imprimía la imagen en base64. **R1 aprobado y H1 cerrado** (`8271512`, `H1-revision.md` §5): no hay nada más por mi lado.
-Pruebas: pytest 122 passed (8 skipped), `ruff` limpio, desktop 97/97, web 31/31.
-La fase 9 (H1-H6) está cerrada y aprobada.
-Rama `fase10`, worktree `/data/klothulhu-fase10` con `.venv` propio (sin `node_modules`: no hace falta). Pruebas: pytest 120 passed
-(8 skipped), `ruff` limpio, desktop 97/97, web 31/31. El worktree `/data/klothulhu-fase9` sigue ahí (rama `fase9`).
+**Parada:** fase 11, H1 único (klothulhu busca: búsqueda web del narrador, D58, D59, D60) **hecho e informado** (`eb0503c`,
+`docs/fase11/H1-informe.md`); el turno es del arquitecto. Commits: `6cd0c89` servidor, `c72b988` clientes, `2d863a8`
+pasos de despliegue + capturas, `6c389fc` prueba con el SDK real. Pruebas: pytest 139 passed (8 skipped), `ruff` limpio,
+desktop 103/103, web 31/31. Normativas S1-S10 y B1-B4 copiadas tal cual (`cmp` vacío). Gasto 0.
+Las fases 9 y 10 están cerradas y aprobadas. Rama `fase11`, worktree `/data/klothulhu-fase11` con `.venv` propio (sin
+`node_modules`: no hace falta). Los worktrees de las fases 9 y 10 ya no existen.
 
-**Siguiente paso:** ninguno por mi lado; antes de tocar nada, mirar el buzón (`docs/fase10/`); si K1-K8 de Josem sacan algo, llegará como
-una sección nueva de `H1-revision.md`. Falta lo de Josem (la punta de `fase10` incluye R1), en este orden (`deploy/PASOS-CON-SUDO.md` §5): merge `--ff-only` de `fase10` → reiniciar `klothulhu-api.service`
-(el servidor cambia) → nginx (`cp`, `nginx -t`, `reload`) → recargar el móvil; en Konnos, `git pull` y reiniciar la app. Después K1-K8 del plan.
-Gasto: más pruebas de pago solo dentro del tope que dio Josem (1 € en total, el 2026-11-18); lo gastado hasta ahora son ≈ 0,0015 €.
-Para la clave de pruebas Josem eligió leer solo la línea `ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env` (sin imprimirla); no leer el resto del fichero.
-No empezar fase ni hito nuevos sin un «adelante». Quitar los worktrees (`git worktree remove`) lo decide Josem.
+**Siguiente paso:** antes de tocar nada, mirar el buzón (`docs/fase11/`): si llega `H1-revision.md`, el turno es mío.
+**Pendiente de Josem (informe, «Decisiones que necesito»):** el «sí» para **A1 [API]** (3 mensajes con `KLOTHULHU_FAKE=0`
+contra el servidor de pruebas, < $0,05; la clave, solo la línea `ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env`, sin
+imprimirla; el permiso de 1 € de la fase 10 NO se extiende). Sin ese «sí», A1 no se hace. Si en A1 busca en la charla, se ajusta
+el párrafo «The grimoires» de `server/prompt.md` y se repite solo ese mensaje.
+Lo de Josem para desplegar (`deploy/PASOS-CON-SUDO.md` §6): merge `--ff-only` de `fase11` → reiniciar `klothulhu-api.service` →
+recargar el móvil; en Konnos, `git pull` y reiniciar la app. nginx no cambia. Después K1-K6 de `docs/fase11/PLAN.md` §6.
+No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree lo decide Josem.
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
 - Servidor de pruebas (no producción): desde `<worktree>/server`,
   `KLOTHULHU_FAKE=1 KLOTHULHU_TOKENS=konnos:token-de-prueba-0123456789 ../.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8766`
-  y `node web/dev-server.js --api 127.0.0.1:8766` (web en `127.0.0.1:5858`). Gasto 0, sin BD. Con imagen, la respuesta enlatada dice cuántos KB llegaron.
+  y `node web/dev-server.js --api 127.0.0.1:8766` (web en `127.0.0.1:5858`; `--port` lo cambia). Gasto 0, sin BD. Con imagen, la respuesta
+  enlatada dice cuántos KB llegaron; un texto que empieza por «busca» da la búsqueda enlatada (escena de buscar, 4 s, fuentes de `example.org`).
 - Normativas que no se editan: `web/test/fase9-h1.test.js`, `desktop/test/fase9-h4.test.js`, `tests/test_fase10.py`, `desktop/test/fase10.test.js`
   (y sus copias en `docs/<fase>/normativas/`). `web/app.js` es una copia deliberada del reproductor (D50): hay que trasladar a mano los cambios
   entre los dos clientes (la fase 10 usó el mismo `errorItem`/`attach` en los dos).
@@ -52,3 +52,7 @@ No empezar fase ni hito nuevos sin un «adelante». Quitar los worktrees (`git w
   cambian entre sesiones: buscar con `ListAgents` y preguntar si no hay una candidata clara.
 
 **Bloqueos:** ninguno.
+- Búsqueda web (D58-D60): `buscaweb.py` es puro; la cuota (`_cuota` en `app.py`) vive en memoria del proceso. El log solo lleva números: nunca
+  consulta, URLs ni títulos. Las fuentes que se enseñan son solo las **citadas** (`citations` de los bloques `text`). El puente del escritorio
+  se llama `kl` (no `window.klothulhu`). `desktop/renderer/fuentes.js` lo usan los dos clientes y `main.js`. Para ver los eventos SDK reales sin
+  gastar: `tests/test_fase11_sdk.py` (transporte `httpx2.MockTransport`).
