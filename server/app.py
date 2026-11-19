@@ -4,6 +4,10 @@ One endpoint streams a reply as Server-Sent Events with this contract:
 
     event: emotion  data: {"emotion": "happy"}      always first, may repeat
     event: delta    data: {"text": "..."}           text chunks, tags removed
+    event: searching  data: {}                      the narrator launched a web search (D58); may repeat
+    event: sources    data: {"items": [{"title": "...", "url": "https://..."}]}
+                                                    once, after the text and before the scenes, only if it
+                                                    cited something (D60); the history never keeps it (D59)
     event: scene    data: {"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} | null}
     event: done     data: {"turns": 3}              reply finished and stored
     event: error    data: {"code": "upstream_error"}
@@ -41,6 +45,7 @@ from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
+import buscaweb
 import busqueda
 import cierre
 import director
@@ -104,6 +109,7 @@ QDRANT_URL = os.getenv("KLOTHULHU_QDRANT_URL", "http://localhost:6333")
 QDRANT_COLECCION = os.getenv("KLOTHULHU_QDRANT_COLECCION", "klothulhu_memoria_dev")
 BARRIDO_S = 60  # cada cuánto se miran las sesiones caducadas (D41)
 APAGADO_S = 20  # lo que se concede a cerrar todas al parar (D41)
+BUSQUEDA_TOPE = int(os.getenv("KLOTHULHU_BUSQUEDA_TOPE", str(buscaweb.TOPE_DIA)))  # D58; 0 = apagada
 PROMPT_PATH = Path(os.getenv("KLOTHULHU_PROMPT", Path(__file__).with_name("prompt.md")))
 
 
@@ -131,6 +137,7 @@ _almacen = None  # se abre en lifespan, con MEMORIA
 _freno: gasto.Freno | None = None
 _busquedas: set[asyncio.Task] = set()  # las búsquedas en curso (D36), para esperarlas al parar
 _locks: dict[str, asyncio.Lock] = {}
+_cuota = buscaweb.Cuota(BUSQUEDA_TOPE)  # búsquedas web que quedan hoy (D58); en memoria del proceso
 
 _anthropic = None
 if not FAKE:
@@ -337,6 +344,7 @@ async def _reply(
         parser = EmotionStreamParser()
         raw: list[str] = []
         shown = ""  # texto sin etiquetas, como lo reconstruye el cliente
+        fuentes = None  # lo que el narrador citó al buscar (D60); nunca entra en el historial (D59)
         marks: list[tuple[int, str]] = []
 
         def emit(events):
@@ -359,15 +367,28 @@ async def _reply(
                 log.warning("memoria: sin bloque de recuerdos (%s)", type(e).__name__)
                 system = SYSTEM_PROMPT
             if FAKE:
-                source = _fake_image_stream(image[1]) if image else _fake_stream()
+                if image:
+                    source = _fake_image_stream(image[1])
+                elif text.lstrip().lower().startswith("busca"):
+                    source = _fake_busca_stream()
+                else:
+                    source = _fake_stream()
             else:
                 source = _model_stream(cid, contenido, system)
             async for chunk in source:
+                if chunk is buscaweb.BUSCANDO:
+                    yield _sse("searching", {})
+                    continue
+                if isinstance(chunk, buscaweb.Fuentes):
+                    fuentes = chunk
+                    continue
                 raw.append(chunk)
                 for line in emit(parser.feed(chunk)):
                     yield line
             for line in emit(parser.flush()):
                 yield line
+            if fuentes is not None and fuentes.items:
+                yield _sse("sources", {"items": fuentes.items})  # antes de las escenas (D60)
         except Exception:  # noqa: BLE001 - any upstream failure becomes an event
             log.exception("generation failed for %s", cid)
             yield _sse("error", {"code": "upstream_error"})
@@ -437,21 +458,45 @@ def _director(question: str, bs: list[tuple[str, str]]) -> AsyncIterator[dict | 
     )
 
 
-async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[str]:
-    """``content`` es el texto del usuario o, con imagen, la lista de bloques de imagen.contenido (D56)."""
+async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[str | object]:
+    """``content`` es el texto del usuario o, con imagen, la lista de bloques de imagen.contenido (D56).
+
+    Cede el texto (``str``), ``buscaweb.BUSCANDO`` cada vez que el modelo lanza una búsqueda y, como último
+    elemento, ``buscaweb.Fuentes`` con lo que citó (D58, D60). Con la cuota del día agotada el narrador no
+    recibe la herramienta y sabe por qué."""
     messages = history.messages(cid) + [{"role": "user", "content": content}]
+    n = buscaweb.permitidas(_cuota)
+    extra: dict = {}
+    if n > 0:
+        extra["tools"] = [buscaweb.herramienta(n)]
+    else:
+        bloque = {"type": "text", "text": buscaweb.AGOTADA}
+        system = [{"type": "text", "text": system}, bloque] if isinstance(system, str) else [*system, bloque]
+    traductor = buscaweb.Traductor()
     async with _anthropic.messages.stream(
         model=MODEL,
         max_tokens=MAX_TOKENS,
         system=system,
         messages=messages,
         output_config={"effort": EFFORT},
+        **extra,
     ) as stream:
-        async for chunk in stream.text_stream:
-            yield chunk
+        async for event in stream:
+            for x in traductor.feed(event.model_dump()):
+                yield x
         final = await stream.get_final_message()
-        if final.stop_reason == "refusal":
-            log.warning("narrator refused (stop_reason=refusal)")
+    if final.stop_reason == "refusal":
+        log.warning("narrator refused (stop_reason=refusal)")
+    elif final.stop_reason == "pause_turn":
+        log.warning("narrator paused the turn (pause_turn): the reply ends here")  # D58
+    uso = final.usage
+    servidor = getattr(uso, "server_tool_use", None)
+    hechas = getattr(servidor, "web_search_requests", None) or 0
+    _cuota.anotar(hechas)
+    # D42, D59: solo números. Ni la consulta, ni las URLs, ni los resultados.
+    log.info("narrador: %d búsquedas, quedan %d hoy, tokens %s entrada / %s salida", hechas, _cuota.quedan(),
+             getattr(uso, "input_tokens", "?"), getattr(uso, "output_tokens", "?"))
+    yield buscaweb.Fuentes(buscaweb.fuentes([b.model_dump() for b in final.content]))
 
 
 _FAKE_REPLIES = [
@@ -476,6 +521,19 @@ async def _fake_image_stream(data: str) -> AsyncIterator[str]:
     reply = f"[smug] Veo una imagen de {kb:.1f} KB, mortal. [happy] El tubo con imagen funciona."
     async for chunk in _fake_chunks(reply):
         yield chunk
+
+
+async def _fake_busca_stream() -> AsyncIterator[str | object]:
+    """Con un texto que empieza por «busca» (D58): una respuesta enlatada que avisa, «busca» y cita un enlace
+    de ejemplo, para ver a mano la escena de buscar y la línea de fuentes sin gastar."""
+    await _fake_wait()
+    async for chunk in _fake_chunks("[smug] Consulto los grimorios, mortal. "):
+        yield chunk
+    yield buscaweb.BUSCANDO
+    await asyncio.sleep(4)  # lo que viene a tardar una búsqueda de verdad
+    async for chunk in _fake_chunks("[happy] Mañana habrá nubes y claros. Los astros no se comprometen."):
+        yield chunk
+    yield buscaweb.Fuentes([{"title": "Ejemplo de fuente", "url": "https://example.org/"}])
 
 
 async def _fake_wait() -> None:
