@@ -258,3 +258,49 @@ Ninguna. El texto de `CORTADA` es el que propuse (el que da el ejemplo de §7).
 
 1. **A2 [API]** (repetir la pregunta de Gijón en el servidor de pruebas, ≈ $0,02): solo con el «sí» de Josem. Tras el despliegue
    de R2, hace falta reiniciar `klothulhu-api.service` (de Josem) para que el tope nuevo rija en producción.
+
+---
+
+## Anexo 4 · A2 [API] la pregunta de Gijón con el tope nuevo (2026-11-20)
+
+Responde a: 67762bb (`H1-revision.md` §8)
+
+### Hecho
+
+Una llamada real por `/chat` (ASGI directo, servidor de pruebas, FAKE=0, sin memoria, BD ni director), sobre `fase11` con R2
+(`5f768d7`). Historial sembrado sin gasto con un intercambio previo («Vivo en Magán, un pueblo de Toledo.» y su respuesta, redactado
+por mí porque no tengo el original). Pregunta: «¿Qué tiempo hará mañana en Gijón, por curiosidad?» (la redacción exacta de Josem no
+la tengo).
+
+| | |
+|---|---|
+| Eventos | `emotion delta searching sources scene done`, 1 `searching`, 1 `sources`, sin errores |
+| Parada | **`stop=end_turn`**: no hubo corte, no sale la frase de `CORTADA` |
+| Tope | 3072 (`MAX_TOKENS_BUSQUEDA`) |
+| Tokens | 15 117 entrada / **665 salida** |
+| Log | `narrador: 1 búsquedas, quedan 29 hoy, tokens 15117 entrada / 665 salida, stop=end_turn` |
+| Fuentes | `kind: "consultadas"` (el modelo no citó), 3 enlaces de **3 dominios distintos** (tiempoyradar.es, teleelx.es, tiempo.com) |
+| Privacidad | ninguna URL de fuente ni «Gijón» en los logs |
+
+Texto (309 caracteres): «Consulto los grimorios, mortal. Para mañana, sábado 21, los pronósticos apuntan a lluvia en Gijón, con
+temperaturas máximas de entre 13 y 18 grados según la fuente y una probabilidad alta de precipitación. Los grimorios no se ponen de
+acuerdo, mortal, así que lleva paraguas y no confíes en un único oráculo.»
+
+Lectura: la respuesta llega entera tras buscar. Con 665 tokens de salida, el pensamiento y el texto ya no cabían en 1024 junto a los
+~14 000 de resultados, que es lo que se vio en producción; con 3072 caben de sobra. Esta vez no se pudo ver `CORTADA` en vivo (no hubo
+corte); eso lo cubren las pruebas con el SDK real.
+
+### Gasto
+
+≈ **$0,0118 (≈ 0,011 €)**: tokens $0,0018 (a `gasto.PRECIOS` de `claude-haiku-5-5`) + 1 búsqueda $0,01. Autorizado por Josem en el
+chat de esta sesión («Si, dale», 2026-11-20), con el tope ≈ $0,02 de §7. La clave salió solo de la línea `ANTHROPIC_API_KEY` de
+`/etc/klothulhu/klothulhu.env`, sin imprimirla y sin leer el resto. La cuota del proceso de pruebas se perdió al acabar; la de
+producción no se tocó.
+
+### Desviaciones
+
+Ninguna. Un intento previo de cargar la clave con `sudo` fue denegado y no llegó a ejecutarse; el fichero es legible por el usuario.
+
+### Decisiones que necesito
+
+Ninguna. Queda el despliegue de R2 (de Josem: merge `--ff-only` de `fase11` y reinicio de `klothulhu-api.service`) y lo que salga de K1-K6.
