@@ -1,15 +1,15 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 11, H1 (klothulhu busca, D58-D61) con A1 aprobado y el retoque **R1 hecho e informado** (código `2130a18`, Anexo 2 de
-`docs/fase11/H1-informe.md` en `6b600b8`); el turno es del arquitecto. R1 (D61): sin citas, `buscaweb.fuentes_de` deja los 3 primeros resultados
-leídos y el evento `sources` lleva `kind: "consultadas"`; los clientes rotulan «consultado:». Pruebas: pytest 145 passed (8 skipped), `ruff` limpio,
-desktop 105/105, web 31/31. Normativas S1-S10, B1-B4, R1-R5 y B5-B6 copiadas tal cual (`cmp`). Gasto de R1: 0 (A1 fue ≈ $0,0253).
+**Parada:** fase 11, H1 (klothulhu busca, D58-D62): R1 aprobado; **R2 (D62) hecho e informado** (código `5f768d7`, Anexo 3 de
+`docs/fase11/H1-informe.md` en `629489e`); el turno es del arquitecto. R2: `MAX_TOKENS_BUSQUEDA` 3072 con la herramienta, `CORTADA` si
+`stop_reason` es `max_tokens`/`pause_turn`, `stop=` en el log, consultadas de una por dominio. Pruebas: pytest 149 passed (8 skipped), `ruff`
+limpio, desktop 105/105, web 31/31. Normativas de la fase (incl. `test_fase11_r2.py`) copiadas tal cual (`cmp`). Gasto de R2: 0.
 Rama `fase11`, worktree `/data/klothulhu-fase11` con `.venv` propio (sin `node_modules`: no hace falta).
 
-**Siguiente paso:** mirar el buzón (`docs/fase11/`): si llega una sección nueva de `H1-revision.md`, el turno es mío. Si no, nada que hacer.
-Lo de Josem para desplegar (`deploy/PASOS-CON-SUDO.md` §6): merge `--ff-only` de `fase11` → reiniciar `klothulhu-api.service` → recargar el móvil;
-en Konnos, `git pull` y reiniciar la app. nginx no cambia. Después K1-K6 de `docs/fase11/PLAN.md` §6. No empezar fase ni hito nuevos sin un
-«adelante». Quitar el worktree lo decide Josem.
+**Siguiente paso:** mirar el buzón (`docs/fase11/`). **A2 [API]** (la pregunta de Gijón en el servidor de pruebas, ≈ $0,02) solo con el «sí»
+de Josem en mi ventana; la clave, solo la línea `ANTHROPIC_API_KEY` del env de producción, sin imprimirla. Para Josem: reiniciar
+`klothulhu-api.service` tras mergear R2 (`--ff-only` de `fase11`); en producción hasta entonces rige el tope de 1024. Después, lo que salga de K1-K6.
+No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree lo decide Josem.
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
