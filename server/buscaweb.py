@@ -30,6 +30,10 @@ ZONA = ZoneInfo("Europe/Madrid")
 # Sin corchetes ni comillas: va dentro del `system`, y el narrador no debe copiar etiquetas de ahí.
 AGOTADA = "(Hoy los grimorios están cerrados: no puedes buscar más hasta mañana.)"
 
+# Lo último que dice si el turno se corta a medias (max_tokens o pause_turn, D62): con su etiqueta de emoción
+# y un espacio delante, porque sigue a lo que ya dijo. Es lo que se ve y lo que queda en el historial.
+CORTADA = " [confused] Los grimorios me han dejado sin aliento, mortal: pregúntamelo otra vez."
+
 
 def herramienta(max_uses: int = MAX_USES) -> dict:
     return {
@@ -178,6 +182,8 @@ def fuentes(content: list[dict]) -> list[dict]:
 
 
 def _consultadas(content: list[dict]) -> list[dict]:
+    """Los primeros resultados leídos, uno por dominio: el cliente enseña el dominio y dos iguales no dicen
+    nada (D62)."""
     salida: list[dict] = []
     vistas: set[str] = set()
     for bloque in content:
@@ -185,12 +191,12 @@ def _consultadas(content: list[dict]) -> list[dict]:
         if not isinstance(resultados, list):  # un error de búsqueda llega como objeto: se salta
             continue
         for r in resultados:
-            if not isinstance(r, dict) or r.get("url") in vistas:
+            if not isinstance(r, dict):
                 continue
             enlace = _enlace(r.get("url"), r.get("title"))
-            if enlace is None:
+            if enlace is None or _dominio(enlace["url"]) in vistas:
                 continue
-            vistas.add(r["url"])
+            vistas.add(_dominio(enlace["url"]))
             salida.append(enlace)
             if len(salida) == MAX_CONSULTADAS:
                 return salida

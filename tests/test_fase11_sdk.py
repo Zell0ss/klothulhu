@@ -106,3 +106,29 @@ def test_sin_citas_el_sdk_real_deja_lo_consultado(monkeypatch, caplog):
     assert isinstance(ultimo, buscaweb.Fuentes) and ultimo.tipo == "consultadas"
     assert ultimo.items == [{"title": "AEMET", "url": URL}]
     assert CONSULTA not in caplog.text and URL not in caplog.text
+
+
+def test_r2_con_el_sdk_real_el_tope_viaja_y_max_tokens_deja_la_respuesta_cortada(monkeypatch, caplog):
+    """R2 (D62): el tope viaja con la herramienta y un `max_tokens` real del SDK acaba en CORTADA."""
+    eventos = _respuesta()
+    eventos[-2]["delta"]["stop_reason"] = "max_tokens"
+    peticiones = []
+
+    def responder(request):
+        peticiones.append(json.loads(request.content))
+        return httpx2.Response(200, content=_sse(eventos), headers={"content-type": "text/event-stream"})
+
+    cliente = AsyncAnthropic(api_key="x", max_retries=0,
+                             http_client=httpx2.AsyncClient(transport=httpx2.MockTransport(responder)))
+    monkeypatch.setattr(app, "_anthropic", cliente)
+    monkeypatch.setattr(app, "_cuota", buscaweb.Cuota(30))
+    app.history.clear("fase11-sdk3")
+    caplog.set_level(logging.INFO)
+
+    async def collect():
+        return [x async for x in app._model_stream("fase11-sdk3", "¿Llueve?", app.SYSTEM_PROMPT)]
+
+    out = asyncio.run(collect())
+    assert peticiones[0]["max_tokens"] == app.MAX_TOKENS_BUSQUEDA
+    assert [x for x in out if isinstance(x, str)][-1] == buscaweb.CORTADA
+    assert "stop=max_tokens" in caplog.text and CONSULTA not in caplog.text and URL not in caplog.text

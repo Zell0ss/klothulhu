@@ -89,6 +89,9 @@ _acotar_loggers_de_librerias()
 MODEL = os.getenv("KLOTHULHU_MODEL", "claude-haiku-5-5")
 EFFORT = os.getenv("KLOTHULHU_EFFORT", "low")
 MAX_TOKENS = int(os.getenv("KLOTHULHU_MAX_TOKENS", "1024"))  # el pensamiento cuenta para el tope
+# Con la herramienta de búsqueda el tope sube (D62): tras ~13 000 tokens de resultados, el pensamiento y el
+# texto no caben en 1024 y la respuesta se quedaba en el aviso.
+MAX_TOKENS_BUSQUEDA = int(os.getenv("KLOTHULHU_MAX_TOKENS_BUSQUEDA", "3072"))
 DIRECTOR_ENABLED = os.getenv("KLOTHULHU_DIRECTOR", "1") == "1"
 DIRECTOR_MODEL = os.getenv("KLOTHULHU_DIRECTOR_MODEL", "claude-haiku-5-5")
 DIRECTOR_EFFORT = os.getenv("KLOTHULHU_DIRECTOR_EFFORT", "low")
@@ -472,15 +475,17 @@ async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[
     messages = history.messages(cid) + [{"role": "user", "content": content}]
     n = buscaweb.permitidas(_cuota)
     extra: dict = {}
+    tope = MAX_TOKENS
     if n > 0:
         extra["tools"] = [buscaweb.herramienta(n)]
+        tope = MAX_TOKENS_BUSQUEDA  # D62
     else:
         bloque = {"type": "text", "text": buscaweb.AGOTADA}
         system = [{"type": "text", "text": system}, bloque] if isinstance(system, str) else [*system, bloque]
     traductor = buscaweb.Traductor()
     async with _anthropic.messages.stream(
         model=MODEL,
-        max_tokens=MAX_TOKENS,
+        max_tokens=tope,
         system=system,
         messages=messages,
         output_config={"effort": EFFORT},
@@ -498,9 +503,12 @@ async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[
     servidor = getattr(uso, "server_tool_use", None)
     hechas = getattr(servidor, "web_search_requests", None) or 0
     _cuota.anotar(hechas)
-    # D42, D59: solo números. Ni la consulta, ni las URLs, ni los resultados.
-    log.info("narrador: %d búsquedas, quedan %d hoy, tokens %s entrada / %s salida", hechas, _cuota.quedan(),
-             getattr(uso, "input_tokens", "?"), getattr(uso, "output_tokens", "?"))
+    # D42, D59: solo números y el motivo de parada. Ni la consulta, ni las URLs, ni los resultados.
+    log.info("narrador: %d búsquedas, quedan %d hoy, tokens %s entrada / %s salida, stop=%s", hechas,
+             _cuota.quedan(), getattr(uso, "input_tokens", "?"), getattr(uso, "output_tokens", "?"),
+             final.stop_reason)
+    if final.stop_reason in ("max_tokens", "pause_turn"):
+        yield buscaweb.CORTADA  # nunca una respuesta a medias sin decirlo (D62)
     yield buscaweb.fuentes_de([b.model_dump() for b in final.content])
 
 

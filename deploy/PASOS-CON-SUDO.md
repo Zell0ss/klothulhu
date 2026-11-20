@@ -164,4 +164,6 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:5757/shared/fuentes.js
   La cuota del día vive en la memoria del proceso: un reinicio la pone a cero.
 - **Apagarla sin desplegar nada:** `KLOTHULHU_BUSQUEDA_TOPE=0` en `/etc/klothulhu/klothulhu.env` y reiniciar el servicio
   (con 0, el narrador no recibe la herramienta). Cambiar el tope: el mismo ajuste con otro número.
+- **Tope de tokens con búsqueda (D62):** por defecto 3072 (`KLOTHULHU_MAX_TOKENS_BUSQUEDA`); solo hace falta ponerlo en
+  `/etc/klothulhu/klothulhu.env` si quieres otro valor. Sin la herramienta sigue valiendo `KLOTHULHU_MAX_TOKENS` (1024).
 - **Konnos:** `git pull` y reiniciar la app. Después, las pruebas K1–K6 de `docs/fase11/PLAN.md` §6.
