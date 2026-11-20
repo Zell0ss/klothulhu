@@ -53,3 +53,48 @@ Aprobado; nada que cambiar. Si Josem autoriza A1 en tu ventana: los tres mensaje
 pruebas, anexo al informe con lo que buscó en cada uno, el texto, las fuentes, la línea de log y el coste, y para. Si
 busca en la charla, ajusta solo el párrafo de los grimorios de `prompt.md`, repite ese mensaje y cuéntalo en el anexo.
 Si Josem dice que no, no hay nada más: queda el despliegue, que es suyo.
+
+## 5. Revisión del anexo A1 (2026-11-20)
+
+Responde a: 8fb3835 (anexo A1 del informe)
+
+**A1 aprobado.** El prompt hace lo que debe: busca para el tiempo, no para la cuenta ni para la charla, avisa con su
+etiqueta y no mete URLs. Log solo con números. Gasto ≈ $0,025, dentro del tope (la segunda tanda era necesaria para
+diagnosticar y estaba dentro del tope: bien hecho). Dato útil para D58: una búsqueda añade ~13 000 tokens de entrada
+(≈ $0,0013), poco frente a los $0,01 de la búsqueda.
+
+**El hallazgo de las fuentes es mío:** en el plan (S5, D60) fijé «solo lo citado» sin saber que el modelo cita poco
+cuando resume. Se lo he preguntado a Josem y ha elegido enseñar **lo consultado cuando no haya citas** (D61). Va como
+retoque R1.
+
+### R1 · Si no cita, lo consultado (D61)
+
+1. **`buscaweb.py`:**
+   - `Fuentes(items, tipo="citadas")`: el campo nuevo `tipo` (`"citadas"` o `"consultadas"`), con valor por defecto, para
+     que todo lo anterior siga igual.
+   - `MAX_CONSULTADAS = 3`.
+   - `fuentes_de(content) -> Fuentes`: si `fuentes(content)` no está vacía, `Fuentes(esa, "citadas")`; si no, los
+     primeros resultados de los bloques `web_search_tool_result` (cuyo `content` sea una lista; un error es un objeto y se
+     salta), con **las mismas reglas** que las citas (http(s), sin repetir, título recortado o el dominio), como mucho
+     `MAX_CONSULTADAS`, y `tipo="consultadas"`. Sin nada, `Fuentes([], "consultadas")` o `Fuentes([])`: da igual,
+     `_reply` no manda evento vacío. `fuentes()` no cambia (S5 sigue pasando).
+2. **`app.py`:** `_model_stream` cede `buscaweb.fuentes_de([...])` en vez de `Fuentes(buscaweb.fuentes([...]))`. En
+   `_reply`, el evento `sources` lleva `"kind": "consultadas"` **solo** en ese caso; con citas, `{"items": ...}` como hasta
+   ahora (S6). Docstring del contrato con `kind`.
+3. **`convo.js`:** `hold(text, sources, consultadas)`: con fuentes y `consultadas` verdadero, la entrada lleva además
+   `consultadas: true`; si no, la clave no aparece (B2 y B5).
+4. **Los dos reproductores:** guardan también si `data.kind === 'consultadas'`, se lo pasan a `hold` (y lo vacían al
+   preguntar), y el panel rotula la línea `consultado: ` en vez de `fuentes: ` (B6). Lo demás de la línea (enlaces,
+   `title`, D10, `noopener`, `openExternal`) igual.
+5. **FAKE:** la respuesta enlatada de «busca» sigue citando (no hace falta otra).
+6. **Normativas nuevas:** copia tal cual `docs/fase11/normativas/test_fase11_r1.py` a `tests/test_fase11_r1.py` y
+   `docs/fase11/normativas/fase11-r1.test.js` a `desktop/test/fase11-r1.test.js`. Las de H1 no se tocan y tienen que
+   seguir pasando.
+
+**Sin gasto:** R1 no necesita otra llamada real; `test_fase11_sdk.py` puede ganar el caso sin citas si te sirve.
+
+## Para el programador
+
+Responde a: 8fb3835. A1 aprobado. Haz el retoque **R1** de §5 (D61), con las dos normativas nuevas, las de siempre en
+verde y una captura de la web con «consultado:» (puedes forzarlo en FAKE con una prueba tuya o una variante enlatada que
+no cite; no cambies la de «busca»). Anexo 2 al informe y para.
