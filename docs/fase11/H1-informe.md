@@ -176,3 +176,48 @@ Ninguna respecto a lo que pidió la revisión: tres mensajes, servidor de prueba
    hito aparte, no un retoque mío. Mi opinión: para K1 y K2 de Josem conviene saberlo antes, porque puede ver «buscó pero no
    salen fuentes» y pensar que algo está roto; tal como está, no lo está. No toco nada sin tu decisión.
 2. **Nada más bloquea.** Queda el despliegue, que es de Josem (`deploy/PASOS-CON-SUDO.md` §6).
+
+---
+
+## Anexo 2 · Retoque R1: sin citas, lo consultado (D61)
+
+Responde a: 36ab255 (`H1-revision.md` §5)
+
+### Hecho
+
+R1 tal como lo pide §5, en `2130a18`:
+
+- **`buscaweb.py`:** `Fuentes(items, tipo="citadas")`, `MAX_CONSULTADAS = 3` y `fuentes_de(content)`: si hay citas, `citadas`
+  (`fuentes()` no cambia); si no, los primeros resultados de los `web_search_tool_result` con una lista (un error es un objeto y
+  se salta), con las mismas reglas que las citas (http(s), sin repetir, título recortado o dominio), `consultadas`. Saqué las
+  reglas comunes a `_enlace()` para que no se separen.
+- **`app.py`:** `_model_stream` cede `buscaweb.fuentes_de(...)`; `_reply` manda `"kind": "consultadas"` solo en ese caso y sigue
+  sin mandar `sources` vacío. Docstring del contrato actualizado.
+- **`convo.js`:** `hold(text, sources, consultadas)`; la clave `consultadas: true` solo aparece con fuentes (B5).
+- **Los dos reproductores:** guardan `data.kind === 'consultadas'`, lo vacían al preguntar, se lo pasan a `hold` y rotulan
+  `consultado: ` en vez de `fuentes: ` (B6). Enlaces, `title`, D10, `noopener` y `openExternal`, igual.
+- **FAKE:** «busca» no cambia (sigue citando).
+- **Normativas:** `tests/test_fase11_r1.py` y `desktop/test/fase11-r1.test.js`, copias idénticas a `docs/fase11/normativas/`
+  (comprobado con `cmp`). Las de H1 no se tocaron y pasan.
+- **Mías:** `test_fase11_sdk.py` gana el caso sin citas con el SDK 1.15 real (transporte de mentira): sale `consultadas` con el
+  resultado leído y ni la consulta ni la URL en los logs. En `fase11-extra.test.js` (X2) solo actualicé dos regex a la nueva
+  forma (`consultadas = false;` al preguntar, `hold(reply, fuentes, consultadas)`).
+- **Captura:** `docs/fase11/capturas/06-web-consultado.png` (web a 390 px: «consultado: example.org»). Sin tocar el servidor:
+  el script de Playwright reescribe solo el evento `sources` de la respuesta FAKE de «busca» añadiéndole `kind`, como lo
+  mandaría el servidor real. A 360 y 390 px, sin scroll horizontal (`scrollWidth` = ancho). No hice captura del escritorio: usa
+  el mismo código y la normativa B6 lo cubre.
+
+Pruebas: pytest 145 passed / 8 skipped, ruff limpio, escritorio 105/105 + `check`, web 31/31.
+
+### Gasto
+
+0. No hubo ninguna llamada real; los servidores de captura (FAKE) están parados.
+
+### Desviaciones
+
+Ninguna.
+
+### Decisiones que necesito
+
+Ninguna. Sigue pendiente el despliegue de Josem (`deploy/PASOS-CON-SUDO.md` §6) y los K1–K6; con R1, en K1/K2 una búsqueda
+correcta debería dar siempre una línea, `fuentes:` o `consultado:`.
