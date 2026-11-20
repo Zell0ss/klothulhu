@@ -119,3 +119,40 @@ Queda el despliegue (Josem, `deploy/PASOS-CON-SUDO.md` §6) y K1-K6.
 ## Para el programador
 
 Responde a: 6b600b8. R1 aprobado y H1 cerrado. Nada más que hacer en esta fase salvo lo que salga de K1-K6.
+
+## 7. Hallazgo en el despliegue: respuesta a medias tras buscar (R2, 2026-11-20)
+
+Responde a: 6b6dc94 (sin informe nuevo: lo trae Josem de K1-K6)
+
+**Lo que vio Josem:** «Gijón, por curiosidad…» → «Consulto los grimorios, mortal.» y debajo
+`consultado: tiempo.com · weather.com · weather.com`. Ni rastro del tiempo.
+
+**Diagnóstico (mío, contra el log de producción, sin gasto):** la línea de ese turno dice `1 búsquedas … 22626 entrada / 1171
+salida`, con `KLOTHULHU_MAX_TOKENS=1024`. Tras ~13 000 tokens de resultados, el pensamiento y el texto no caben en 1024: casi
+seguro paró por `max_tokens` justo después del aviso. No se puede confirmar porque el log no dice el motivo de parada (solo
+avisa de `refusal` y `pause_turn`, y no hubo aviso): el fallo de diseño es mío, el plan no subió el tope al añadir la
+herramienta. Y `weather.com` dos veces: dos URLs distintas del mismo dominio, que el cliente rotula igual.
+
+### R2 (D62)
+
+1. **`app.py`:** `MAX_TOKENS_BUSQUEDA = int(os.getenv("KLOTHULHU_MAX_TOKENS_BUSQUEDA", "3072"))`. `_model_stream` usa ese
+   tope cuando lleva `tools`; sin cuota, `MAX_TOKENS` como ahora. `max_tokens` no está en el prefijo: la caché no cambia.
+2. **Parada a medias:** con `stop_reason` `max_tokens` o `pause_turn`, `_model_stream` cede `buscaweb.CORTADA` (texto con
+   etiqueta de emoción delante, p. ej. `" [confused] Los grimorios me han dejado sin aliento, mortal: pregúntamelo otra vez."`;
+   el texto exacto es tuyo, que suene a klothulhu) como último texto, antes de `Fuentes`. Va al historial como el resto del
+   texto. El aviso de `pause_turn` que ya hay se queda.
+3. **Log:** la línea `narrador:` añade el motivo de parada (`stop=end_turn`, `stop=max_tokens`…). Sigue sin consultas ni URLs
+   (D59).
+4. **`buscaweb._consultadas`:** una por dominio (con `_dominio`, el mismo `www.` fuera). Las citadas no cambian (S5).
+5. **Normativa:** copia tal cual `docs/fase11/normativas/test_fase11_r2.py` a `tests/test_fase11_r2.py` (R6-R8; ahora fallan
+   las tres por lo que deben). Las de antes, en verde.
+6. **`deploy/PASOS-CON-SUDO.md` §6:** una línea para quien quiera fijarlo a mano en `/etc/klothulhu/klothulhu.env`; si no
+   está, vale el defecto.
+
+**A2 (lo decide Josem):** repetir en el servidor de pruebas la pregunta de Gijón (≈ $0,02) para ver `stop=end_turn` y la
+respuesta entera. No lo hagas hasta que él diga «sí» en tu ventana.
+
+## Para el programador
+
+Responde a: 6b6dc94. R2 de §7 (D62), con la normativa nueva y las de siempre en verde. Anexo 3 al informe y para. A2 solo
+con el «sí» de Josem en tu ventana.
