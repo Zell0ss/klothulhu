@@ -221,3 +221,40 @@ Ninguna.
 
 Ninguna. Sigue pendiente el despliegue de Josem (`deploy/PASOS-CON-SUDO.md` §6) y los K1–K6; con R1, en K1/K2 una búsqueda
 correcta debería dar siempre una línea, `fuentes:` o `consultado:`.
+
+---
+
+## Anexo 3 · Retoque R2: tope de tokens con búsqueda y respuesta nunca a medias (D62)
+
+Responde a: 72cbd76 (`H1-revision.md` §7)
+
+### Hecho
+
+R2 tal como lo pide §7, en `5f768d7`:
+
+- **`app.py`:** `MAX_TOKENS_BUSQUEDA` (`KLOTHULHU_MAX_TOKENS_BUSQUEDA`, 3072 por defecto). `_model_stream` lo usa cuando lleva
+  `tools`; sin cuota sigue con `MAX_TOKENS` (1024).
+- **Parada a medias:** con `stop_reason` `max_tokens` o `pause_turn` cede `buscaweb.CORTADA` como último texto, antes de
+  `Fuentes`: `" [confused] Los grimorios me han dejado sin aliento, mortal: pregúntamelo otra vez."` (con su etiqueta, entra al
+  historial como el resto del texto). El aviso de `pause_turn` se queda.
+- **Log:** la línea `narrador:` termina con `stop=<motivo>`; sigue sin consultas ni URLs.
+- **`buscaweb._consultadas`:** una por dominio (`_dominio`, sin `www.`). `fuentes()` (citadas) no cambia.
+- **`deploy/PASOS-CON-SUDO.md` §6:** una línea sobre `KLOTHULHU_MAX_TOKENS_BUSQUEDA` (opcional).
+- **Normativa:** `tests/test_fase11_r2.py` (R6–R8), copia idéntica a `docs/fase11/normativas/` (`cmp`). Mía, en
+  `test_fase11_sdk.py`: con el SDK 1.15 real y un transporte de mentira, la petición lleva `max_tokens` = 3072 y un
+  `stop_reason: max_tokens` real acaba en `CORTADA`, con `stop=max_tokens` en el log y sin consulta ni URL.
+
+Pruebas: pytest 149 passed / 8 skipped, `ruff` limpio, escritorio 105/105, web 31/31. Los clientes no cambian.
+
+### Gasto
+
+0. No hubo llamadas reales. **A2 no se ha hecho:** espera el «sí» de Josem en mi ventana.
+
+### Desviaciones
+
+Ninguna. El texto de `CORTADA` es el que propuse (el que da el ejemplo de §7).
+
+### Decisiones que necesito
+
+1. **A2 [API]** (repetir la pregunta de Gijón en el servidor de pruebas, ≈ $0,02): solo con el «sí» de Josem. Tras el despliegue
+   de R2, hace falta reiniciar `klothulhu-api.service` (de Josem) para que el tope nuevo rija en producción.
