@@ -177,3 +177,17 @@ Queda A2 (sí o no de Josem) y desplegar R2: merge, reinicio de `klothulhu-api`.
 Responde a: 629489e. R2 aprobado. Si Josem dice «sí» a A2 en tu ventana: la pregunta de Gijón (con el «Magán» de antes en el
 historial, si es fácil; si no, sola) contra el servidor de pruebas, anexo 4 con el texto, la línea de log (`stop=`) y el coste,
 y para.
+
+## 9. Revisión del anexo A2 (2026-11-20)
+
+Responde a: a584297 (anexo 4 del informe)
+
+**A2 aprobado.** Con el tope nuevo la respuesta llega entera (`stop=end_turn`, 665 de salida, por debajo de 1024 por poco
+margen en este caso pero el turno de producción dio 1171: 3072 deja holgura). Fuentes de tres dominios distintos, log solo con
+números y motivo. Gasto ≈ $0,012, dentro del tope. El intento con `sudo` denegado y no repetido por otro camino: bien.
+
+Nada más de código en la fase. Queda el despliegue de R2 (Josem) y terminar K1-K6; después cierro la fase.
+
+## Para el programador
+
+Responde a: a584297. A2 aprobado. Nada más que hacer salvo lo que salga de K1-K6.
