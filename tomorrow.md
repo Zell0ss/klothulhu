@@ -6,8 +6,9 @@
 limpio, desktop 105/105, web 31/31. Normativas de la fase (incl. `test_fase11_r2.py`) copiadas tal cual (`cmp`). Gasto de R2: 0.
 Rama `fase11`, worktree `/data/klothulhu-fase11` con `.venv` propio (sin `node_modules`: no hace falta).
 
-**Siguiente paso:** mirar el buzón (`docs/fase11/`). **A2 [API]** (la pregunta de Gijón en el servidor de pruebas, ≈ $0,02) solo con el «sí»
-de Josem en mi ventana; la clave, solo la línea `ANTHROPIC_API_KEY` del env de producción, sin imprimirla. Para Josem: reiniciar
+**A2 [API] hecha** (Josem: «Si, dale»; Anexo 4 del informe): `stop=end_turn`, respuesta entera, 3 consultadas de 3 dominios, ≈ $0,0118. La clave
+se lee de `/etc/klothulhu/klothulhu.env` (legible sin sudo; solo la línea `ANTHROPIC_API_KEY`, sin imprimirla).
+**Siguiente paso:** mirar el buzón (`docs/fase11/`); R2 está aprobado (`67762bb`). Para Josem: reiniciar
 `klothulhu-api.service` tras mergear R2 (`--ff-only` de `fase11`); en producción hasta entonces rige el tope de 1024. Después, lo que salga de K1-K6.
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree lo decide Josem.
 
