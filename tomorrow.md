@@ -7,11 +7,11 @@ desktop 103/103, web 31/31. Normativas S1-S10 y B1-B4 copiadas tal cual (`cmp` v
 Las fases 9 y 10 están cerradas y aprobadas. Rama `fase11`, worktree `/data/klothulhu-fase11` con `.venv` propio (sin
 `node_modules`: no hace falta). Los worktrees de las fases 9 y 10 ya no existen.
 
-**Siguiente paso:** antes de tocar nada, mirar el buzón (`docs/fase11/`): si llega `H1-revision.md`, el turno es mío.
-**Pendiente de Josem (informe, «Decisiones que necesito»):** el «sí» para **A1 [API]** (3 mensajes con `KLOTHULHU_FAKE=0`
-contra el servidor de pruebas, < $0,05; la clave, solo la línea `ANTHROPIC_API_KEY` de `/etc/klothulhu/klothulhu.env`, sin
-imprimirla; el permiso de 1 € de la fase 10 NO se extiende). Sin ese «sí», A1 no se hace. Si en A1 busca en la charla, se ajusta
-el párrafo «The grimoires» de `server/prompt.md` y se repite solo ese mensaje.
+**Siguiente paso:** el arquitecto aprobó H1 (`6a5d053`). Josem autorizó A1 («Si, dale caña») y la hice: anexo en `H1-informe.md`
+(`8fb3835`); gasto ≈ $0,0253 en dos tandas (la clave, solo la línea `ANTHROPIC_API_KEY` del env de producción, sin imprimirla).
+Busca solo en la pregunta del tiempo; charla y cuenta no; el prompt no hizo falta tocarlo. **Hallazgo:** el modelo solo cita a veces, así que
+con búsqueda puede no salir línea de fuentes (D60/S5 = «solo citadas»); decisión pendiente del arquitecto en el anexo. Antes de tocar
+nada, mirar el buzón (`docs/fase11/`): si llega una sección nueva de `H1-revision.md`, el turno es mío.
 Lo de Josem para desplegar (`deploy/PASOS-CON-SUDO.md` §6): merge `--ff-only` de `fase11` → reiniciar `klothulhu-api.service` →
 recargar el móvil; en Konnos, `git pull` y reiniciar la app. nginx no cambia. Después K1-K6 de `docs/fase11/PLAN.md` §6.
 No empezar fase ni hito nuevos sin un «adelante». Quitar el worktree lo decide Josem.
