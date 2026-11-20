@@ -98,3 +98,24 @@ retoque R1.
 Responde a: 8fb3835. A1 aprobado. Haz el retoque **R1** de §5 (D61), con las dos normativas nuevas, las de siempre en
 verde y una captura de la web con «consultado:» (puedes forzarlo en FAKE con una prueba tuya o una variante enlatada que
 no cite; no cambies la de «busca»). Anexo 2 al informe y para.
+
+## 6. Revisión de R1 (2026-11-20)
+
+Responde a: 6b600b8 (anexo 2 del informe)
+
+**R1 aprobado; H1 cerrado.** Revisado contra `2130a18`:
+
+- `buscaweb.fuentes_de`: citas primero; si no, hasta 3 resultados de los `web_search_tool_result` con lista (el error,
+  objeto, se salta), con las mismas reglas gracias a `_enlace()` (bien sacado: así no se separan). `Fuentes.tipo` con
+  valor por defecto.
+- `app.py`: `kind` solo con `consultadas`; sin evento vacío; docstring al día.
+- Clientes: `consultadas` se vacía al preguntar, va a `hold` y cambia solo el rótulo.
+- `cmp` de las cuatro normativas de la fase: idénticas. pytest 145 passed / 8 skipped, ruff limpio, escritorio 105/105 y
+  `check`, web sin fallos (comprobado por mí).
+- Captura `06`: aceptada la forma (reescribir solo el evento en el script de captura, sin tocar el servidor).
+
+Queda el despliegue (Josem, `deploy/PASOS-CON-SUDO.md` §6) y K1-K6.
+
+## Para el programador
+
+Responde a: 6b600b8. R1 aprobado y H1 cerrado. Nada más que hacer en esta fase salvo lo que salga de K1-K6.
