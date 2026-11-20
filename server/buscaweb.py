@@ -23,6 +23,7 @@ TOOL_TYPE = "web_search_20250305"  # la versión básica: sin filtrado dinámico
 MAX_USES = 2  # búsquedas por mensaje
 TOPE_DIA = 30  # búsquedas por día (D58)
 MAX_FUENTES = 5
+MAX_CONSULTADAS = 3  # si el modelo no cita nada, los primeros resultados que consultó (D61)
 TITULO_MAX = 80
 ZONA = ZoneInfo("Europe/Madrid")
 
@@ -83,9 +84,11 @@ BUSCANDO = _Buscando()
 
 @dataclass
 class Fuentes:
-    """Los enlaces citados, siempre el último elemento de lo que cede el narrador."""
+    """Los enlaces, siempre el último elemento de lo que cede el narrador. ``tipo``: ``"citadas"`` (lo que
+    el modelo citó, D60) o ``"consultadas"`` (lo que leyó, cuando no citó nada, D61)."""
 
     items: list[dict] = field(default_factory=list)
+    tipo: str = "citadas"
 
 
 class Traductor:
@@ -140,6 +143,16 @@ def _segura(url) -> bool:
     return partes.scheme in ("http", "https") and bool(partes.hostname)
 
 
+def _enlace(url, titulo) -> dict | None:
+    """El enlace que se enseña, o None si la URL no es http(s)."""
+    if not _segura(url):
+        return None
+    titulo = re.sub(r"\s+", " ", titulo if isinstance(titulo, str) else "").strip() or _dominio(url)
+    if len(titulo) > TITULO_MAX:
+        titulo = titulo[: TITULO_MAX - 1].rstrip() + "…"
+    return {"title": titulo, "url": url}
+
+
 def fuentes(content: list[dict]) -> list[dict]:
     """Los enlaces que el modelo citó en sus bloques de texto, en orden, sin repetir y como mucho
     ``MAX_FUENTES``. Un resultado que recibió y no usó no se enseña (D60)."""
@@ -152,13 +165,42 @@ def fuentes(content: list[dict]) -> list[dict]:
             if cita.get("type") != "web_search_result_location":
                 continue
             url = cita.get("url")
-            if not _segura(url) or url in vistas:
+            if url in vistas:
+                continue
+            enlace = _enlace(url, cita.get("title"))
+            if enlace is None:
                 continue
             vistas.add(url)
-            titulo = re.sub(r"\s+", " ", cita.get("title") or "").strip() or _dominio(url)
-            if len(titulo) > TITULO_MAX:
-                titulo = titulo[: TITULO_MAX - 1].rstrip() + "…"
-            salida.append({"title": titulo, "url": url})
+            salida.append(enlace)
             if len(salida) == MAX_FUENTES:
                 return salida
     return salida
+
+
+def _consultadas(content: list[dict]) -> list[dict]:
+    salida: list[dict] = []
+    vistas: set[str] = set()
+    for bloque in content:
+        resultados = bloque.get("content") if bloque.get("type") == "web_search_tool_result" else None
+        if not isinstance(resultados, list):  # un error de búsqueda llega como objeto: se salta
+            continue
+        for r in resultados:
+            if not isinstance(r, dict) or r.get("url") in vistas:
+                continue
+            enlace = _enlace(r.get("url"), r.get("title"))
+            if enlace is None:
+                continue
+            vistas.add(r["url"])
+            salida.append(enlace)
+            if len(salida) == MAX_CONSULTADAS:
+                return salida
+    return salida
+
+
+def fuentes_de(content: list[dict]) -> Fuentes:
+    """Lo que se enseña bajo la respuesta: lo citado y, si no hay citas, los primeros resultados que
+    consultó (D61: el modelo cita poco cuando resume). Sin búsqueda, vacío."""
+    citadas = fuentes(content)
+    if citadas:
+        return Fuentes(citadas, "citadas")
+    return Fuentes(_consultadas(content), "consultadas")

@@ -48,8 +48,8 @@ test('X2 los dos clientes usan fuentes en el orden bueno', () => {
   for (const src of [read(DESKTOP, 'renderer', 'index.html'), read(DESKTOP, '..', 'web', 'app.js')]) {
     // el aviso solo pinta si se está esperando; las fuentes se vacían al preguntar y entran al historial con hold
     assert.match(src, /type === 'searching'\) \{[^}]*phase === 'thinking'\) play\(\{ kind: 'searching'/);
-    assert.match(src, /fuentes = \[\]; (awaiting = true|setAwaiting\(true\))/);
-    assert.match(src, /convo\.hold\(reply, fuentes\)/);
+    assert.match(src, /fuentes = \[\]; consultadas = false; (awaiting = true|setAwaiting\(true\))/);
+    assert.match(src, /convo\.hold\(reply, fuentes, consultadas\)/);
     assert.match(src, /textContent = s\.host/);
   }
   assert.match(read(DESKTOP, 'renderer', 'index.html'), /kl\.openExternal\(s\.url\)/);

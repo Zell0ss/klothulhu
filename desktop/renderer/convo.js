@@ -16,15 +16,18 @@
     // se llevaría la mirada mientras la escena va por la primera frase.
     let pending = null;
 
-    function push(role, t, sources) {
+    function push(role, t, sources, consultadas) {
       const entry = { role, text: t };
-      if (sources) entry.sources = sources;   // D60: solo si las hay
+      if (sources) {   // D60: solo si las hay
+        entry.sources = sources;
+        if (consultadas) entry.consultadas = true;   // D61: leídas, no citadas
+      }
       list.push(entry);
       if (list.length > max) list = list.slice(list.length - max);
     }
     function flush() {
       if (pending === null) return false;
-      push('klothulhu', pending.text, pending.sources);
+      push('klothulhu', pending.text, pending.sources, pending.consultadas);
       pending = null;
       return true;
     }
@@ -39,12 +42,14 @@
         push(role, t);
       },
       // `sources`: los enlaces que citó al buscar en la web (D60); ya normalizados por KlFuentes.
-      hold(text, sources) {
+      // `consultadas` (D61): verdadero si no las citó y son lo que leyó.
+      hold(text, sources, consultadas) {
         if (typeof text !== 'string') return;
         const t = text.trim();
         if (!t) return;
         flush();   // un pendiente anterior no se pierde
-        pending = { text: t, sources: Array.isArray(sources) && sources.length ? sources.map((s) => ({ ...s })) : null };
+        const hay = Array.isArray(sources) && sources.length;
+        pending = { text: t, sources: hay ? sources.map((s) => ({ ...s })) : null, consultadas: Boolean(hay && consultadas) };
       },
       release() { return flush(); },
       clear() { list = []; pending = null; },

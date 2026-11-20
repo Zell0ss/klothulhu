@@ -86,3 +86,23 @@ def test_el_narrador_lee_la_respuesta_con_busqueda_del_sdk_real(monkeypatch, cap
     assert isinstance(out[-1], buscaweb.Fuentes) and out[-1].items == [{"title": "AEMET", "url": URL}]
     assert cuota.quedan() == 29
     assert CONSULTA not in caplog.text and URL not in caplog.text
+
+
+def test_sin_citas_el_sdk_real_deja_lo_consultado(monkeypatch, caplog):
+    """R1 (D61): la misma respuesta sin citas: salen los resultados que leyó, como consultadas."""
+    eventos = [e for e in _respuesta() if e.get("delta", {}).get("type") != "citations_delta"]
+    cliente = AsyncAnthropic(api_key="x", max_retries=0, http_client=httpx2.AsyncClient(
+        transport=httpx2.MockTransport(lambda r: httpx2.Response(
+            200, content=_sse(eventos), headers={"content-type": "text/event-stream"}))))
+    monkeypatch.setattr(app, "_anthropic", cliente)
+    monkeypatch.setattr(app, "_cuota", buscaweb.Cuota(30))
+    app.history.clear("fase11-sdk2")
+    caplog.set_level(logging.DEBUG)
+
+    async def collect():
+        return [x async for x in app._model_stream("fase11-sdk2", "¿Llueve mañana?", app.SYSTEM_PROMPT)]
+
+    ultimo = asyncio.run(collect())[-1]
+    assert isinstance(ultimo, buscaweb.Fuentes) and ultimo.tipo == "consultadas"
+    assert ultimo.items == [{"title": "AEMET", "url": URL}]
+    assert CONSULTA not in caplog.text and URL not in caplog.text

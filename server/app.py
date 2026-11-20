@@ -5,9 +5,11 @@ One endpoint streams a reply as Server-Sent Events with this contract:
     event: emotion  data: {"emotion": "happy"}      always first, may repeat
     event: delta    data: {"text": "..."}           text chunks, tags removed
     event: searching  data: {}                      the narrator launched a web search (D58); may repeat
-    event: sources    data: {"items": [{"title": "...", "url": "https://..."}]}
+    event: sources    data: {"items": [{"title": "...", "url": "https://..."}], "kind": "consultadas"}
                                                     once, after the text and before the scenes, only if it
-                                                    cited something (D60); the history never keeps it (D59)
+                                                    cited something (D60) or, with no citations, read
+                                                    something (D61: then "kind" is there; with citations it
+                                                    is not); the history never keeps it (D59)
     event: scene    data: {"index": 0, "total": 2, "emotion": "smug", "caption": "...", "scene": {...} | null}
     event: done     data: {"turns": 3}              reply finished and stored
     event: error    data: {"code": "upstream_error"}
@@ -388,7 +390,10 @@ async def _reply(
             for line in emit(parser.flush()):
                 yield line
             if fuentes is not None and fuentes.items:
-                yield _sse("sources", {"items": fuentes.items})  # antes de las escenas (D60)
+                datos = {"items": fuentes.items}
+                if fuentes.tipo == "consultadas":
+                    datos["kind"] = "consultadas"  # D61
+                yield _sse("sources", datos)  # antes de las escenas (D60)
         except Exception:  # noqa: BLE001 - any upstream failure becomes an event
             log.exception("generation failed for %s", cid)
             yield _sse("error", {"code": "upstream_error"})
@@ -496,7 +501,7 @@ async def _model_stream(cid: str, content: str | list, system) -> AsyncIterator[
     # D42, D59: solo números. Ni la consulta, ni las URLs, ni los resultados.
     log.info("narrador: %d búsquedas, quedan %d hoy, tokens %s entrada / %s salida", hechas, _cuota.quedan(),
              getattr(uso, "input_tokens", "?"), getattr(uso, "output_tokens", "?"))
-    yield buscaweb.Fuentes(buscaweb.fuentes([b.model_dump() for b in final.content]))
+    yield buscaweb.fuentes_de([b.model_dump() for b in final.content])
 
 
 _FAKE_REPLIES = [
