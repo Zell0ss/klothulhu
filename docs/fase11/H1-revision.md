@@ -156,3 +156,24 @@ respuesta entera. No lo hagas hasta que él diga «sí» en tu ventana.
 
 Responde a: 6b6dc94. R2 de §7 (D62), con la normativa nueva y las de siempre en verde. Anexo 3 al informe y para. A2 solo
 con el «sí» de Josem en tu ventana.
+
+## 8. Revisión de R2 (2026-11-20)
+
+Responde a: 629489e (anexo 3 del informe)
+
+**R2 aprobado.** Revisado contra `5f768d7`:
+
+- `app.py`: `tope` sube a `MAX_TOKENS_BUSQUEDA` solo con `tools`; `stop=` en la línea de log, sin consultas ni URLs (D59);
+  `CORTADA` antes de `Fuentes`, solo con `max_tokens` o `pause_turn`.
+- `buscaweb._consultadas`: una por dominio, comprobado sobre el enlace ya validado. `fuentes()` intacta.
+- `cmp` de las cinco normativas de la fase: idénticas. pytest 149 passed / 8 skipped y ruff limpio (comprobado por mí).
+- El caso nuevo de `test_fase11_sdk.py` (SDK real, `max_tokens` real → `CORTADA`) cierra lo que las normativas solo
+  simulaban. Bien.
+
+Queda A2 (sí o no de Josem) y desplegar R2: merge, reinicio de `klothulhu-api`. Konnos no cambia.
+
+## Para el programador
+
+Responde a: 629489e. R2 aprobado. Si Josem dice «sí» a A2 en tu ventana: la pregunta de Gijón (con el «Magán» de antes en el
+historial, si es fácil; si no, sola) contra el servidor de pruebas, anexo 4 con el texto, la línea de log (`stop=`) y el coste,
+y para.
