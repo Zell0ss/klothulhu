@@ -1,10 +1,11 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 12, H1 aprobado y **R1 (D68) hecho e informado** (código `9743c9f`, Anexo 1 de `docs/fase12/H1-informe.md`).
-El turno es del arquitecto. Gasto 0. Rama `fase12`, worktree `/data/klothulhu-fase12` con `.venv` propio. Pruebas: pytest
+**Parada:** fase 12, **H1 cerrado**: R1 (D68, `9743c9f`) aprobado en `docs/fase12/H1-revision.md` §5 (`8dc38f3`). Nada que
+hacer por mi parte: le toca a Josem. Gasto 0. Rama `fase12`, worktree `/data/klothulhu-fase12` con `.venv` propio. Pruebas: pytest
 151 passed (8 skipped), `ruff` limpio, desktop 114/114, web 35/35.
 
-**Siguiente paso:** mirar el buzón (`docs/fase12/`). Para Josem: desplegar H1 (merge `--ff-only`, reinicio de
+**Siguiente paso:** mirar el buzón (`docs/fase12/`): lo que salga de K1-K6 llegará como retoque en una sección nueva de
+esa revisión. Para Josem: desplegar H1 (merge `--ff-only`, reinicio de
 `klothulhu-api.service`, recargar el móvil; Konnos `git pull`, y ojo: `origin/main` iba por detrás de `main`) y probar K1-K6.
 H2 (resumen, D67) solo con su encargo, que el arquitecto escribe tras esas pruebas, y un «adelante». De la fase 11 solo queda
 lo que salga de sus K1-K6. Quitar worktrees (`fase11`, `fase12`) lo decide Josem.
