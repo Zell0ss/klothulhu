@@ -1,13 +1,13 @@
 # tomorrow.md — klothulhu
 
-**Parada:** fase 12, H1 (caja grande y copiar la conversación, D63-D66) **hecho e informado** (`docs/fase12/H1-informe.md`;
-código `4fff433` y `9998ca5`). El turno es del arquitecto. Gasto 0. Rama `fase12`, worktree `/data/klothulhu-fase12` con
-`.venv` propio. Pruebas: pytest 151 passed (8 skipped), `ruff` limpio, desktop 114/114, web 31/31.
+**Parada:** fase 12, H1 aprobado y **R1 (D68) hecho e informado** (código `9743c9f`, Anexo 1 de `docs/fase12/H1-informe.md`).
+El turno es del arquitecto. Gasto 0. Rama `fase12`, worktree `/data/klothulhu-fase12` con `.venv` propio. Pruebas: pytest
+151 passed (8 skipped), `ruff` limpio, desktop 114/114, web 35/35.
 
-**Siguiente paso:** mirar el buzón (`docs/fase12/`). Decisión abierta en el informe: que el historial del móvil siga pegado al
-final cuando la caja crece (si sale que sí, ~4 líneas en `ajustarCaja` de `web/app.js`). Después, despliegue (Josem) y K1-K6;
-H2 (resumen, D67) solo con su encargo y un «adelante». De la fase 11 solo queda lo que salga de sus K1-K6.
-Quitar worktrees (`fase11`, `fase12`) lo decide Josem.
+**Siguiente paso:** mirar el buzón (`docs/fase12/`). Para Josem: desplegar H1 (merge `--ff-only`, reinicio de
+`klothulhu-api.service`, recargar el móvil; Konnos `git pull`, y ojo: `origin/main` iba por detrás de `main`) y probar K1-K6.
+H2 (resumen, D67) solo con su encargo, que el arquitecto escribe tras esas pruebas, y un «adelante». De la fase 11 solo queda
+lo que salga de sus K1-K6. Quitar worktrees (`fase11`, `fase12`) lo decide Josem.
 
 **Gotchas:**
 - `/data/klothulhu` está en `main`; trabajo en el worktree de la fase en curso. Config sin versionar: copiar, no symlink.
