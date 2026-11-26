@@ -98,7 +98,7 @@ def test_I5_chat_entrada():
         assert isinstance(r, StreamingResponse)
         asyncio.run(r.body_iterator.aclose())
     with pytest.raises(Exception):
-        app.ChatIn(text="x" * 1001)  # el tope de texto sigue
+        app.ChatIn(text="x" * 4001)  # D65 (fase 12) sube el tope de 1000 a 4000
 
 
 # --- la respuesta con imagen (D56, D57) -----------------------------------------------------------------

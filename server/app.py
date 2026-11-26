@@ -283,7 +283,7 @@ class ImagenIn(BaseModel):
 
 
 class ChatIn(BaseModel):
-    text: str = Field(default="", max_length=1000)  # vacío solo si hay imagen (lo mira chat())
+    text: str = Field(default="", max_length=4000)  # D65; vacío solo si hay imagen (lo mira chat())
     image: ImagenIn | None = None
 
 
