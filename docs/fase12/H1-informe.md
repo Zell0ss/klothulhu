@@ -99,3 +99,40 @@ Merge `--ff-only`, reinicio de `klothulhu-api.service`, recargar el móvil y, en
 Al empezar la sesión, `origin/main` iba 23 commits por detrás de `main`: si Konnos tira de `main`, falta subirlo.
 
 No probado: Windows real (click-through y escalado), el portapapeles y el teclado de un móvil real, iOS.
+
+## Anexo 1 — R1 (D68): el historial sigue al final (2026-11-26)
+
+Responde a: 9daca35 (H1-revision)
+
+**Hecho**, commit `9743c9f`, solo en la web:
+
+- `webcore.js`: `estabaAlFinal({ scrollTop, scrollHeight, clientHeight }, margen = 3)`, pura, con prueba en
+  `web/test/fase12-extra.test.js` (vista fallar antes).
+- `app.js`: `ajustarCaja()` envuelve la medida de siempre (`medirCaja()`): al final → sigue al final; si no, deja la
+  posición que había. La condición se anota en cada `scroll` del historial y no justo antes del cambio, porque al abrirse
+  el teclado el historial ya ha encogido cuando llega `resize`. `renderHistory()`, que ya bajaba al final, la pone a
+  verdadero.
+
+Comprobado en Chrome sin pantalla, página por `http`, con historial largo a 360×640. Antes del cambio, 8 comprobaciones
+fallaban (66 px tapados con 4 líneas, 308 ampliada, 286 con el teclado, 309 girado); ahora las 17 pasan:
+
+| Estando… | Cambio | Resultado |
+|---|---|---|
+| al final | 4 líneas, ⤢, reducir, abrir y cerrar teclado (alto 420), girar y volver | sigue al final |
+| subido (`scrollTop` 40) | 4 líneas, ⤢, reducir, teclado | no se mueve |
+| a 30 px del final, con 5 líneas | seguir escribiendo | no se mueve |
+| subido | enviar | baja al final, también al llegar la respuesta (como antes) |
+| subido, y luego «Olvidar» | charla nueva que cabe entera y 6 líneas | sigue al final |
+
+La última fila no estaba en la revisión: con una charla que aún cabe no hay evento `scroll`, y de ahí la línea de
+`renderHistory()`.
+
+Capturas en `docs/fase12/capturas/`: `r1-al-final-4-lineas-360`, `r1-al-final-ampliada-360` (a 360×640, ampliada, del
+historial queda a la vista solo la última línea, 39 px) y `r1-subido-escribiendo-360`.
+
+Pruebas: pytest 151 passed / 8 skipped, ruff limpio, desktop 114/114, web 35/35, `npm run check` en los dos; normativas
+de la fase idénticas (`cmp`). Repetidas las comprobaciones a 360 y 390 px del informe, sin fallos.
+
+**Gasto:** 0. **Desviaciones:** ninguna. **Decisiones que necesito:** ninguna.
+
+Paro aquí. H2 espera su encargo.
