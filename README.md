@@ -97,9 +97,12 @@ scenes play in turn, each for as long as it takes to read it. `config.json`
 accepts `look` (default `"pixel"`; an unknown value falls back to `pixel`, see
 `VOCAB.looks` in the engine).
 
-- Click on klothulhu (or `Ctrl+Alt+K`) to open the input, `Enter` to send, `Esc` to close.
+- Click on klothulhu (or `Ctrl+Alt+K`) to open the input, `Enter` to send (`Shift+Enter` for a new line),
+  `Esc` to close. The box grows up to six lines; `⤢` makes it cover the scene.
+- The `📋` in the history panel copies the whole conversation as Markdown. On the phone (web client),
+  `Enter` is a new line and `➤` sends.
 - Drag him anywhere. The whole strip is interactive; clicks outside it go through to the desktop.
-- The 📋 button copies the whole reply; the ✕ button quits the app.
+- The 📋 button on the scene copies the whole last reply; the ✕ button quits the app.
 - Tray icon: show/hide, talk, forget conversation, quit.
 - Desktop shortcut on Windows: run `desktop/create-shortcut.ps` from `desktop/`
   (uses `klothulhu.ico`).

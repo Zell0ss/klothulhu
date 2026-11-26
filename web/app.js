@@ -4,8 +4,9 @@
 // normativas de las fases 1, 5 y 6 leen el texto de index.html y no se editan; extraerlo es deuda (D50).
 // Lo que cambia respecto al escritorio, y solo eso: la geometría sale de la pantalla (webGeometry), el
 // anfitrión es `host` (KlHost) y no `kl`, el historial y la entrada están siempre visibles, y desaparecen
-// lo de ventana (tamaños, arrastrar, click-through, copiar, cerrar, debug), y que el estilo del motor se elige
-// en la barra (D51) en vez de venir de la configuración.
+// lo de ventana (tamaños, arrastrar, click-through, el 📋 de la escena, cerrar, debug), y que el estilo del motor
+// se elige en la barra (D51) en vez de venir de la configuración. Cambian Enter (D64), cuánto mide la caja
+// ampliada (D63) y cómo se copia la conversación (D66).
 //
 // Va en una función para no chocar con los globales de sse-client.js (`forget`, `streamChat`…), que como
 // <script> clásico quedan en el ámbito global.
@@ -14,10 +15,11 @@
 const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
-const { createConvo } = window.KlConvo;
+const { createConvo, toMarkdown } = window.KlConvo;
 const { reducir, paraHistorial } = window.KlImagen;   // D56
 const { avatarOptions, AVATARS } = window.KlAvatar;
 const { webGeometry, webBoot, LOOK_KEY, pickLook } = window.KlWebCore;
+const { teclaEnter, altoCaja } = window.KlEntrada;   // D63, D64
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -27,6 +29,9 @@ const stage = document.getElementById('stage');
 const sceneImg = document.getElementById('scene');
 const input = document.getElementById('ask');
 const sendBtn = document.getElementById('sendBtn');
+const entry = document.getElementById('entry');
+const growBtn = document.getElementById('growBtn');
+const copyAllBtn = document.getElementById('copyAllBtn');
 const historyPanel = document.getElementById('history');
 const forgetBtn = document.getElementById('forgetBtn');
 const photoBtn = document.getElementById('photoBtn');
@@ -196,7 +201,9 @@ function sourcesLine(sources, consultadas) {
 }
 
 function renderHistory() {
-  historyPanel.replaceChildren(...convo.entries().map((e) => {
+  const entradas = convo.entries();
+  copyAllBtn.disabled = !entradas.length;   // D66
+  historyPanel.replaceChildren(...entradas.map((e) => {
     const turn = document.createElement('div');
     turn.className = 'turn';
     const who = document.createElement('span');
@@ -210,6 +217,41 @@ function renderHistory() {
   }));
   historyPanel.scrollTop = historyPanel.scrollHeight;
 }
+
+// --- copiar la conversación (D66) ---
+
+// :5757 va por http: sin contexto seguro no hay navigator.clipboard. El plan B de la agora: un textarea oculto.
+function copiarPlanB(texto) {
+  const area = document.createElement('textarea');
+  area.className = 'copia-oculta';
+  area.readOnly = true;   // que no se abra el teclado
+  area.value = texto;
+  document.body.append(area);
+  area.select();
+  area.setSelectionRange(0, texto.length);   // iOS no hace caso a select() solo
+  let ok = false;
+  try { ok = document.execCommand('copy'); } catch { ok = false; }
+  area.remove();
+  return ok;
+}
+
+async function copiar(texto) {
+  if (window.isSecureContext && navigator.clipboard) {
+    try { await navigator.clipboard.writeText(texto); return true; } catch { /* queda el plan B */ }
+  }
+  return copiarPlanB(texto);
+}
+
+copyAllBtn.addEventListener('click', async () => {
+  // `sv-SE` da la fecha local como AAAA-MM-DD.
+  const md = toMarkdown(convo.entries(), { fecha: new Date().toLocaleDateString('sv-SE') });
+  if (!md) return;
+  const ok = await copiar(md);
+  copyAllBtn.classList.toggle('copied', ok);
+  copyAllBtn.textContent = ok ? '✅' : '✕';
+  clearTimeout(copyAllBtn._resetT);
+  copyAllBtn._resetT = setTimeout(() => { copyAllBtn.classList.remove('copied'); copyAllBtn.textContent = '📋'; }, 1200);
+});
 
 // `image`: { media_type, data } o null (D56). El historial local guarda solo el texto, con 📷 si había imagen.
 function ask(text, image) {
@@ -282,6 +324,7 @@ function applyGeomIfStill() {
 }
 
 window.addEventListener('resize', applyGeomIfStill);
+window.addEventListener('resize', () => ajustarCaja());   // D63: al girar cambia el ancho de la caja
 window.addEventListener('orientationchange', applyGeomIfStill);
 
 // --- avatar (D49): vale desde la escena siguiente; con klothulhu parado, se repinta la que hay ---
@@ -359,6 +402,34 @@ forgetBtn.addEventListener('click', () => {
   if (window.confirm('¿Olvidar toda la conversación? También se borra en Konnos.')) host.forget();
 });
 
+// --- la caja (D63): crece sola de 1 a 6 líneas; con ⤢, hasta el 55 % de la pantalla ---
+
+const ampliada = () => growBtn.getAttribute('aria-pressed') === 'true';
+
+function ajustarCaja() {
+  if (ampliada()) { input.style.height = ''; return; }   // manda la hoja de estilos (55dvh o lo que quepa), con scroll
+  input.style.height = 'auto';
+  const css = getComputedStyle(input);
+  const alto = altoCaja({
+    scrollHeight: input.scrollHeight,
+    linea: parseFloat(css.lineHeight),
+    relleno: parseFloat(css.paddingTop) + parseFloat(css.paddingBottom),
+  });
+  input.style.height = `${alto + input.offsetHeight - input.clientHeight}px`;   // más el borde
+}
+
+function ampliar(on) {
+  growBtn.setAttribute('aria-pressed', String(on));
+  growBtn.title = on ? 'Reducir la caja' : 'Ampliar';
+  growBtn.setAttribute('aria-label', on ? 'Reducir la caja' : 'Ampliar la caja');
+  entry.classList.toggle('grande', on);
+  ajustarCaja();
+}
+
+input.addEventListener('input', ajustarCaja);
+growBtn.addEventListener('mousedown', (e) => e.preventDefault());   // ni quita el foco ni cierra el teclado
+growBtn.addEventListener('click', () => ampliar(!ampliada()));
+
 // --- imagen pendiente (D56): una sola; elegir otra sustituye a la anterior ---
 
 let pending = null;      // { media_type, data, vista } o null
@@ -368,6 +439,7 @@ function setPending(p) {
   pending = p;
   thumb.hidden = !p;
   if (p) thumbImg.src = p.vista; else thumbImg.removeAttribute('src');
+  ajustarCaja();   // la miniatura le quita ancho
 }
 
 async function attach(file) {
@@ -407,10 +479,15 @@ function submit() {
   ask(text, image);
   input.value = '';
   setPending(null);
+  ampliar(false);   // D63: vuelve a una línea y sin ampliar
   input.blur();   // cierra el teclado: la respuesta se lee en la franja
 }
 
-input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
+input.addEventListener('keydown', (e) => {
+  if (teclaEnter(e, 'movil') !== 'enviar') return;   // Enter solo salta de línea; se envía con ➤ (D64)
+  e.preventDefault();
+  submit();
+});
 sendBtn.addEventListener('click', submit);
 
 // --- boot -------------------------------------------------------------------

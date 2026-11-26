@@ -59,5 +59,21 @@
     };
   }
 
-  return { createConvo };
+  // Copiar la conversación (D66): el Markdown de lo que enseña el panel, o sea las entradas de `entries()`
+  // (la respuesta que aún se lee no está: D54). El texto va tal cual, sin escapar. Sin entradas, ''.
+  function toMarkdown(entries, { fecha } = {}) {
+    if (!entries.length) return '';
+    const out = [fecha ? `# Klothulhu · ${fecha}` : '# Klothulhu', ''];
+    for (const e of entries) {
+      out.push(`**${e.role === 'user' ? 'Tú' : 'Klothulhu'}:** ${e.text}`);
+      if (e.sources) {   // D60, D61
+        const enlaces = e.sources.map((s) => `[${s.host || s.url}](${s.url})`).join(', ');
+        out.push(`${e.consultadas ? 'consultado' : 'fuentes'}: ${enlaces}`);
+      }
+      out.push('');
+    }
+    return out.join('\n');
+  }
+
+  return { createConvo, toMarkdown };
 });

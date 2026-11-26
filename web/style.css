@@ -35,21 +35,52 @@ body { overflow: hidden; -webkit-text-size-adjust: 100%; font: 15px/1.4 ui-monos
   #lookSel { order: 1; flex: 1 1 100%; width: auto; }
 }
 
+/* D66: la cabecera del historial, con hueco para un segundo botón (el resumen de H2). */
+#historyHead {
+  flex: none; display: flex; justify-content: flex-end; gap: 6px; padding: 4px 8px 0;
+  border-top: 1px solid rgba(180, 80, 50, 0.4);
+}
+#copyAllBtn {
+  flex: none; width: 40px; height: 32px; padding: 0; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font-size: 15px; touch-action: manipulation;
+}
+#copyAllBtn.copied { background: #4a7c4e; }
+#copyAllBtn:disabled { opacity: 0.4; }
+/* El plan B de copiar (D66, sin contexto seguro): un textarea que está en la página pero no se ve. */
+.copia-oculta { position: fixed; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; }
+
 #history {
-  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 8px 12px;
-  border-top: 1px solid rgba(180, 80, 50, 0.4); user-select: text; -webkit-user-select: text;
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 4px 12px 8px;
+  user-select: text; -webkit-user-select: text;
 }
 #history .turn { margin: 0 0 10px; white-space: pre-wrap; overflow-wrap: anywhere; }
 #history .who { color: var(--rust); font-weight: bold; }
 #history .sources { margin-top: 2px; font-size: 12px; opacity: 0.85; }
 #history .sources a { color: var(--rust); }
 
-#entry { flex: none; display: flex; gap: 8px; padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); }
-#ask {
-  flex: 1; min-width: 0; height: 44px; padding: 0 12px; border: 2px solid var(--rust); border-radius: 6px;
-  background: var(--box); color: var(--ink); font: inherit; font-size: 16px; /* ≥16 px: iOS no hace zoom al enfocar */ outline: none;
+/* D63: la caja crece dentro de la fila y el historial encoge; los botones se quedan abajo. */
+/* Si no queda alto (teclado abierto), la fila encoge y la caja con ella: ➤ nunca se sale de la pantalla. */
+#entry {
+  flex: 0 1 auto; min-height: calc(60px + env(safe-area-inset-bottom)); display: flex; align-items: flex-end; gap: 6px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
 }
-#ask::placeholder { color: rgba(243, 239, 232, 0.45); }
+/* 9 + 22 + 9 de relleno y línea, más 2 + 2 de borde = 44 px con una línea (KlEntrada.altoCaja pone el alto). */
+#ask {
+  flex: 1; min-width: 0; height: 44px; max-height: 100%; margin: 0; padding: 9px 10px; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font: inherit; font-size: 16px; /* ≥16 px: iOS no hace zoom al enfocar */
+  line-height: 22px; outline: none; resize: none; white-space: pre-wrap; overflow-y: auto;
+}
+#ask::placeholder { color: rgba(243, 239, 232, 0.45); white-space: nowrap; overflow: hidden; }
+/* Con miniatura, a 360 px la caja se queda en ~148 px: el texto de ayuda, algo menor, para que quepa entero. */
+#thumb:not([hidden]) + #ask::placeholder { font-size: 14px; }
+/* Ampliada (⤢): media pantalla larga (55dvh), con scroll; menos si no cabe. */
+#entry.grande { flex-basis: calc(55dvh + 16px + env(safe-area-inset-bottom)); }
+#entry.grande #ask { height: auto; align-self: stretch; }
+#growBtn {
+  flex: none; width: 36px; height: 44px; padding: 0; border: 2px solid var(--rust); border-radius: 6px;
+  background: var(--box); color: var(--ink); font-size: 18px; touch-action: manipulation;
+}
+#growBtn[aria-pressed="true"] { background: var(--rust); }
 /* D56: el 📷 junto a la caja de texto (en la barra no cabe a 360 px: D51). Mismo borde que los botones de la barra. */
 #photoBtn {
   flex: none; width: 44px; height: 44px; padding: 0; border: 2px solid var(--rust); border-radius: 6px;

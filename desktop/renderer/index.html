@@ -9,7 +9,7 @@
   :root { --rust: #b45032; --ink: #f3efe8; --box: rgba(26, 20, 18, 0.9); }
   html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; user-select: none; }
   body { display: flex; flex-direction: row; align-items: flex-start; }
-  #col { display: flex; flex-direction: column; align-items: center; flex: none; }
+  #col { position: relative; display: flex; flex-direction: column; align-items: center; flex: none; height: 100%; }
   #stage { position: relative; flex: none; }
   #scene { display: block; }
   #copyBtn, #closeBtn, #histBtn, #sizeBtn, #photoBtn {
@@ -30,7 +30,11 @@
   #closeBtn { right: 4px; }
   #closeBtn:hover { opacity: 1; background: rgba(200, 60, 60, 0.85); }
   /* D56: la fila de entrada lleva, si hay una imagen pendiente, su miniatura a la izquierda de la caja. */
-  #entry { display: flex; align-items: center; gap: 6px; box-sizing: border-box; width: calc(100% - 16px); margin-top: 6px; }
+  /* D63: la fila va anclada abajo; al crecer, la caja sube sobre la escena y no empuja nada fuera de la ventana
+     (con una línea queda en el mismo sitio: 6 px bajo la escena y 6 px sobre el borde). */
+  /* La fila es transparente y puede tapar la escena: solo sus piezas, y solo abierta, se quedan con el ratón. */
+  #entry { position: absolute; bottom: 6px; left: 8px; display: flex; align-items: flex-end; gap: 6px; box-sizing: border-box; width: calc(100% - 16px); pointer-events: none; }
+  #entry.on > * { pointer-events: auto; }
   #thumb { display: none; position: relative; flex: none; width: 32px; height: 32px; }
   #entry.on #thumb.has { display: block; }
   #thumbImg { display: block; width: 100%; height: 100%; object-fit: cover; border: 2px solid var(--rust); border-radius: 6px; box-sizing: border-box; }
@@ -38,17 +42,36 @@
     position: absolute; top: -4px; right: -4px; width: 16px; height: 16px; padding: 0; border: none; border-radius: 50%;
     background: var(--rust); color: var(--ink); font-size: 9px; line-height: 16px; text-align: center; cursor: pointer;
   }
+  /* D63: un textarea que crece (KlEntrada.altoCaja pone el alto): 5 + 18 + 5 de relleno y línea, más 2 + 2 de borde. */
   #ask {
-    visibility: hidden; box-sizing: border-box; flex: 1; min-width: 0; height: 32px;
-    padding: 0 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
-    font: 13px ui-monospace, Consolas, monospace; outline: none;
+    visibility: hidden; box-sizing: border-box; flex: 1; min-width: 0; height: 32px; margin: 0;
+    padding: 5px 10px; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
+    font: 13px/18px ui-monospace, Consolas, monospace; outline: none;
+    resize: none; white-space: pre-wrap; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--rust) transparent;
   }
   #ask.on { visibility: visible; }
+  #ask::placeholder { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #growBtn {
+    display: none; flex: none; width: 24px; height: 32px; padding: 0; border: 2px solid var(--rust); border-radius: 6px;
+    background: var(--box); color: var(--ink); font-size: 13px; cursor: pointer;
+  }
+  #entry.on #growBtn { display: block; }
+  #growBtn[aria-pressed="true"] { background: var(--rust); }
   #history {
-    display: none; flex: none; box-sizing: border-box; height: 100%; padding: 8px 10px;
-    overflow-y: auto; border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
+    display: none; flex-direction: column; flex: none; box-sizing: border-box; height: 100%;
+    border: 2px solid var(--rust); border-radius: 6px; background: var(--box); color: var(--ink);
     font: 12px/1.4 ui-monospace, Consolas, monospace; user-select: text;
   }
+  /* D66: la cabecera del panel (hueco para el resumen de H2) y, debajo, los turnos, que son lo que hace scroll. */
+  #historyHead { display: flex; flex: none; justify-content: flex-end; gap: 4px; padding: 4px 4px 0; user-select: none; }
+  #copyAllBtn {
+    width: 18px; height: 18px; padding: 0; border: none; border-radius: 4px; background: rgba(180, 80, 50, 0.35);
+    color: var(--ink); font-size: 11px; line-height: 18px; text-align: center; cursor: pointer;
+  }
+  #copyAllBtn:hover { background: rgba(180, 80, 50, 0.8); }
+  #copyAllBtn.copied { background: #4a7c4e; }
+  #copyAllBtn:disabled { opacity: 0.3; cursor: default; background: rgba(180, 80, 50, 0.35); }
+  #turns { flex: 1; min-height: 0; overflow-y: auto; padding: 4px 10px 8px; scrollbar-width: thin; scrollbar-color: var(--rust) transparent; }
   #history .turn { margin: 0 0 8px; white-space: pre-wrap; overflow-wrap: anywhere; }
   #history .who { color: var(--rust); font-weight: bold; }
   #history .sources { margin-top: 2px; font-size: 11px; opacity: 0.85; }
@@ -72,25 +95,33 @@
     <img id="thumbImg" alt="Imagen adjunta" draggable="false">
     <button id="thumbX" type="button" title="Quitar la imagen" aria-label="Quitar la imagen">✕</button>
   </div>
-  <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false">
+  <textarea id="ask" rows="1" maxlength="4000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false"></textarea>
+  <button id="growBtn" type="button" title="Ampliar" aria-label="Ampliar la caja" aria-pressed="false">⤢</button>
 </div>
 </div>
-<div id="history"></div>
+<div id="history">
+  <div id="historyHead">
+    <button id="copyAllBtn" type="button" title="Copiar la conversación" aria-label="Copiar la conversación">📋</button>
+  </div>
+  <div id="turns"></div>
+</div>
 <script src="vendor/fables-motor.iife.js"></script>
 <script src="scenes.js"></script>
 <script src="feed.js"></script>
 <script src="convo.js"></script>
 <script src="fuentes.js"></script>
 <script src="imagen.js"></script>
+<script src="entrada.js"></script>
 <script src="avatar.js"></script>
 <script>
 'use strict';
 const { renderScene, VOCAB } = window.FablesMotor;
 const { sceneFor, bootScenes, holdMs, secondsPerChar, BUBBLE_LINES, LINES, CAPTION_MAX } = window.KlScenes;
 const { createFeed } = window.KlFeed;
-const { createConvo } = window.KlConvo;
+const { createConvo, toMarkdown } = window.KlConvo;
 const { reducir, paraHistorial } = window.KlImagen;   // D56
 const { avatarOptions } = window.KlAvatar;
+const { teclaEnter, altoCaja } = window.KlEntrada;   // D63, D64
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12); el ancho depende del tamaño (D31)
 const LINGER_MS = 30000;              // LINGER_MS de upstream: tras la última escena, antes de dormir
@@ -106,6 +137,9 @@ const thumb = document.getElementById('thumb');
 const thumbImg = document.getElementById('thumbImg');
 const thumbX = document.getElementById('thumbX');
 const historyPanel = document.getElementById('history');
+const turns = document.getElementById('turns');
+const copyAllBtn = document.getElementById('copyAllBtn');
+const growBtn = document.getElementById('growBtn');
 const sizeBtn = document.getElementById('sizeBtn');
 const histBtn = document.getElementById('histBtn');
 const copyBtn = document.getElementById('copyBtn');
@@ -253,7 +287,9 @@ function sourcesLine(sources, consultadas) {
 
 function renderHistory() {
   if (!historyOpen) return;
-  historyPanel.replaceChildren(...convo.entries().map((e) => {
+  const entradas = convo.entries();
+  copyAllBtn.disabled = !entradas.length;   // D66
+  turns.replaceChildren(...entradas.map((e) => {
     const turn = document.createElement('div');
     turn.className = 'turn';
     const who = document.createElement('span');
@@ -265,7 +301,7 @@ function renderHistory() {
     if (e.sources) turn.append(sourcesLine(e.sources, e.consultadas));   // D60, D61
     return turn;
   }));
-  historyPanel.scrollTop = historyPanel.scrollHeight;
+  turns.scrollTop = turns.scrollHeight;
 }
 
 // Mostrar el panel solo después de que la ventana haya crecido, para que no salga aplastado; al cerrar, al revés.
@@ -273,7 +309,7 @@ async function toggleHistory() {
   if (!historyOpen) {
     await kl.panel(true);
     historyOpen = true;
-    historyPanel.style.display = 'block';
+    historyPanel.style.display = 'flex';
     renderHistory();
   } else {
     historyOpen = false;
@@ -339,13 +375,27 @@ kl.onEvent(({ type, data }) => {
 
 // --- copy / close -----------------------------------------------------------
 
+// La señal de copiado de los dos 📋: ✅ ~1,2 s.
+function copiado(btn) {
+  btn.classList.add('copied');
+  btn.textContent = '✅';
+  clearTimeout(btn._resetT);
+  btn._resetT = setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📋'; }, 1200);
+}
+
 copyBtn.addEventListener('click', (e) => {
   e.stopPropagation();
   kl.copy(reply);  // la respuesta entera, no el caption visible
-  copyBtn.classList.add('copied');
-  copyBtn.textContent = '✅';
-  clearTimeout(copyBtn._resetT);
-  copyBtn._resetT = setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.textContent = '📋'; }, 1200);
+  copiado(copyBtn);
+});
+
+// D66: lo que enseña el panel, en Markdown. `sv-SE` da la fecha local como AAAA-MM-DD.
+copyAllBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  const md = toMarkdown(convo.entries(), { fecha: new Date().toLocaleDateString('sv-SE') });
+  if (!md) return;
+  kl.copy(md);
+  copiado(copyAllBtn);
 });
 
 // D31: solo se cambia de tamaño con klothulhu parado y el panel cerrado.
@@ -355,6 +405,7 @@ function applyGeom(g) {
   col.style.width = w;
   stage.style.width = w; stage.style.height = h;
   sceneImg.style.width = w; sceneImg.style.height = h;
+  ajustarCaja();   // D63: cambia el ancho (y el alto de la caja ampliada)
 }
 
 async function requestSize(name) {
@@ -407,7 +458,7 @@ window.addEventListener('mousemove', (e) => {
     dragging = true; kl.dragStart();
   }
   if (!press) {
-    const overInput = (e.target === input || thumb.contains(e.target)) && input.classList.contains('on');   // la miniatura también (D56)
+    const overInput = (e.target === input || e.target === growBtn || thumb.contains(e.target)) && input.classList.contains('on');   // la miniatura también (D56) y el ⤢ (D63)
     setInteractive(overInput || onStrip(e.target));
   }
 });
@@ -426,8 +477,35 @@ function toggleInput(force) {
   const on = force ?? !input.classList.contains('on');
   input.classList.toggle('on', on);
   entry.classList.toggle('on', on);   // con la caja, su miniatura (D56)
-  if (on) input.focus(); else input.blur();
+  if (on) { ajustarCaja(); input.focus(); } else input.blur();
 }
+
+// --- la caja (D63): crece sola de 1 a 6 líneas; con ⤢ tapa la escena ---
+
+const ampliada = () => growBtn.getAttribute('aria-pressed') === 'true';
+
+function ajustarCaja() {
+  if (ampliada()) { input.style.height = `${STAGE_H * geom.zoom}px`; return; }   // alto fijo, con scroll
+  input.style.height = 'auto';
+  const css = getComputedStyle(input);
+  const alto = altoCaja({
+    scrollHeight: input.scrollHeight,
+    linea: parseFloat(css.lineHeight),
+    relleno: parseFloat(css.paddingTop) + parseFloat(css.paddingBottom),
+  });
+  input.style.height = `${alto + input.offsetHeight - input.clientHeight}px`;   // más el borde
+}
+
+function ampliar(on) {
+  growBtn.setAttribute('aria-pressed', String(on));
+  growBtn.title = on ? 'Reducir la caja' : 'Ampliar';
+  growBtn.setAttribute('aria-label', on ? 'Reducir la caja' : 'Ampliar la caja');
+  ajustarCaja();
+}
+
+input.addEventListener('input', ajustarCaja);
+growBtn.addEventListener('mousedown', (e) => e.preventDefault());   // el foco se queda en la caja
+growBtn.addEventListener('click', (e) => { e.stopPropagation(); ampliar(!ampliada()); });
 
 // --- imagen pendiente (D56): una sola; elegir otra sustituye a la anterior ---
 
@@ -438,6 +516,7 @@ function setPending(p) {
   pending = p;
   thumb.classList.toggle('has', Boolean(p));
   if (p) thumbImg.src = p.vista; else thumbImg.removeAttribute('src');
+  ajustarCaja();   // la miniatura le quita ancho
 }
 
 async function attach(file) {
@@ -475,11 +554,14 @@ input.addEventListener('paste', (e) => {
 
 input.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') toggleInput(false);
-  if (e.key === 'Enter' && (input.value.trim() || pending) && !awaiting && !reading) {
+  if (teclaEnter(e, 'escritorio') !== 'enviar') return;   // el salto de línea lo pone el textarea (D64)
+  e.preventDefault();
+  if ((input.value.trim() || pending) && !awaiting && !reading) {
     const image = pending ? { media_type: pending.media_type, data: pending.data } : null;
     ask(input.value.trim(), image);
     input.value = '';
     setPending(null);
+    ampliar(false);   // D63: vuelve a una línea y sin ampliar
     toggleInput(false);
   }
 });

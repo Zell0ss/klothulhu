@@ -28,6 +28,10 @@
     <button id="forgetBtn" type="button" title="Olvidar la conversación" aria-label="Olvidar la conversación">🗑</button>
     <button id="tokenBtn" type="button" title="Cambiar el token" aria-label="Cambiar el token">🔑</button>
   </div>
+  <!-- D66: la cabecera del historial (hueco para el resumen de H2). Fuera de #history, que se repinta entero. -->
+  <div id="historyHead">
+    <button id="copyAllBtn" type="button" title="Copiar la conversación" aria-label="Copiar la conversación">📋</button>
+  </div>
   <div id="history" aria-live="polite"></div>
   <div id="entry">
     <!-- D56: el 📷 va aquí y no en #bar: con él, la barra no cabe a 360 y 390 px y «Klothulhu» queda recortado (D51).
@@ -39,7 +43,8 @@
       <img id="thumbImg" alt="Imagen adjunta">
       <button id="thumbX" type="button" title="Quitar la imagen" aria-label="Quitar la imagen">✕</button>
     </div>
-    <input id="ask" maxlength="1000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false" enterkeyhint="send">
+    <textarea id="ask" rows="1" maxlength="4000" placeholder="Habla, mortal…" autocomplete="off" spellcheck="false" enterkeyhint="enter"></textarea>
+    <button id="growBtn" type="button" title="Ampliar" aria-label="Ampliar la caja" aria-pressed="false">⤢</button>
     <button id="sendBtn" type="button" title="Enviar" aria-label="Enviar">➤</button>
   </div>
 </div>
@@ -59,6 +64,7 @@
 <script src="/shared/convo.js"></script>
 <script src="/shared/fuentes.js"></script>
 <script src="/shared/imagen.js"></script>
+<script src="/shared/entrada.js"></script>
 <script src="/shared/avatar.js"></script>
 <script src="/shared/sse-client.js"></script>
 <script src="webcore.js"></script>
