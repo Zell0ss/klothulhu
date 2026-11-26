@@ -53,5 +53,10 @@
     return looks.includes(stored) ? stored : fallback;
   }
 
-  return { TOKEN_KEY, LOOK_KEY, webGeometry, webBoot, createTokenStore, pickLook };
+  // ¿El historial está enseñando el final? (D68). Con unos píxeles de margen: el zoom deja medios píxeles.
+  function estabaAlFinal({ scrollTop, scrollHeight, clientHeight }, margen = 3) {
+    return scrollHeight - scrollTop - clientHeight <= margen;
+  }
+
+  return { TOKEN_KEY, LOOK_KEY, webGeometry, webBoot, createTokenStore, pickLook, estabaAlFinal };
 });

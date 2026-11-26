@@ -18,7 +18,7 @@ const { createFeed } = window.KlFeed;
 const { createConvo, toMarkdown } = window.KlConvo;
 const { reducir, paraHistorial } = window.KlImagen;   // D56
 const { avatarOptions, AVATARS } = window.KlAvatar;
-const { webGeometry, webBoot, LOOK_KEY, pickLook } = window.KlWebCore;
+const { webGeometry, webBoot, LOOK_KEY, pickLook, estabaAlFinal } = window.KlWebCore;
 const { teclaEnter, altoCaja } = window.KlEntrada;   // D63, D64
 
 const STAGE_H = 128;                  // alto de la franja del motor (D12)
@@ -182,6 +182,11 @@ const convo = createConvo();
 let consultadas = false;   // D61: sin citas, lo que leyó (el rótulo cambia)
 let fuentes = [];        // D60: los enlaces que citó la respuesta en curso, ya filtrados (fuentes.js)
 
+// D68: ¿está el historial enseñando el final? Se anota al desplazarse y no al cambiar la caja: cuando se abre el
+// teclado, el historial ya ha encogido para cuando nos enteramos.
+let alFinal = true;
+historyPanel.addEventListener('scroll', () => { alFinal = estabaAlFinal(historyPanel); }, { passive: true });
+
 // D60: bajo la respuesta que buscó en la web, los dominios citados como enlaces (con `title` de tooltip).
 function sourcesLine(sources, consultadas) {
   const line = document.createElement('div');
@@ -216,6 +221,7 @@ function renderHistory() {
     return turn;
   }));
   historyPanel.scrollTop = historyPanel.scrollHeight;
+  alFinal = true;   // D68: si aún no hay nada que desplazar, no habrá evento `scroll` que lo diga
 }
 
 // --- copiar la conversación (D66) ---
@@ -406,7 +412,7 @@ forgetBtn.addEventListener('click', () => {
 
 const ampliada = () => growBtn.getAttribute('aria-pressed') === 'true';
 
-function ajustarCaja() {
+function medirCaja() {
   if (ampliada()) { input.style.height = ''; return; }   // manda la hoja de estilos (55dvh o lo que quepa), con scroll
   input.style.height = 'auto';
   const css = getComputedStyle(input);
@@ -416,6 +422,14 @@ function ajustarCaja() {
     relleno: parseFloat(css.paddingTop) + parseFloat(css.paddingBottom),
   });
   input.style.height = `${alto + input.offsetHeight - input.clientHeight}px`;   // más el borde
+}
+
+// D68: la caja le quita y le devuelve alto al historial. Si estaba al final, sigue al final; si se había subido a
+// leer, no se mueve (medir con `auto` agranda el historial un instante y podría arrastrarlo).
+function ajustarCaja() {
+  const antes = historyPanel.scrollTop;
+  medirCaja();
+  historyPanel.scrollTop = alFinal ? historyPanel.scrollHeight : antes;
 }
 
 function ampliar(on) {
