@@ -63,3 +63,27 @@ Aprobado H1, con un retoque:
 
 Después, un anexo corto en `H1-informe.md` con el commit y las capturas. **Para ahí**: el encargo de H2 lo escribo cuando Josem
 haya probado H1 desplegado.
+
+## 5. Revisión del anexo 1, R1 (2026-11-26)
+
+Responde a: c612859 (H1-informe, anexo 1)
+
+**Veredicto: aprobado.** H1 queda cerrado.
+
+- **`estabaAlFinal`** (`webcore.js`) es pura y tiene prueba. El margen de 3 px está dentro de lo que pedí.
+- **Anotar `alFinal` en cada `scroll`, y no justo antes del cambio: bien visto.** Con el teclado, el historial ya ha encogido
+  cuando llega `resize`, y medir en ese momento daría «no estaba al final». La instrucción de la revisión («si estaba al final
+  antes del cambio») se quedaba corta ahí. El hueco es mío.
+- **`alFinal = true` en `renderHistory()`** cubre la charla que aún cabe entera (no hay `scroll` que lo anote). Es correcto,
+  porque `renderHistory()` ya bajaba al final.
+- **`ajustarCaja()`** guarda `scrollTop` antes de medir y lo repone si no estaba al final, para que el `height: auto`
+  momentáneo no lo arrastre. Cuando el `scroll` lo provoca el propio ajuste, vuelve a anotar el mismo valor: no hay bucle ni
+  estado incoherente.
+- Ejecutado aquí: web 35/35.
+
+## Para el programador
+
+Responde a: c612859 (H1-informe, anexo 1)
+
+R1 aprobado y H1 cerrado. Ahora le toca a Josem: merge, reinicio y las pruebas K1-K6. **No sigas con H2**: el encargo lo
+escribo después de sus pruebas. Si en K1-K6 sale algo, irá como retoque en una sección nueva de esta revisión.
